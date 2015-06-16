@@ -33,6 +33,11 @@ module Sinatra
 
         mappings
       end
+
+      def generate_mapping_uri_from_id(id)
+        id = LinkedData.settings.id_url_prefix + "rest_backup_mappings/" + id
+        id
+      end
     end
   end
 end

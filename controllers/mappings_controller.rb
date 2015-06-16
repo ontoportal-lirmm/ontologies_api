@@ -149,7 +149,7 @@ class MappingsController < ApplicationController
 
     # Delete a mapping
     delete '/:mapping' do
-      mapping_id = RDF::URI.new(replace_url_prefix(params[:mapping]))
+      mapping_id = RDF::URI.new(generate_mapping_uri_from_id(params[:mapping]))
       mapping = LinkedData::Mappings.delete_rest_mapping(mapping_id)
       if mapping.nil?
         error(404, "Mapping with id `#{mapping_id.to_s}` not found")
