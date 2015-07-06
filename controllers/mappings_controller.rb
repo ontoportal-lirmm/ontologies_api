@@ -108,11 +108,11 @@ class MappingsController < ApplicationController
         if ontology_id.start_with? "ncbo:"
           # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
           mapping_process_name = "Interportal Mapping"
-          c = {:source => "ncbo", :id => class_id}
+          c = {:source => "ncbo", :ontology => ontology_id.gsub("ncbo:", ""), :id => class_id}
           classes << c
         elsif ontology_id == "ext"
           mapping_process_name = "External Mapping"
-          c = {:source => "ext", :id => class_id}
+          c = {:source => "ext", :ontology => "", :id => class_id}
           classes << c
         else
           o = ontology_id
