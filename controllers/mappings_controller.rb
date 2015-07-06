@@ -103,29 +103,41 @@ class MappingsController < ApplicationController
       error(400, "Input does not contain mapping relation") if !params[:relation]
       error(400, "Input does not contain user creator ID") if !params[:creator]
       classes = []
+      mapping_process_name = "REST Mapping"
       params[:classes].each do |class_id,ontology_id|
-        o = ontology_id
-        o =  o.start_with?("http://") ? ontology_id :
-                                        ontology_uri_from_acronym(ontology_id)
-        o = LinkedData::Models::Ontology.find(RDF::URI.new(o))
-                                        .include(submissions:
-                                       [:submissionId, :submissionStatus]).first
-        if o.nil?
-          error(400, "Ontology with ID `#{ontology_id}` not found")
+        if ontology_id.start_with? "ncbo:"
+          # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
+          mapping_process_name = "Interportal Mapping"
+          c = {:source => "ncbo", :id => class_id}
+          classes << c
+        elsif ontology_id == "ext"
+          mapping_process_name = "External Mapping"
+          c = {:source => "ext", :id => class_id}
+          classes << c
+        else
+          o = ontology_id
+          o =  o.start_with?("http://") ? ontology_id :
+                                          ontology_uri_from_acronym(ontology_id)
+          o = LinkedData::Models::Ontology.find(RDF::URI.new(o))
+                                          .include(submissions:
+                                         [:submissionId, :submissionStatus]).first
+          if o.nil?
+            error(400, "Ontology with ID `#{ontology_id}` not found")
+          end
+          submission = o.latest_submission
+          if submission.nil?
+            error(400,
+       "Ontology with id #{ontology_id} does not have parsed valid submission")
+          end
+          submission.bring(ontology: [:acronym])
+          c = LinkedData::Models::Class.find(RDF::URI.new(class_id))
+                                      .in(submission)
+                                      .first
+          if c.nil?
+            error(400, "Class ID `#{id}` not found in `#{submission.id.to_s}`")
+          end
+          classes << c
         end
-        submission = o.latest_submission
-        if submission.nil?
-          error(400,
-     "Ontology with id #{ontology_id} does not have parsed valid submission")
-        end
-        submission.bring(ontology: [:acronym])
-        c = LinkedData::Models::Class.find(RDF::URI.new(class_id))
-                                    .in(submission)
-                                    .first
-        if c.nil?
-          error(400, "Class ID `#{id}` not found in `#{submission.id.to_s}`")
-        end
-        classes << c
       end
       user_id = params[:creator].start_with?("http://") ?
                     params[:creator].split("/")[-1] : params[:creator]
@@ -134,8 +146,11 @@ class MappingsController < ApplicationController
       if user_creator.nil?
         error(400, "User with id `#{params[:creator]}` not found")
       end
+
       process = LinkedData::Models::MappingProcess.new(
-                    :creator => user_creator, :name => "REST Mapping")
+                    :creator => user_creator, :name => mapping_process_name)
+
+
       process.relation = RDF::URI.new(params[:relation])
       process.date = DateTime.now
       process_fields = [:source,:source_name, :comment]
