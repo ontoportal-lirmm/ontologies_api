@@ -61,26 +61,6 @@ GIT
       redis
 
 GIT
-  remote: git://github.com/ncbo/ontologies_linked_data.git
-  revision: 52f31bfb861a5ebbd9717ebedfd4f340c1bf819f
-  branch: master
-  specs:
-    ontologies_linked_data (0.0.1)
-      activesupport
-      bcrypt
-      goo
-      json
-      libxml-ruby
-      multi_json
-      ncbo_resource_index
-      oj
-      pony
-      rack
-      rack-test
-      rsolr
-      rubyzip
-
-GIT
   remote: git://github.com/ncbo/resource_index.git
   revision: a680c51507d68eb6f174e5c20b53c7637ab13d95
   specs:
@@ -110,6 +90,26 @@ GIT
   specs:
     rack-post-body-to-params (0.1.8)
       activesupport (>= 2.3)
+
+GIT
+  remote: git://github.com/sifrproject/ontologies_linked_data.git
+  revision: 52f31bfb861a5ebbd9717ebedfd4f340c1bf819f
+  branch: external_mappings
+  specs:
+    ontologies_linked_data (0.0.1)
+      activesupport
+      bcrypt
+      goo
+      json
+      libxml-ruby
+      multi_json
+      ncbo_resource_index
+      oj
+      pony
+      rack
+      rack-test
+      rsolr
+      rubyzip
 
 GIT
   remote: https://github.com/palexander/shotgun.git
