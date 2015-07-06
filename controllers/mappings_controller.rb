@@ -115,6 +115,7 @@ class MappingsController < ApplicationController
           c = {:source => "ext", :ontology => "", :id => class_id}
           classes << c
         else
+          mapping_process_name = "REST Mapping"
           o = ontology_id
           o =  o.start_with?("http://") ? ontology_id :
                                           ontology_uri_from_acronym(ontology_id)
