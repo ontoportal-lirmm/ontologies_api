@@ -103,17 +103,17 @@ class MappingsController < ApplicationController
       classes = []
       mapping_process_name = "REST Mapping"
       params[:classes].each do |class_id,ontology_id|
-        if ontology_id.start_with? "ncbo:"
+        if ontology_id.start_with? "ext:"
           # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
-          mapping_process_name = "Interportal Mapping"
-          c = {:source => "ncbo", :ontology => ontology_id.gsub("ncbo:", ""), :id => class_id}
-          classes << c
-        elsif ontology_id == "ext"
           mapping_process_name = "External Mapping"
-          c = {:source => "ext", :ontology => "", :id => class_id}
+          c = {:source => "ext", :ontology => CGI.escape(ontology_id.sub("ext:", "")), :id => class_id}
+          classes << c
+        elsif ontology_id.start_with? "ncbo:"
+          #TODO: if configContainingAllBioportalNamespace contains c[:source] ...
+          mapping_process_name = "Interportal Mapping"
+          c = {:source => "ncbo", :ontology => ontology_id.sub("ncbo:", ""), :id => class_id}
           classes << c
         else
-          mapping_process_name = "REST Mapping"
           o = ontology_id
           o =  o.start_with?("http://") ? ontology_id :
                                           ontology_uri_from_acronym(ontology_id)
