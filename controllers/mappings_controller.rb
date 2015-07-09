@@ -103,15 +103,16 @@ class MappingsController < ApplicationController
       classes = []
       mapping_process_name = "REST Mapping"
       params[:classes].each do |class_id,ontology_id|
+        interportal_prefix = ontology_id.split(":")[0]
         if ontology_id.start_with? "ext:"
           # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
           mapping_process_name = "External Mapping"
           c = {:source => "ext", :ontology => CGI.escape(ontology_id.sub("ext:", "")), :id => class_id}
           classes << c
-        elsif ontology_id.start_with? "ncbo:"
-          #TODO: if configContainingAllBioportalNamespace contains c[:source] ...
+        elsif LinkedData.settings.interportal_hash.has_key?(interportal_prefix)
+          #Check if the prefix is contained in the interportal hash o create a mapping to this bioportal
           mapping_process_name = "Interportal Mapping"
-          c = {:source => "ncbo", :ontology => ontology_id.sub("ncbo:", ""), :id => class_id}
+          c = {:source => interportal_prefix, :ontology => ontology_id.sub("#{interportal_prefix}:", ""), :id => class_id}
           classes << c
         else
           o = ontology_id
