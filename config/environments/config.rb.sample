@@ -16,10 +16,10 @@ begin
     config.enable_monitoring  = false
     config.cube_host          = "localhost"
 
-    # Used to define other bioportal API this API can be mapped to
-    # Example to map to ncbo bioportal : {"ncbo" => "http://data.bioontology.org"}
+    # Used to define other bioportal that can be mapped to
+    # Example to map to ncbo bioportal : {"ncbo" => {"api" => "http://data.bioontology.org", "ui" => "http://bioportal.bioontology.org"}
     # Then create the mapping using the following class in JSON : "http://purl.bioontology.org/ontology/MESH/C585345": "ncbo:MESH"
-    # Where "ncbo" is the namespace used as key in the interportal_hash
+    # Where "ncbo" is the key in the interportal_hash
     config.interportal_hash   = {}
 
     # Caches
