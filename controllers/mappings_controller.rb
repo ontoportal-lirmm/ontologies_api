@@ -106,11 +106,17 @@ class MappingsController < ApplicationController
         interportal_prefix = ontology_id.split(":")[0]
         if ontology_id.start_with? "ext:"
           # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
+          if mapping_process_name != "REST Mapping"
+            error(400, "Impossible to map 2 classes outside of BioPortal")
+          end
           mapping_process_name = "External Mapping"
           c = {:source => "ext", :ontology => CGI.escape(ontology_id.sub("ext:", "")), :id => class_id}
           classes << c
         elsif LinkedData.settings.interportal_hash.has_key?(interportal_prefix)
-          #Check if the prefix is contained in the interportal hash o create a mapping to this bioportal
+          #Check if the prefix is contained in the interportal hash to create a mapping to this bioportal
+          if mapping_process_name != "REST Mapping"
+            error(400, "Impossible to map 2 classes outside of BioPortal")
+          end
           mapping_process_name = "Interportal Mapping"
           c = {:source => interportal_prefix, :ontology => ontology_id.sub("#{interportal_prefix}:", ""), :id => class_id}
           classes << c
