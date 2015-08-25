@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_annotator.git
-  revision: fc15412de203f4578dd554145e49beb471ecf400
+  revision: 436b602441a414b69d45a28276cd48b0d6ef8a31
   branch: master
   specs:
     ncbo_annotator (0.0.1)
@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_cron.git
-  revision: d20b51219d2346508d6ae926a2a75fcc916bcdcc
+  revision: a17719169679357681d28d238820a3fcb73a84d3
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -43,7 +43,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: b9d9b284aba621c4e46ab805004627ad0c1959cd
+  revision: a4337025ffadd354a48f1a36126566fd1d1b67ca
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -220,6 +220,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (2.10.0)
     netrc (0.10.3)
+    newrelic_rpm (3.12.1.298)
     oj (2.12.11)
     pony (1.11)
       mail (>= 2.0)
@@ -343,6 +344,7 @@ DEPENDENCIES
   ncbo_ontology_recommender!
   ncbo_resolver!
   ncbo_resource_index!
+  newrelic_rpm
   oj (~> 2.0)
   ontologies_linked_data!
   pry
