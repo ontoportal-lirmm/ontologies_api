@@ -1,5 +1,7 @@
 class MappingsController < ApplicationController
 
+  LinkedData.settings.interportal_hash ||= {}
+
   # Get mappings for a class
   get '/ontologies/:ontology/classes/:cls/mappings' do
     ontology = ontology_from_acronym(@params[:ontology])
@@ -39,6 +41,9 @@ class MappingsController < ApplicationController
     # Display all mappings
     get do
       #ontologies = ontology_objects_from_params
+      if params[:ontologies].nil?
+        reply nil
+      end
       ontologies = params[:ontologies].split(",")
       if ontologies.length != 2
         error(400,
@@ -140,16 +145,33 @@ class MappingsController < ApplicationController
           # Just keep the source and the class URI if the mapping is external or interportal and change the mapping process name
           error(400, "Impossible to map 2 classes outside of BioPortal") if mapping_process_name != "REST Mapping"
           mapping_process_name = "External Mapping"
-          c = {:source => "ext", :ontology => CGI.escape(ontology_id.sub("ext:", "")), :id => class_id}
+          ontology_uri = ontology_id.sub("ext:", "")
+          begin
+            URI(ontology_uri)
+          rescue URI::InvalidURIError => e
+            error(400, "Ontology URI is not valid")
+          end
+          begin
+            URI(class_id)
+          rescue URI::InvalidURIError => e
+            error(400, "Class URI is not valid")
+          end
+          ontology_uri = CGI.escape(ontology_uri)
+          c = {:source => "ext", :ontology => ontology_uri, :id => class_id}
           classes << c
-        elsif !LinkedData.settings.interportal_hash.nil?
-          if LinkedData.settings.interportal_hash.has_key?(interportal_prefix)
+        elsif LinkedData.settings.interportal_hash.has_key?(interportal_prefix)
             #Check if the prefix is contained in the interportal hash to create a mapping to this bioportal
             error(400, "Impossible to map 2 classes outside of BioPortal") if mapping_process_name != "REST Mapping"
             mapping_process_name = "Interportal Mapping"
-            c = {:source => interportal_prefix, :ontology => ontology_id.sub("#{interportal_prefix}:", ""), :id => class_id}
+            begin
+              URI(class_id)
+            rescue URI::InvalidURIError => e
+              error(400, "Class URI is not valid")
+            end
+            ontology_acronym = ontology_id.sub("#{interportal_prefix}:", "")
+            error(400, "Interportal Acronym is not valid") if (ontology_acronym =~ /^[A-Za-z0-9-_]+$/).nil?
+            c = {:source => interportal_prefix, :ontology => ontology_acronym, :id => class_id}
             classes << c
-          end
         else
           o = ontology_id
           o =  o.start_with?("http://") ? ontology_id :
