@@ -136,7 +136,11 @@ class MappingsController < ApplicationController
       end
       process = LinkedData::Models::MappingProcess.new(
                     :creator => user_creator, :name => "REST Mapping")
-      process.relation = RDF::URI.new(params[:relation])
+      relations_array = []
+      params[:relation].each do |relation|
+        relations_array.push(RDF::URI.new(relation))
+      end
+      process.relation = relations_array
       process.date = DateTime.now
       process_fields = [:source,:source_name, :comment]
       process_fields.each do |att|
