@@ -140,8 +140,13 @@ class MappingsController < ApplicationController
       process = LinkedData::Models::MappingProcess.new(
                     :creator => user_creator, :name => "REST Mapping")
       relations_array = []
-      params[:relation].each do |relation|
-        relations_array.push(RDF::URI.new(relation))
+      if !params[:relation].kind_of?(Array)
+        # In case the user give only one relation without using an array
+        relations_array.push(RDF::URI.new(params[:relation]))
+      else
+        params[:relation].each do |relation|
+          relations_array.push(RDF::URI.new(relation))
+        end
       end
       process.relation = relations_array
       process.date = DateTime.now
