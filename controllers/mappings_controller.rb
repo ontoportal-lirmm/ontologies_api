@@ -42,7 +42,9 @@ class MappingsController < ApplicationController
     get do
       #ontologies = ontology_objects_from_params
       if params[:ontologies].nil?
-        reply nil
+        error(400,
+              "/mappings/ endpoint only supports filtering " +
+                  "on two ontologies using `?ontologies=ONT1,ONT2`")
       end
       ontologies = params[:ontologies].split(",")
       if ontologies.length != 2
