@@ -65,7 +65,7 @@ class MappingsController < ApplicationController
         elsif acr1.start_with?(LinkedData::Models::InterportalClass.base_url_param_str)
           sub1 = LinkedData::Models::InterportalClass.graph_uri(acr1.split(":")[-1]).to_s
         else
-          error(404, "Submission not found for ontology " + ont1.id.to_s)
+          error(404, "Submission not found for ontology #{acr1}")
         end
       else
         sub1 = ont1.latest_submission
@@ -85,7 +85,7 @@ class MappingsController < ApplicationController
       else
         sub2 = ont2.latest_submission
         if sub2.nil?
-          error(404, "Submission not found for ontology " + ont2.id.to_s)
+          error(404, "Submission not found for ontology #{acr2}")
         end
       end
       mappings = LinkedData::Mappings.mappings_ontologies(sub1,sub2,
