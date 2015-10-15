@@ -155,15 +155,11 @@ class MappingsController < ApplicationController
           error(400, "Impossible to map 2 classes outside of BioPortal") if mapping_process_name != "REST Mapping"
           mapping_process_name = "External Mapping"
           ontology_uri = ontology_id.sub("ext:", "")
-          begin
-            URI(ontology_uri)
-          rescue URI::InvalidURIError => e
-            error(400, "Ontology URI is not valid")
+          if !uri?(ontology_uri)
+            error(400, "Ontology URI '#{ontology_uri.to_s}' is not valid")
           end
-          begin
-            URI(class_id)
-          rescue URI::InvalidURIError => e
-            error(400, "Class URI is not valid")
+          if !uri?(class_id)
+            error(400, "Class URI '#{class_id.to_s}' is not valid")
           end
           ontology_uri = CGI.escape(ontology_uri)
           c = {:source => "ext", :ontology => ontology_uri, :id => class_id}
@@ -171,7 +167,7 @@ class MappingsController < ApplicationController
         elsif LinkedData.settings.interportal_hash.has_key?(interportal_prefix)
             #Check if the prefix is contained in the interportal hash to create a mapping to this bioportal
             error(400, "Impossible to map 2 classes outside of BioPortal") if mapping_process_name != "REST Mapping"
-            mapping_process_name = "Interportal Mapping"
+            mapping_process_name = "Interportal Mapping #{interportal_prefix}"
             ontology_acronym = ontology_id.sub("#{interportal_prefix}:", "")
             if validate_interportal_mapping(class_id, ontology_acronym, interportal_prefix)
               c = {:source => interportal_prefix, :ontology => ontology_acronym, :id => class_id}
@@ -221,6 +217,7 @@ class MappingsController < ApplicationController
           relations_array.push(RDF::URI.new(relation))
         end
       end
+      error(400, "Mapping already exists") if LinkedData::Mappings.check_mapping_exist(classes, relations_array)
       process.relation = relations_array
       process.date = DateTime.now
       process_fields = [:source,:source_name, :comment]
