@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/ncbo/goo.git
-  revision: 44c446f9440f9f7a1745488017e4251212728e57
+  revision: 83aeaacf627a319b090cbaff5882d8b633ccfd57
   branch: master
   specs:
     goo (0.0.2)
@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_annotator.git
-  revision: ff65845735682365bba09162b3068b751d357b80
+  revision: 8388aea15bf8684086d5645b937fea03387f8d85
   branch: master
   specs:
     ncbo_annotator (0.0.1)
@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: 3f6ad8fb62aa3aee5cee73ab26c06cc7c06fbecf
+  revision: 7a64217a98993415ea82347c30db79fe848bf0ae
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -86,8 +86,8 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_cron.git
-  revision: 8e52afc7b90db56ddd0f67947fc7c493270a495b
-  branch: lirmm_cron
+  revision: 1e68771283efc63a73d28b57d5dd1217101afef7
+  branch: sifr_cron
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -103,7 +103,7 @@ GIT
 GIT
   remote: git://github.com/sifrproject/ontologies_linked_data.git
   revision: a18ebcdfb2667d724c50228bb5e36c9f08f58fe1
-  branch: lirmm_linked_data
+  branch: sifr_linked_data
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
