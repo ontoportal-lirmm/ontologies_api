@@ -3,18 +3,15 @@ require 'ncbo_resource_index'
 class ResourceIndexController < ApplicationController
 
   if LinkedData.settings.enable_resource_index == false
-
+    # If resource index is disabled
     namespace "/resource_index" do
-
       get do
         reply(404, "Resource Index is not activated")
       end
-
     end
 
-
   else
-
+    # If resource index is enabled
     namespace "/resource_index" do
 
       get do
