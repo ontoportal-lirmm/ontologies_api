@@ -17,11 +17,11 @@ class ResourceIndexController < ApplicationController
       get do
         ri = "resource_index"
         links = {
-            resources: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources",
-            resource: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources/{resource_id}",
-            resource_documents: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources/{resource_id}/documents/{document_id}",
-            counts: "#{LinkedData.settings.rest_url_prefix}#{ri}/counts?classes[{ontology_id}]={class_id}",
-            search: "#{LinkedData.settings.rest_url_prefix}#{ri}/{resource_id}/search?classes[{ontology_id}]={class_id}"
+          resources: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources",
+          resource: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources/{resource_id}",
+          resource_documents: "#{LinkedData.settings.rest_url_prefix}#{ri}/resources/{resource_id}/documents/{document_id}",
+          counts: "#{LinkedData.settings.rest_url_prefix}#{ri}/counts?classes[{ontology_id}]={class_id}",
+          search: "#{LinkedData.settings.rest_url_prefix}#{ri}/{resource_id}/search?classes[{ontology_id}]={class_id}"
         }
         reply ({links: links})
       end
@@ -76,9 +76,6 @@ class ResourceIndexController < ApplicationController
         error 404, "No document with id #{params['document']} found" unless document
         reply document
       end
-
     end # namespace "/resource_index"
-
   end
-
 end # class ResourceIndexController
