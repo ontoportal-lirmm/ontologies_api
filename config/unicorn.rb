@@ -3,7 +3,7 @@ app_path = "/srv/ncbo/#{application}"
 working_directory "#{app_path}/current/"
 
 worker_processes 8
-timeout 180 
+timeout 300
 preload_app true
 user "ncbobp", "ncbobp"
 
