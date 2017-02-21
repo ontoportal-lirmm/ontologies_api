@@ -77,8 +77,8 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_cron.git
-  revision: f9dabf6d2174b31b56f307a449fb9e3d83b85e5c
-  branch: sifr
+  revision: 695fef47572b749b496683b9c08ebfb37c8f2b9e
+  branch: sifr_lemmatize
   specs:
     ncbo_cron (0.0.1)
       dante
