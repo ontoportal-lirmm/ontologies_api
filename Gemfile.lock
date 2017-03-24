@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_cron.git
-  revision: 80f8c81f791f4b0addb88bc82cab5f17e6f47d9b
+  revision: e29481e244c4a78ea2c8638f52b5784cd7213e7e
   branch: sifr
   specs:
     ncbo_cron (0.0.1)
@@ -93,7 +93,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ontologies_linked_data.git
-  revision: fc53fafa658b585a8b93ad992c1e0f9fd26d3d55
+  revision: c88dc0730f811910c41bec0048666e4808e70ebf
   branch: sifr
   specs:
     ontologies_linked_data (0.0.1)
@@ -371,4 +371,4 @@ DEPENDENCIES
   unicorn-worker-killer
 
 BUNDLED WITH
-   1.14.3
+   1.14.6
