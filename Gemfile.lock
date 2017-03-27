@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_cron.git
-  revision: 4bfdaefa60b58be814e8a207dd7392e2db60e11a
+  revision: b936cec070be8013a059a31fe13eed4048b135dd
   branch: sifr
   specs:
     ncbo_cron (0.0.1)
@@ -93,7 +93,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ontologies_linked_data.git
-  revision: a3c59d9e1c1279830268c85967781763acd3d98a
+  revision: 144d8e528970dfdc2a3569bb4f71f36e2b441636
   branch: sifr
   specs:
     ontologies_linked_data (0.0.1)
@@ -308,7 +308,7 @@ GEM
     tilt (2.0.2)
     typhoeus (1.0.2)
       ethon (>= 0.9.0)
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
