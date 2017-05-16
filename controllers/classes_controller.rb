@@ -6,14 +6,14 @@ class ClassesController < ApplicationController
     get do
       includes_param_check
       ont, submission = get_ontology_and_submission
+      cls_count = submission.class_count(LOGGER)
+      error 403, "Unable to display classes due to missing metrics for #{submission.id.to_s}. Please contact the administrator." if cls_count < 0
       check_last_modified_segment(LinkedData::Models::Class, [ont.acronym])
       page, size = page_params
       ld = LinkedData::Models::Class.goo_attrs_to_load(includes_param)
       unmapped = ld.delete(:properties)
-      page_data = LinkedData::Models::Class.in(submission)
-                                .include(ld)
-                                .page(page,size)
-                                .all
+      page_data = LinkedData::Models::Class.in(submission).include(ld).page(page,size).page_count_set(cls_count).all
+
       if unmapped && page_data.length > 0
         LinkedData::Models::Class.in(submission).models(page_data).include(:unmapped).all
       end
@@ -49,11 +49,11 @@ class ClassesController < ApplicationController
       end
 
       unmapped = ld.delete(:properties) ||
-        (includes_param && includes_param.include?(:all))
+          (includes_param && includes_param.include?(:all))
       cls = get_class(submission, ld)
       if unmapped
         LinkedData::Models::Class.in(submission)
-          .models([cls]).include(:unmapped).all
+            .models([cls]).include(:unmapped).all
       end
       if includes_param.include?(:hasChildren)
         cls.load_has_children
@@ -99,6 +99,10 @@ class ClassesController < ApplicationController
 
       #add the other roots to the response
       roots = submission.roots(extra_include=[:hasChildren])
+
+      # if this path' root does not get returned by the submission.roots call, manually add it
+      roots << root_tree unless roots.map { |r| r.id }.include?(root_tree.id)
+
       roots.each_index do |i|
         r = roots[i]
         if r.id == root_tree.id
@@ -111,7 +115,6 @@ class ClassesController < ApplicationController
       reply roots
     end
 
-
     # Get all ancestors for given class
     get '/:cls/ancestors' do
       includes_param_check
@@ -121,7 +124,7 @@ class ClassesController < ApplicationController
       error 404 if cls.nil?
       ancestors = cls.ancestors
       LinkedData::Models::Class.in(submission).models(ancestors)
-        .include(:prefLabel,:synonym,:definition).all
+          .include(:prefLabel,:synonym,:definition).all
       reply ancestors
     end
 
@@ -135,7 +138,7 @@ class ClassesController < ApplicationController
       error 404 if cls.nil?
       page_data = cls.retrieve_descendants(page,size)
       LinkedData::Models::Class.in(submission).models(page_data)
-        .include(:prefLabel,:synonym,:definition).all
+          .include(:prefLabel,:synonym,:definition).all
       reply page_data
     end
 
@@ -198,8 +201,8 @@ class ClassesController < ApplicationController
           error(422, "all not allowed in include parameter for this endpoint")
         end
         if includes_param.include?(:ancestors) || includes_param.include?(:descendants)
-            error(422,
-            "in this endpoint ancestors and descendants are not allowed in include parameter")
+          error(422,
+                "in this endpoint ancestors and descendants are not allowed in include parameter")
         end
       end
     end

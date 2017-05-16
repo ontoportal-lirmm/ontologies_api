@@ -4,6 +4,7 @@ require 'multi_json'
 module Sinatra
   module Helpers
     module SearchHelper
+      ALLOWED_INCLUDES_PARAMS = [:prefLabel, :synonym, :definition, :notation, :cui, :semanticType, :properties].freeze
       ONTOLOGIES_PARAM = "ontologies"
       ONTOLOGY_PARAM = "subtree_ontology"
       EXACT_MATCH_PARAM = "require_exact_match"
@@ -14,13 +15,19 @@ module Sinatra
       ALSO_SEARCH_OBSOLETE_PARAM = "also_search_obsolete"
       ALSO_SEARCH_PROVISIONAL_PARAM = "also_search_provisional"
       SUGGEST_PARAM = "suggest" # NCBO-932
-      ROOTS_ONLY_PARAM = "roots_only" # NCBO-1452
+      # the three below are for NCBO-1512, NCBO-1513, NCBO-1515
+      VALUESET_ROOTS_ONLY_PARAM = "valueset_roots_only"
+      VALUESET_EXCLUDE_ROOTS_PARAM = "valueset_exclude_roots"
+      ONTOLOGY_TYPES_PARAM = "ontology_types"
+
       ALSO_SEARCH_VIEWS = "also_search_views" # NCBO-961
       MATCH_HTML_PRE = "<em>"
       MATCH_HTML_POST = "</em>"
       MATCH_TYPE_PREFLABEL = "prefLabel"
       MATCH_TYPE_SYNONYM = "synonym"
       MATCH_TYPE_PROPERTY = "property"
+      MATCH_TYPE_LABEL = "label"
+      MATCH_TYPE_LABELGENERATED = "labelGenerated"
 
       MATCH_TYPE_MAP = {
           "resource_id" => "id",
@@ -33,6 +40,14 @@ module Sinatra
           "synonymSuggestEdge" => MATCH_TYPE_SYNONYM,
           "synonymSuggestNgram" => MATCH_TYPE_SYNONYM,
           MATCH_TYPE_PROPERTY => MATCH_TYPE_PROPERTY,
+          MATCH_TYPE_LABEL => MATCH_TYPE_LABEL,
+          "labelExact" => MATCH_TYPE_LABEL,
+          "labelSuggestEdge" => MATCH_TYPE_LABEL,
+          "labelSuggestNgram" => MATCH_TYPE_LABEL,
+          MATCH_TYPE_LABELGENERATED => MATCH_TYPE_LABELGENERATED,
+          "labelGeneratedExact" => MATCH_TYPE_LABELGENERATED,
+          "labellabelGeneratedSuggestEdge" => MATCH_TYPE_LABELGENERATED,
+          "labellabelGeneratedSuggestNgram" => MATCH_TYPE_LABELGENERATED,
           "notation" => "notation",
           "cui" => "cui",
           "semanticType" => "semanticType"
@@ -42,20 +57,22 @@ module Sinatra
       QUERYLESS_FIELDS_PARAMS = {
           "notation" => "notation",
           "cui" => "cui",
-          "semantic_types" => "semanticType"
+          "semantic_types" => "semanticType",
+          ONTOLOGY_TYPES_PARAM => "ontologyType",
+          ALSO_SEARCH_PROVISIONAL_PARAM => nil
       }
 
-      QUERYLESS_FIELDS_STR = QUERYLESS_FIELDS_PARAMS.values.join(" ")
+      QUERYLESS_FIELDS_STR = QUERYLESS_FIELDS_PARAMS.values.compact.join(" ")
 
-      def get_edismax_query(text, params={})
-        validate_params_solr_population()
+      def get_term_search_query(text, params={})
+        validate_params_solr_population(ALLOWED_INCLUDES_PARAMS)
 
         # raise error if text is empty AND (none of the QUERYLESS_FIELDS_PARAMS has been passed
         # OR either an exact match OR suggest search is being executed)
-        if (text.nil? || text.strip.empty?)
-          if (!QUERYLESS_FIELDS_PARAMS.keys.any? {|k| params.key?(k)} ||
+        if text.nil? || text.strip.empty?
+          if !QUERYLESS_FIELDS_PARAMS.keys.any? {|k| params.key?(k)} ||
               params[EXACT_MATCH_PARAM] == "true" ||
-              params[SUGGEST_PARAM] == "true")
+              params[SUGGEST_PARAM] == "true"
             raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>]"
           else
             text = ''
@@ -76,11 +93,11 @@ module Sinatra
 
         # text.gsub!(/\*+$/, '')
 
-        if (params[EXACT_MATCH_PARAM] == "true")
+        if params[EXACT_MATCH_PARAM] == "true"
           query = "\"#{solr_escape(text)}\""
           params["qf"] = "resource_id^20 prefLabelExact^10 synonymExact #{QUERYLESS_FIELDS_STR}"
           params["hl.fl"] = "resource_id prefLabelExact synonymExact #{QUERYLESS_FIELDS_STR}"
-        elsif (params[SUGGEST_PARAM] == "true" || text[-1] == '*')
+        elsif params[SUGGEST_PARAM] == "true" || text[-1] == '*'
           text.gsub!(/\*+$/, '')
           query = "\"#{solr_escape(text)}\""
           params["qt"] = "/suggest_ncbo"
@@ -88,7 +105,7 @@ module Sinatra
           params["pf"] = "prefLabelSuggest^50"
           params["hl.fl"] = "prefLabelExact prefLabelSuggestEdge synonymSuggestEdge prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
         else
-          if (text.strip.empty?)
+          if text.strip.empty?
             query = '*'
           else
             query = solr_escape(text)
@@ -100,17 +117,35 @@ module Sinatra
           params["hl.fl"] = "#{params["hl.fl"]} property" if params[INCLUDE_PROPERTIES_PARAM] == "true"
         end
 
-        acronyms = params["ontology_acronyms"] || restricted_ontologies_to_acronyms(params)
+        params["ontologies"] = params["ontology_acronyms"].join(",") if params["ontology_acronyms"] && !params["ontology_acronyms"].empty?
+        ontology_types = params[ONTOLOGY_TYPES_PARAM].nil? || params[ONTOLOGY_TYPES_PARAM].empty? ? [] : params[ONTOLOGY_TYPES_PARAM].split(",").map(&:strip)
+        onts = restricted_ontologies(params)
+
+        onts.select! { |o| ont_type = o.ontologyType.nil? ? "ONTOLOGY" : o.ontologyType.get_code_from_id; ontology_types.include?(ont_type) } unless ontology_types.empty?
+        acronyms = restricted_ontologies_to_acronyms(params, onts)
         filter_query = get_quoted_field_query_param(acronyms, "OR", "submissionAcronym")
 
         subtree_ids = get_subtree_ids(params)
         subtree_ids_clause = (subtree_ids.nil? || subtree_ids.empty?) ? "" : get_quoted_field_query_param(subtree_ids, "OR", "resource_id")
         filter_query = "#{filter_query} AND #{subtree_ids_clause}" unless (subtree_ids_clause.empty?)
 
-        # NCBO-1452 - restrict search results to only the top level classes in an ontology
-        root_ids = get_root_ids(params)
-        root_ids_clause = (root_ids.nil? || root_ids.empty?) ? "" : get_quoted_field_query_param(root_ids, "OR", "resource_id")
-        filter_query = "#{filter_query} AND #{root_ids_clause}" unless (root_ids_clause.empty?)
+        # ontology types are required for CEDAR project to differentiate between ontologies and value set collections
+        ontology_types_clause = ontology_types.empty? ? "" : get_quoted_field_query_param(ontology_types, "OR", "ontologyType")
+        filter_query = "#{filter_query} AND #{ontology_types_clause}" unless (ontology_types_clause.empty?)
+
+        # NCBO-1512, NCBO-1513, NCBO-1515 - CEDAR valueset requirements
+        valueset_roots_only = params[VALUESET_ROOTS_ONLY_PARAM] || "false"
+        valueset_exclude_roots = params[VALUESET_EXCLUDE_ROOTS_PARAM] || "false"
+
+        if valueset_roots_only == "true" || valueset_exclude_roots == "true"
+          valueset_root_ids = get_valueset_root_ids(onts, params)
+
+          unless valueset_root_ids.empty?
+            valueset_root_ids_clause = get_quoted_field_query_param(valueset_root_ids, "OR", "resource_id")
+            valueset_root_ids_clause = valueset_exclude_roots == "true" ? "AND -#{valueset_root_ids_clause}" : "AND #{valueset_root_ids_clause}"
+            filter_query = "#{filter_query} #{valueset_root_ids_clause}"
+          end
+        end
 
         filter_query << " AND definition:[* TO *]" if params[REQUIRE_DEFINITIONS_PARAM] == "true"
 
@@ -135,11 +170,11 @@ module Sinatra
         params["fq"] = filter_query
         params["q"] = query
 
-        return query
+        query
       end
 
-      def add_matched_fields(solr_response)
-        match = MATCH_TYPE_PREFLABEL
+      def add_matched_fields(solr_response, default_match)
+        match = default_match
         all_matches = {}
 
         solr_response["highlighting"].each do |key, matches|
@@ -184,25 +219,38 @@ module Sinatra
           cls = get_class(submission)
           subtree_ids = cls.descendants.map {|d| d.id.to_s}
           subtree_ids.push(subtree_root_id)
+
+          also_search_provisional = params[ALSO_SEARCH_PROVISIONAL_PARAM] || "false"
+
+          if also_search_provisional == "true"
+            prov_children = LinkedData::Models::ProvisionalClass.children(subtree_root_id)
+            prov_children_ids = prov_children.map {|c| c.id.to_s}
+            subtree_ids.concat prov_children_ids
+          end
         end
         subtree_ids
       end
 
-      def get_root_ids(params)
-        root_ids = nil
-        if params[ROOTS_ONLY_PARAM] === "true"
-          ontology = params[ONTOLOGY_PARAM].nil? ? nil : params[ONTOLOGY_PARAM].split(",")
+      def get_valueset_root_ids(onts, params)
+        root_ids = []
+        also_search_provisional = params[ALSO_SEARCH_PROVISIONAL_PARAM] || "false"
 
-          if (ontology.nil? || ontology.empty? || ontology.length > 1)
-            raise error 400, "A roots-only search requires a single ontology: /search?q=<query>&ontology=CNO&roots_only=true"
-          end
+        onts.each do |ont|
+          next if ont.nil? || ont.ontologyType.nil? || !ont.ontologyType.value_set_collection?
+          submission = ont.latest_submission(status: [:RDF])
+          next if submission.nil?
 
-          ont, submission = get_ontology_and_submission
-          params[ONTOLOGIES_PARAM] = params[ONTOLOGY_PARAM]
           roots = submission.roots
-          root_ids = roots.map {|d| d.id.to_s}
+          root_ids_ont = roots.map {|d| d.id.to_s}
+          root_ids << root_ids_ont
+
+          if also_search_provisional == "true"
+            prov_classes = LinkedData::Models::ProvisionalClass.where(ontology: ont).include(:subclassOf).all
+            prov_class_ids = prov_classes.map {|c| c.id.to_s if c.subclassOf.nil?}
+            root_ids.concat prov_class_ids
+          end
         end
-        root_ids
+        root_ids.flatten
       end
 
       def get_tokenized_standard_query(text, params)
@@ -279,7 +327,7 @@ module Sinatra
 
         # Use a fake phrase because we want a normal wildcard query, not the suggest.
         # Replace this with a wildcard below.
-        get_edismax_query("avoid_search_mangling", params)
+        get_term_search_query("avoid_search_mangling", params)
         params.delete("ontology_acronyms")
         params.delete("q")
         params["qf"] = "resource_id"
@@ -307,6 +355,12 @@ module Sinatra
         classes_hash
       end
 
+      def validate_params_solr_population(allowed_includes_params)
+        leftover = includes_param - allowed_includes_params
+        invalid = leftover.length > 0
+        message = "The `include` query string parameter cannot accept #{leftover.join(", ")}, please use only #{allowed_includes_params.join(", ")}"
+        error 400, message if invalid
+      end
     end
   end
 end

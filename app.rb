@@ -10,6 +10,11 @@ require 'sinatra/multi_route'
 # Other gem dependencies
 require 'oj'
 require 'multi_json'
+require 'cgi'
+require 'google/api_client'
+require 'google/api_client/auth/installed_app'
+
+# NCBO dependencies
 require 'ontologies_linked_data'
 require 'ncbo_annotator'
 require 'ncbo_cron'
@@ -28,6 +33,9 @@ require_relative 'lib/rack/slice_detection'
 
 # Logging setup
 require_relative "config/logging"
+
+# Inflector setup
+require_relative "config/inflections"
 
 # Protection settings
 set :protection, :except => :path_traversal

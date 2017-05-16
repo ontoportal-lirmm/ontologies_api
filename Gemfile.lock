@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/ncbo/goo.git
-  revision: 1437bdb40ef8c0d5babcdf288ecea0de26c4e0b3
+  revision: dd1b78375bae01cf8940354584cbde1e844d551b
   branch: master
   specs:
     goo (0.0.2)
@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_annotator.git
-  revision: c9257d633cb5be8b0bdd859f2ac4d095721dc590
+  revision: 0bd49b791dac8ab3fb30990f9a02e5c7ba632ac3
   branch: master
   specs:
     ncbo_annotator (0.0.1)
@@ -27,7 +27,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_cron.git
-  revision: cbb8fcbb60c16ae6a287925c2442573184f2d425
+  revision: d9294415c0ccbf0737716470cb64202c00312683
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -43,7 +43,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: 8ad36db5bb981362a63d01b9608af39b6bcc9dbe
+  revision: 50e9a524327b776bac9e34a30d824520feb5a813
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -62,7 +62,7 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/ontologies_linked_data.git
-  revision: 11f96d12d6a4a2056a7b93362ad92b56a4b21b23
+  revision: 36bdb6e16380c81acc6fdaa21bb46cb52b0400f8
   branch: master
   specs:
     ontologies_linked_data (0.0.1)
@@ -74,6 +74,7 @@ GIT
       multi_json
       ncbo_resource_index
       oj
+      omni_logger
       pony
       rack
       rack-test
@@ -82,10 +83,10 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/resource_index.git
-  revision: d43bd6a6c8b014ebd69eabeda843740b66560ebb
+  revision: 87f34062d236c87ea4ba7e0035a1e0726ac83abb
   specs:
     ncbo_resource_index (0.0.1)
-      elasticsearch
+      elasticsearch (= 2.0.0)
       mysql2
       pony
       ref
@@ -95,12 +96,12 @@ GIT
 
 GIT
   remote: git://github.com/ncbo/sparql-client.git
-  revision: 962e5af6615045a437d79fe27a7301df69d31012
+  revision: 135974d6ae369186f1fc9bdeed018e734a6d40b2
   branch: master
   specs:
     sparql-client (1.0.4.1)
       json_pure (>= 1.4)
-      net-http-persistent (>= 1.4)
+      net-http-persistent (= 2.9.4)
       rdf (>= 1.0)
 
 GIT
@@ -110,15 +111,6 @@ GIT
   specs:
     rack-post-body-to-params (0.1.8)
       activesupport (>= 2.3)
-
-GIT
-  remote: git://github.com/redis-store/redis-activesupport.git
-  revision: c107458a2a6b5e7019c7f9410a8eb5307f921e61
-  ref: c107458a2a6b5e7019c7f9410a8eb5307f921e61
-  specs:
-    redis-activesupport (4.1.2)
-      activesupport (~> 3)
-      redis-store (~> 1.1.0)
 
 GIT
   remote: https://github.com/palexander/shotgun.git
@@ -131,7 +123,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (3.2.22)
+    activesupport (3.2.22.5)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
     addressable (2.3.5)
@@ -139,43 +131,42 @@ GEM
       addressable (>= 2.3.1)
       extlib (>= 0.9.15)
       multi_json (>= 1.0.0)
-    backports (3.6.6)
-    bcrypt (3.1.10)
-    builder (3.2.2)
-    capistrano (3.1.0)
+    backports (3.8.0)
+    bcrypt (3.1.11)
+    builder (3.2.3)
+    capistrano (3.4.1)
       i18n
       rake (>= 10.0.0)
       sshkit (~> 1.3)
     capistrano-bundler (1.1.4)
       capistrano (~> 3.1)
       sshkit (~> 1.2)
-    capistrano-rbenv (2.0.3)
+    capistrano-rbenv (2.0.4)
       capistrano (~> 3.1)
       sshkit (~> 1.3)
-    coderay (1.1.0)
-    colorize (0.7.7)
+    coderay (1.1.1)
     cube-ruby (0.0.3)
     dante (0.2.0)
     docile (1.1.5)
-    domain_name (0.5.24)
+    domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
-    elasticsearch (1.0.13)
-      elasticsearch-api (= 1.0.13)
-      elasticsearch-transport (= 1.0.13)
-    elasticsearch-api (1.0.13)
+    elasticsearch (2.0.0)
+      elasticsearch-api (= 2.0.0)
+      elasticsearch-transport (= 2.0.0)
+    elasticsearch-api (2.0.0)
       multi_json
-    elasticsearch-transport (1.0.13)
+    elasticsearch-transport (2.0.0)
       faraday
       multi_json
-    ethon (0.8.0)
+    ethon (0.10.1)
       ffi (>= 1.3.0)
     extlib (0.9.16)
-    faraday (0.9.1)
+    faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
-    ffi (1.9.10)
-    get_process_mem (0.2.0)
-    google-api-client (0.8.6)
-      activesupport (>= 3.2)
+    ffi (1.9.18)
+    get_process_mem (0.2.1)
+    google-api-client (0.8.7)
+      activesupport (>= 3.2, < 5.0)
       addressable (~> 2.3)
       autoparse (~> 0.3)
       extlib (~> 0.9)
@@ -185,120 +176,131 @@ GEM
       multi_json (~> 1.10)
       retriable (~> 1.4)
       signet (~> 0.6)
-    googleauth (0.4.2)
+    googleauth (0.5.1)
       faraday (~> 0.9)
       jwt (~> 1.4)
       logging (~> 2.0)
       memoist (~> 0.12)
       multi_json (~> 1.11)
-      signet (~> 0.6)
-    haml (4.0.7)
+      os (~> 0.9)
+      signet (~> 0.7)
+    haml (5.0.0)
+      temple (>= 0.8.0)
       tilt
-    http-cookie (1.0.2)
+    http-cookie (1.0.3)
       domain_name (~> 0.5)
-    i18n (0.7.0)
-    json (1.8.3)
+    i18n (0.8.1)
+    json (2.1.0)
     json-schema (2.5.0)
       addressable (~> 2.3)
-    json_pure (1.8.2)
-    jwt (1.5.1)
-    kgio (2.10.0)
+    json_pure (2.1.0)
+    jwt (1.5.6)
+    kgio (2.11.0)
     launchy (2.4.3)
       addressable (~> 2.3)
-    libxml-ruby (2.8.0)
+    libxml-ruby (3.0.0)
     little-plugger (1.1.4)
-    logging (2.0.0)
+    logger (1.2.8)
+    logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
     macaddr (1.7.1)
       systemu (~> 2.6.2)
-    mail (2.6.3)
-      mime-types (>= 1.16, < 3)
-    memoist (0.12.0)
+    mail (2.6.5)
+      mime-types (>= 1.16, < 4)
+    memoist (0.15.0)
     method_source (0.8.2)
-    mime-types (2.6.2)
+    mime-types (3.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2016.0521)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.1)
-    mlanett-redis-lock (0.2.6)
+    mlanett-redis-lock (0.2.7)
       redis
-    multi_json (1.11.2)
+    multi_json (1.12.1)
     multipart-post (2.0.0)
-    mysql2 (0.4.1)
+    mysql2 (0.4.5)
     net-http-persistent (2.9.4)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
-    net-ssh (3.0.1)
-    netrc (0.10.3)
-    newrelic_rpm (3.13.2.302)
-    oj (2.12.14)
+    net-ssh (4.1.0)
+    netrc (0.11.0)
+    newrelic_rpm (4.1.0.333)
+    oj (2.18.5)
+    omni_logger (0.1.4)
+      logger
+    os (0.9.6)
     pony (1.11)
       mail (>= 2.0)
-    pry (0.10.2)
+    pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.6.4)
+    rack (1.6.5)
     rack-accept (0.4.5)
       rack (>= 0.4)
-    rack-attack (4.3.0)
+    rack-attack (5.0.1)
       rack
-    rack-cache (1.2)
+    rack-cache (1.7.0)
       rack (>= 0.4)
-    rack-cors (0.4.0)
-    rack-mini-profiler (0.9.7)
-      rack (>= 1.1.3)
+    rack-cors (0.4.1)
+    rack-mini-profiler (0.10.2)
+      rack (>= 1.2.0)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
-    rack-timeout (0.3.2)
-    rainbows (4.6.2)
+    rack-timeout (0.4.2)
+    rainbows (5.1.1)
       kgio (~> 2.5)
-      rack (~> 1.1)
-      unicorn (~> 4.8)
-    raindrops (0.15.0)
-    rake (10.4.2)
+      rack (>= 1.1, < 3.0)
+      unicorn (~> 5.1)
+    raindrops (0.18.0)
+    rake (10.5.0)
     rdf (1.0.8)
       addressable (>= 2.2)
-    recursive-open-struct (0.6.5)
-    redcarpet (3.3.3)
-    redis (3.2.1)
-    redis-rack-cache (1.2.2)
+    recursive-open-struct (1.0.4)
+    redcarpet (3.4.0)
+    redis (3.3.3)
+    redis-activesupport (4.1.5)
+      activesupport (>= 3, < 5)
+      redis-store (~> 1.1.0)
+    redis-rack-cache (1.2.4)
       rack-cache (~> 1.2)
       redis-store (~> 1.1.0)
-    redis-store (1.1.6)
+    redis-store (1.1.7)
       redis (>= 2.2)
     ref (2.0.0)
-    rest-client (1.8.0)
+    rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
-      mime-types (>= 1.16, < 3.0)
-      netrc (~> 0.7)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     retriable (1.4.1)
-    rsolr (1.0.12)
+    rsolr (2.0.0)
       builder (>= 2.1.2)
+      faraday
     ruby-xxHash (0.4.0.1)
-    rubyzip (1.1.7)
+    rubyzip (1.2.1)
     rufus-scheduler (2.0.24)
       tzinfo (>= 0.3.22)
-    sequel (4.27.0)
-    signet (0.6.1)
+    sequel (4.46.0)
+    signet (0.7.3)
       addressable (~> 2.3)
-      extlib (~> 0.9)
       faraday (~> 0.9)
       jwt (~> 1.5)
       multi_json (~> 1.10)
-    simplecov (0.10.0)
+    simplecov (0.14.1)
       docile (~> 1.1.0)
-      json (~> 1.8)
+      json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
-    sinatra (1.4.6)
-      rack (~> 1.4)
+    sinatra (1.4.8)
+      rack (~> 1.5)
       rack-protection (~> 1.4)
       tilt (>= 1.3, < 3)
     sinatra-advanced-routes (0.5.3)
       sinatra (~> 1.0)
-    sinatra-contrib (1.4.6)
+    sinatra-contrib (1.4.7)
       backports (>= 2.0)
       multi_json
       rack-protection
@@ -306,27 +308,26 @@ GEM
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
     slop (3.6.0)
-    sshkit (1.7.1)
-      colorize (>= 0.7.0)
+    sshkit (1.13.1)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     systemu (2.6.5)
-    thread_safe (0.3.5)
-    tilt (2.0.1)
-    typhoeus (0.8.0)
-      ethon (>= 0.8.0)
-    tzinfo (1.2.2)
+    temple (0.8.0)
+    thread_safe (0.3.6)
+    tilt (2.0.7)
+    typhoeus (1.1.2)
+      ethon (>= 0.9.0)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.1)
-    unicorn (4.9.0)
+    unf_ext (0.0.7.4)
+    unicorn (5.3.0)
       kgio (~> 2.6)
-      rack
       raindrops (~> 0.7)
-    unicorn-worker-killer (0.4.3)
+    unicorn-worker-killer (0.4.4)
       get_process_mem (~> 0)
-      unicorn (~> 4)
+      unicorn (>= 4, < 6)
     uuid (2.3.8)
       macaddr (~> 1.0)
 
@@ -335,11 +336,12 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (~> 3.0)
-  capistrano (~> 3.1.0)
+  capistrano (~> 3.4.0)
   capistrano-bundler (~> 1.1.1)
   capistrano-rbenv (~> 2.0.2)
   cube-ruby
   goo!
+  google-api-client (< 0.9)
   haml
   json-schema (~> 2.0)
   minitest (~> 4.0)
@@ -366,7 +368,7 @@ DEPENDENCIES
   rake (~> 10.0)
   redcarpet
   redis (~> 3.0)
-  redis-activesupport!
+  redis-activesupport
   redis-rack-cache (~> 1.0)
   shotgun!
   simplecov
@@ -376,3 +378,6 @@ DEPENDENCIES
   sparql-client!
   unicorn
   unicorn-worker-killer
+
+BUNDLED WITH
+   1.13.7

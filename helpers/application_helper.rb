@@ -46,13 +46,14 @@ module Sinatra
           if attr_cls == LinkedData::Models::Class
             # Try to find dependent Goo objects, but only if the naming is not done via Proc
             # If naming is done via Proc, then try to lookup the Goo object using a hash of attributes
-            value = value.is_a?(Array) ? value : [value]
+            is_arr = value.is_a?(Array)
+            value = is_arr ? value : [value]
             new_value = []
             value.each do |cls|
               sub = LinkedData::Models::Ontology.find(uri_as_needed(cls["ontology"])).first.latest_submission
               new_value << LinkedData::Models::Class.find(cls["class"]).in(sub).first
             end
-            value = new_value
+            value = is_arr ? new_value : new_value[0]
           elsif attr_cls && not_hash_or_array || (attr_cls && not_array_of_hashes)
             # Replace the initial value with the object, handling Arrays as appropriate
             if value.is_a?(Array)
@@ -221,8 +222,8 @@ module Sinatra
         return onts
       end
 
-      def restricted_ontologies_to_acronyms(params=nil)
-        onts = restricted_ontologies(params)
+      def restricted_ontologies_to_acronyms(params=nil, onts=nil)
+        onts ||= restricted_ontologies(params)
         return onts.map {|o| o.acronym }
       end
 
@@ -369,7 +370,7 @@ module Sinatra
         submissions.each do |sub|
           next if include_ready && !sub.ready?
           latest_submissions[sub.ontology.acronym] ||= sub
-          latest_submissions[sub.ontology.acronym] = sub if sub.submissionId > latest_submissions[sub.ontology.acronym].submissionId
+          latest_submissions[sub.ontology.acronym] = sub if sub.submissionId.to_i > latest_submissions[sub.ontology.acronym].submissionId.to_i
         end
         return latest_submissions
       end
@@ -378,7 +379,7 @@ module Sinatra
         ont = Ontology.find(@params["ontology"])
               .include(:acronym, :administeredBy, :acl, :viewingRestriction)
               .include(submissions:
-                       [:submissionId, submissionStatus: [:code], ontology: [:acronym]])
+                       [:submissionId, submissionStatus: [:code], ontology: [:acronym], metrics: :classes])
                 .first
         error(404, "Ontology '#{@params["ontology"]}' not found.") if ont.nil?
         check_access(ont) if LinkedData.settings.enable_security # Security check

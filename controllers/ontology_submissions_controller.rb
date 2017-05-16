@@ -23,7 +23,7 @@ class OntologySubmissionsController < ApplicationController
       error 422, "Ontology #{params["acronym"]} does not exist" unless ont
       check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
       ont.bring(submissions: OntologySubmission.goo_attrs_to_load(includes_param))
-      reply ont.submissions.sort {|a,b| b.submissionId <=> a.submissionId }  # descending order of submissionId
+      reply ont.submissions.sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i }  # descending order of submissionId
     end
 
     ##
@@ -142,6 +142,13 @@ class OntologySubmissionsController < ApplicationController
         send_file file_path, :filename => File.basename(file_path)
       else
         error 500, "Cannot read submission diff file: #{file_path}"
+      end
+    end
+
+    def delete_submissions(startId, endId)
+      startId.upto(endId + 1) do |i|
+        sub = LinkedData::Models::OntologySubmission.find(RDF::URI.new("http://data.bioontology.org/ontologies/MS/submissions/#{i}")).first
+        sub.delete if sub
       end
     end
 

@@ -1,10 +1,10 @@
-# config valid only for Capistrano 3.1
-lock '3.1.0'
+# config valid only for Capistrano 3.4+
+#lock '3.7.1'
 
 APP_PATH='/srv/ncbo'
 
 set :application, 'ontologies_api'
-set :repo_url, "git@github.com:ncbo/#{fetch(:application)}.git"
+set :repo_url, "git://github.com/ncbo/#{fetch(:application)}.git"
 
 set :deploy_via, :remote_cache
 
@@ -38,9 +38,9 @@ set :deploy_to, "#{APP_PATH}/#{fetch(:application)}"
 set :linked_dirs, %w{log vendor/bundle public/system}
 
 # rbenv
-set :rbenv_type, :system #or :user
-set :rbenv_ruby, '2.0.0-p353'
-set :rbenv_roles, :all # default value
+#set :rbenv_type, :system #or :user
+#set :rbenv_ruby, '2.0.0-p353'
+#set :rbenv_roles, :all # default value
 
 # do not use sudo
 set :use_sudo, false
@@ -90,5 +90,5 @@ namespace :deploy do
 #         execute :rake, 'cache:clear'
 #       end
 #    end
-  end
+#  end
 end
