@@ -4,10 +4,11 @@ class AnnotatorController < ApplicationController
     get "/recognizers" do
       reply [] unless Annotator.settings.enable_recognizer_param
       recognizers = []
-      ObjectSpace.each_object(Annotator::Models::NcboAnnotator.singleton_class).each do |c|
+      # Iterate over NcboAnnotator subclasses (like mgrep and unitex) to make sure the classes have been defined for the recognizers
+      Annotator::Models::NcboAnnotator.descendants.each do |c|
         next if c == Annotator::Models::NcboAnnotator
         recognizer = c.name.downcase.split("::").last
-        recognizers << recognizer if Annotator.settings.supported_recognizers.include?(recognizer.to_sym)
+        recognizers << recognizer if Annotator.settings.supported_recognizers.include?(recognizer)
       end
       reply recognizers
     end
