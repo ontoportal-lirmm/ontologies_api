@@ -50,7 +50,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/goo.git
-  revision: 5447337613a4320da4bc3d9a70255c3e83089021
+  revision: 9a2fe3146f660e5a9eae7e8cddc46fe059fc4253
   branch: lirmm
   specs:
     goo (0.0.2)
@@ -66,7 +66,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_annotator.git
-  revision: 2c92ae8caad691589affe6bd7ae7f35d5e0f9e24
+  revision: 99041589b7734817c8842dd68c33b10a0002614b
   branch: lirmm
   specs:
     ncbo_annotator (0.0.1)
@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ncbo_cron.git
-  revision: c5afab617409746085e79757cda313b02a792c0e
+  revision: 50f15f100721483d32bdf2e7e86d4b43879d8b1b
   branch: lirmm
   specs:
     ncbo_cron (0.0.1)
@@ -93,7 +93,7 @@ GIT
 
 GIT
   remote: git://github.com/sifrproject/ontologies_linked_data.git
-  revision: 1daa9f18589542b770a1685deb0927cf7fd61c27
+  revision: ec444a1f84414a6f5d408b74c93d6f1924650968
   branch: lirmm
   specs:
     ontologies_linked_data (0.0.1)
