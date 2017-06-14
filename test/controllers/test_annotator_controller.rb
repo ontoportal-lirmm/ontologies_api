@@ -285,7 +285,7 @@ eos
     assert rest_recognizers.length > 0
 
     default_rec_setting = Annotator.settings.supported_recognizers
-    Annotator.settings.supported_recognizers = recognizers
+    Annotator.settings.supported_recognizers = recognizers.map {|r| r.to_s}
 
     get "/annotator/recognizers"
     assert last_response.ok?
