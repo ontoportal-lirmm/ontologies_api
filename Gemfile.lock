@@ -43,7 +43,7 @@ GIT
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
   revision: 7dee2100dc26273158ddc6f4c4bbecd9d64d903d
-  branch: master
+  branch: ncbo_merge_master
   specs:
     goo (0.0.2)
       addressable (= 2.3.5)
@@ -59,7 +59,7 @@ GIT
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_annotator.git
   revision: 1f596c77ab44e8b2402450bb36869919572b7900
-  branch: master
+  branch: ncbo_merge_master
   specs:
     ncbo_annotator (0.0.1)
       goo
@@ -70,7 +70,7 @@ GIT
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
   revision: 2c0ac7ad75e922931506906cc554ed57503ce6c3
-  branch: master
+  branch: ncbo_merge_master
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -86,7 +86,7 @@ GIT
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
   revision: e333490c62c0d442979cfccf7baeaf463a8ce5b8
-  branch: master
+  branch: ncbo_merge_master
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
