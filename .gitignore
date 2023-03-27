@@ -71,3 +71,8 @@ test/data/ontology_files/catalog-v001.xml
 create_permissions.log
 
 ontologies_api.iml
+
+# IDE files
+.rubocop.yml
+.solargraph.yml
+.vscode
