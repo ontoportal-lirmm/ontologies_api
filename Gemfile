@@ -59,6 +59,11 @@ group :development do
   gem 'ed25519', '>= 1.2', '< 2.0', require: false
   gem 'pry'
   gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
+
+  gem 'solargraph'
+  gem 'solargraph-rails'
+  gem 'rufo', require: false
+  gem 'reek', require: false
 end
 
 group :profiling do
