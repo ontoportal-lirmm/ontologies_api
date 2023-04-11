@@ -1,4 +1,24 @@
 GIT
+  remote: https://github.com/BiodivPortal/ontologies_linked_data.git
+  revision: a422efd269cf70ea5befd713e770e0e4b36873d8
+  branch: master
+  specs:
+    ontologies_linked_data (0.0.1)
+      activesupport
+      bcrypt
+      goo
+      json
+      libxml-ruby
+      multi_json
+      oj
+      omni_logger
+      pony
+      rack
+      rack-test
+      rsolr
+      rubyzip
+
+GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
   revision: d0ac992c88bd417f2f2137ba62934c3c41b6db7c
   branch: master
@@ -11,8 +31,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: cda6aff2338e2a2831e4e7bf716abdf8fa8483d2
-  branch: development
+  revision: e03f6e8f209a3408a348290d76d129743c0f2fed
+  branch: master
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -50,26 +70,6 @@ GIT
       ontologies_linked_data
       redis
       rufus-scheduler (~> 2.0.24)
-
-GIT
-  remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: e9b708c40b2b22b935fb48d18ed19de8148fca35
-  branch: development
-  specs:
-    ontologies_linked_data (0.0.1)
-      activesupport
-      bcrypt
-      goo
-      json
-      libxml-ruby
-      multi_json
-      oj
-      omni_logger
-      pony
-      rack
-      rack-test
-      rsolr
-      rubyzip
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
