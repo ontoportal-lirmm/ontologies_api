@@ -5,6 +5,16 @@ module Sinatra
   module Helpers
     module IdentifierRequestsHelper
 
+      def find_all_identifier_requests
+        all_identifier_requests = IdentifierRequest.where({ requestType: "DOI_CREATE" })
+                                                   .or({ requestType: "DOI_UPDATE" })
+                                                   .include(IdentifierRequest.goo_attrs_to_load(includes_param))
+                                                   .include(requestedBy: [:username, :email],
+                                                            processedBy: [:username, :email],
+                                                            submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym]])
+                                                   .all
+        all_identifier_requests.select { |idReqObj| (!idReqObj.submission.nil? && idReqObj.requestId == params[:id]) }
+      end
       def find_identifier_request(id = params["requestId"])
         identifier_req_obj = IdentifierRequest.find(id).include(IdentifierRequest.goo_attrs_to_load(includes_param)).first
         error 404, "You must provide an existing `requestId`" unless identifier_req_obj
