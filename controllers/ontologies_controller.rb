@@ -29,25 +29,16 @@ class OntologiesController < ApplicationController
     ##
     # Ontology latest submission
     get "/:acronym/latest_submission" do
-      ont = Ontology.find(params["acronym"]).first
-      error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
-      include_status = params["include_status"]
-      ont.bring(:acronym, :submissions)
-      if include_status
-        latest = ont.latest_submission(status: include_status.to_sym)
-      else
-        latest = ont.latest_submission(status: :any)
-      end
-      check_last_modified(latest) if latest
+      latest = find_latest_submission
       # When asking to display all metadata, we are using bring_remaining which is more performant than including all metadata (remove this when the query to get metadata will be fixed)
       if latest
         if includes_param.first == :all
           # Bring what we need to display all attr of the submission
           latest.bring_remaining
-          latest.bring({:contact=>[:name, :email],
-                      :ontology=>[:acronym, :name, :administeredBy, :group, :viewingRestriction, :doNotUpdate, :flat,
-                                  :hasDomain, :summaryOnly, :acl, :viewOf, :ontologyType],
-                      :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym]})
+          latest.bring({ :contact => [:name, :email],
+                         :ontology => [:acronym, :name, :administeredBy, :group, :viewingRestriction, :doNotUpdate, :flat,
+                                       :hasDomain, :summaryOnly, :acl, :viewOf, :ontologyType],
+                         :submissionStatus => [:code], :hasOntologyLanguage => [:acronym] })
         else
           latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
         end
@@ -56,13 +47,34 @@ class OntologiesController < ApplicationController
       reply(latest || {})
     end
 
+    # Ontology latest submission datacite metadata as Json
+    get "/:acronym/latest_submission/datacite_metadata_json" do
+      latest = find_latest_submission
+      latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
+      if latest
+        getDataciteMetadataJSON(latest)
+      else
+        reply {}
+      end
+    end
+
+    get "/:acronym/latest_submission/ecoportal_metadata_json" do
+      latest = find_latest_submission
+      latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
+      if latest
+         getEcoportalMetadataJSON(latest)
+      else
+        reply {}
+      end
+    end
+
     ##
     # Update latest submission of an ontology
     REQUIRES_REPROCESS = ["prefLabelProperty", "definitionProperty", "synonymProperty", "authorProperty", "classType", "hierarchyProperty", "obsoleteProperty", "obsoleteParent"]
     patch '/:acronym/latest_submission' do
       ont = Ontology.find(params["acronym"]).first
       error 422, "You must provide an existing `acronym` to patch" if ont.nil?
-      
+
       submission = ont.latest_submission(status: :any)
 
       submission.bring(*OntologySubmission.attributes)
@@ -73,7 +85,7 @@ class OntologiesController < ApplicationController
         submission.save
         if (params.keys & REQUIRES_REPROCESS).length > 0 || request_has_file?
           cron = NcboCron::Models::OntologySubmissionParser.new
-          cron.queue_submission(submission, {all: true})
+          cron.queue_submission(submission, { all: true })
         end
       else
         error 422, submission.errors
@@ -132,7 +144,7 @@ class OntologiesController < ApplicationController
       restricted_download = LinkedData::OntologiesAPI.settings.restrict_download.include?(acronym)
       error 403, "License restrictions on download for #{acronym}" if restricted_download && !current_user.admin?
       error 403, "Ontology #{acronym} is not accessible to your user" if ont.restricted? && !ont.accessible?(current_user)
-      latest_submission = ont.latest_submission(status: :rdf)  # Should resolve to latest successfully loaded submission
+      latest_submission = ont.latest_submission(status: :rdf) # Should resolve to latest successfully loaded submission
       error 404, "There is no latest submission loaded for download" if latest_submission.nil?
       latest_submission.bring(:uploadFilePath)
 
@@ -157,6 +169,19 @@ class OntologiesController < ApplicationController
     end
 
     private
+    def find_latest_submission
+      ont = Ontology.find(params["acronym"]).first
+      error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
+      include_status = params["include_status"]
+      ont.bring(:acronym, :submissions)
+      if include_status
+        latest = ont.latest_submission(status: include_status.to_sym)
+      else
+        latest = ont.latest_submission(status: :any)
+      end
+      check_last_modified(latest) if latest
+      latest
+    end
 
     def create_ontology
       params ||= @params
@@ -178,7 +203,7 @@ class OntologiesController < ApplicationController
       end
 
       # ontology name must be unique
-      ont_names = Ontology.where.include(:name).to_a.map {|o| o.name }
+      ont_names = Ontology.where.include(:name).to_a.map { |o| o.name }
       if ont_names.include?(ont.name)
         error 409, "Ontology name is already in use by another ontology."
       end
@@ -213,7 +238,7 @@ class OntologiesController < ApplicationController
       else
         onts = Ontology.where.filter(Goo::Filter.new(:viewOf).unbound).include(Ontology.goo_attrs_to_load(includes_param)).to_a
       end
-      options = {also_include_views: allow_views, status: (params["include_status"] || "ANY")}
+      options = { also_include_views: allow_views, status: (params["include_status"] || "ANY") }
       subs = retrieve_latest_submissions(options)
       metrics_include = LinkedData::Models::Metric.goo_attrs_to_load(includes_param)
       LinkedData::Models::OntologySubmission.where.models(subs.values).include(metrics: metrics_include).all
@@ -229,7 +254,7 @@ class OntologiesController < ApplicationController
           metrics = nil
         end
 
-        resp << {ontology: ont, latest_submission: subs[ont.acronym], metrics: metrics}
+        resp << { ontology: ont, latest_submission: subs[ont.acronym], metrics: metrics }
       end
 
       reply resp

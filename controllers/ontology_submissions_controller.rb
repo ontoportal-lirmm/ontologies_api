@@ -57,13 +57,31 @@ class OntologySubmissionsController < ApplicationController
       reply ont_submission
     end
 
+    # Ontology a submission datacite metadata as Json
+    get "/:ontology_submission_id/datacite_metadata_json" do
+      begin
+        # LOGGER.debug("ONTOLOGIES_API - ontology_submissions_controller.rb - datacite_metadata_json")
+        ont = Ontology.find(params["acronym"]).include(:acronym).first
+        check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
+        ont.bring(:submissions)
+        ont_submission = ont.submission(params["ontology_submission_id"])
+        error 404, "`submissionId` not found" if ont_submission.nil?
+        #ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+        ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+        getDataciteMetadataJSON(ont_submission)
+      rescue => e
+        LOGGER.debug("ONTOLOGIES_API - ontology_submissions_controller.rb - datacite_metadata_json - ECCEZIONE : #{e.message}\n#{e.backtrace.join("\n")}")
+        raise e
+      end
+    end
+
     ##
     # Update an existing submission of an ontology
     REQUIRES_REPROCESS = ["prefLabelProperty", "definitionProperty", "synonymProperty", "authorProperty", "classType", "hierarchyProperty", "obsoleteProperty", "obsoleteParent"]
     patch '/:ontology_submission_id' do
       ont = Ontology.find(params["acronym"]).first
       error 422, "You must provide an existing `acronym` to patch" if ont.nil?
-
+      
       submission = ont.submission(params[:ontology_submission_id])
       error 422, "You must provide an existing `submissionId` to patch" if submission.nil?
 
