@@ -1,32 +1,25 @@
 class CreatorsController < ApplicationController
 
-  namespace "/creators" do
-    get do
-      check_last_modified_collection(LinkedData::Models::Creator)
-      reply Creator.where.include(Creator.goo_attrs_to_load(includes_param)).all
-    end
+  # Define an array of namespace names
+  namespaces = {
+    creators: LinkedData::Models::Creator,
+    affiliations: LinkedData::Models::Affiliation,
+    contacts: LinkedData::Models::Contact
+  }
 
-    get "/:id" do
-      creator = Creator.find(params[:id]).include(Creator.goo_attrs_to_load(includes_param)).first
-      error 404, "Creator not found" if creator.nil?
-      reply creator
-    end
-  end
+  # Create dynamic namespaces from the array
+  namespaces.each do |ns, model|
+    namespace "/#{ns}" do
+      get do
+        check_last_modified_collection(model)
+        reply model.where.include(model.goo_attrs_to_load(includes_param)).all
+      end
 
-  namespace "/affiliations" do
-
-    ##
-    # Display all Affiliations
-    get do
-      check_last_modified_collection(LinkedData::Models::Affiliation)
-      affiliations = Affiliation.where.include(Affiliation.goo_attrs_to_load(includes_param)).all
-      reply affiliations
-    end
-
-    get "/:id" do
-      affiliation = Affiliation.find(params[:id]).include(Affiliation.goo_attrs_to_load(includes_param)).first
-      error 404, "Affiliation not found" if creator.nil?
-      reply affiliation
+      get "/:id" do
+        creator = model.find(params[:id]).include(model.goo_attrs_to_load(includes_param)).first
+        error 404, "#{ns.to_s[-1]} not found" if creator.nil?
+        reply creator
+      end
     end
   end
 end
