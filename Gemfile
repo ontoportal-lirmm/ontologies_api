@@ -38,22 +38,25 @@ gem 'unicorn'
 gem 'unicorn-worker-killer'
 
 # Templating
-gem 'haml'
+gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
 gem 'redcarpet'
 
-# NCBO
-gem 'goo', github: 'ncbo/goo', branch: 'master'
-gem 'ncbo_annotator', github: 'ncbo/ncbo_annotator', branch: 'master'
-gem 'ncbo_cron', github: 'ncbo/ncbo_cron', branch: 'master'
-gem 'ncbo_ontology_recommender', github: 'ncbo/ncbo_ontology_recommender', branch: 'master'
-gem 'ontologies_linked_data', github: 'ncbo/ontologies_linked_data', branch: 'master'
-gem 'sparql-client', github: 'ncbo/sparql-client', branch: 'master'
+# NCBO gems (can be from a local dev path or from rubygems/git)
+gem 'goo', git: 'https://github.com/ontoportal-lirmm/goo.git', branch: 'development'
+gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'master'
+gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
+gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
+gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
+gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
 
 group :development do
+  # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
+  gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0', require: false
   gem 'capistrano', '~> 3', require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano-locally', require: false
   gem 'capistrano-rbenv', require: false
+  gem 'ed25519', '>= 1.2', '< 2.0', require: false
   gem 'pry'
   gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
 end

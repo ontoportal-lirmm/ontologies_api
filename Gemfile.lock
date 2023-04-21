@@ -1,7 +1,18 @@
 GIT
-  remote: https://github.com/ncbo/goo.git
-  revision: 562826ba21f7da641159071531375776a1414207
+  remote: https://github.com/ncbo/ncbo_ontology_recommender.git
+  revision: d0ac992c88bd417f2f2137ba62934c3c41b6db7c
   branch: master
+  specs:
+    ncbo_ontology_recommender (0.0.1)
+      goo
+      ncbo_annotator
+      ontologies_linked_data
+      redis
+
+GIT
+  remote: https://github.com/ontoportal-lirmm/goo.git
+  revision: cda6aff2338e2a2831e4e7bf716abdf8fa8483d2
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -14,8 +25,8 @@ GIT
       uuid
 
 GIT
-  remote: https://github.com/ncbo/ncbo_annotator.git
-  revision: 71d41e3afb35dafe29abfb6d9becaadc725bad36
+  remote: https://github.com/ontoportal-lirmm/ncbo_annotator.git
+  revision: 57204d8e54432ba660af4c49806e2a3019a23fa2
   branch: master
   specs:
     ncbo_annotator (0.0.1)
@@ -25,8 +36,8 @@ GIT
       ruby-xxHash
 
 GIT
-  remote: https://github.com/ncbo/ncbo_cron.git
-  revision: 5683c127113cf8eee68445413443ba3e164fbed7
+  remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
+  revision: 8db3481116c57d2a21dc8f32bcd1695d95442280
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -41,20 +52,9 @@ GIT
       rufus-scheduler (~> 2.0.24)
 
 GIT
-  remote: https://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: 6010ff60b99dc1282822b8a1fb59bd59f453755f
-  branch: master
-  specs:
-    ncbo_ontology_recommender (0.0.1)
-      goo
-      ncbo_annotator
-      ontologies_linked_data
-      redis
-
-GIT
-  remote: https://github.com/ncbo/ontologies_linked_data.git
-  revision: 8196bf34b45c75f8104bb76dfcba1db0f2c048e4
-  branch: master
+  remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
+  revision: e9b708c40b2b22b935fb48d18ed19de8148fca35
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -72,8 +72,8 @@ GIT
       rubyzip
 
 GIT
-  remote: https://github.com/ncbo/sparql-client.git
-  revision: fb4a89b420f8eb6dda5190a126b6c62e32c4c0c9
+  remote: https://github.com/ontoportal-lirmm/sparql-client.git
+  revision: aed51baf4106fd0f3d0e3f9238f0aad9406aa3f0
   branch: master
   specs:
     sparql-client (1.0.1)
@@ -103,12 +103,13 @@ GEM
     activesupport (3.2.22.5)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
-    addressable (2.8.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.8.1)
+      public_suffix (>= 2.0.2, < 6.0)
     airbrussh (1.4.1)
       sshkit (>= 1.6.1, != 1.7.0)
     backports (3.23.0)
     bcrypt (3.1.18)
+    bcrypt_pbkdf (1.1.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
     capistrano (3.17.1)
@@ -124,14 +125,16 @@ GEM
       capistrano (~> 3.1)
       sshkit (~> 1.3)
     coderay (1.1.3)
-    concurrent-ruby (1.1.10)
+    concurrent-ruby (1.2.0)
     cube-ruby (0.0.3)
     dante (0.2.0)
+    date (3.3.3)
     declarative (0.0.20)
     docile (1.4.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
-    faraday (1.10.1)
+    ed25519 (1.3.0)
+    faraday (1.10.3)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -157,9 +160,9 @@ GEM
     ffi (1.15.5)
     get_process_mem (0.2.7)
       ffi (~> 1.0)
-    google-apis-analytics_v3 (0.10.0)
-      google-apis-core (>= 0.7, < 2.a)
-    google-apis-core (0.7.0)
+    google-apis-analytics_v3 (0.12.0)
+      google-apis-core (>= 0.9.1, < 2.a)
+    google-apis-core (0.11.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
       httpclient (>= 2.8.1, < 3.a)
@@ -168,7 +171,7 @@ GEM
       retriable (>= 2.0, < 4.a)
       rexml
       webrick
-    googleauth (1.2.0)
+    googleauth (1.3.0)
       faraday (>= 0.17.3, < 3.a)
       jwt (>= 1.4, < 3.0)
       memoist (~> 0.16)
@@ -184,18 +187,21 @@ GEM
     httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.6.2)
+    json (2.6.3)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_pure (2.6.2)
-    jwt (2.4.1)
+    json_pure (2.6.3)
+    jwt (2.7.0)
     kgio (2.11.4)
-    libxml-ruby (3.2.3)
-    logger (1.5.1)
+    libxml-ruby (4.0.0)
+    logger (1.5.3)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
-    mail (2.7.1)
+    mail (2.8.1)
       mini_mime (>= 0.1.1)
+      net-imap
+      net-pop
+      net-smtp
     memoist (0.16.2)
     method_source (1.0.0)
     mime-types (3.4.1)
@@ -207,13 +213,22 @@ GEM
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.15.0)
-    multipart-post (2.2.3)
+    multipart-post (2.3.0)
     net-http-persistent (2.9.4)
-    net-scp (1.2.1)
-      net-ssh (>= 2.6.5)
+    net-imap (0.3.4)
+      date
+      net-protocol
+    net-pop (0.1.2)
+      net-protocol
+    net-protocol (0.2.1)
+      timeout
+    net-scp (4.0.0)
+      net-ssh (>= 2.6.5, < 8.0.0)
+    net-smtp (0.3.3)
+      net-protocol
     net-ssh (7.0.1)
     netrc (0.11.0)
-    newrelic_rpm (8.9.0)
+    newrelic_rpm (8.16.0)
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
@@ -221,10 +236,10 @@ GEM
     parseconfig (1.1.2)
     pony (1.13.1)
       mail (>= 2.0)
-    pry (0.14.1)
+    pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (4.0.7)
+    public_suffix (5.0.1)
     rack (1.6.13)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -245,8 +260,8 @@ GEM
     rake (10.5.0)
     rdf (1.0.8)
       addressable (>= 2.2)
-    redcarpet (3.5.1)
-    redis (4.7.1)
+    redcarpet (3.6.0)
+    redis (4.8.1)
     redis-activesupport (5.3.0)
       activesupport (>= 3, < 8)
       redis-store (>= 1.3, < 2)
@@ -279,7 +294,7 @@ GEM
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 3.0)
       multi_json (~> 1.10)
-    simplecov (0.21.2)
+    simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
@@ -301,14 +316,15 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
-    sshkit (1.21.2)
+    sshkit (1.21.3)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     systemu (2.6.5)
-    temple (0.8.2)
+    temple (0.10.0)
     tilt (2.0.11)
+    timeout (0.3.2)
     trailblazer-option (0.1.2)
-    tzinfo (2.0.5)
+    tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
     unf (0.1.4)
@@ -322,23 +338,25 @@ GEM
       unicorn (>= 4, < 7)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webrick (1.7.0)
+    webrick (1.8.1)
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
   activesupport (~> 3.0)
+  bcrypt_pbkdf (>= 1.0, < 2.0)
   bigdecimal (= 1.4.2)
   capistrano (~> 3)
   capistrano-bundler
   capistrano-locally
   capistrano-rbenv
   cube-ruby
+  ed25519 (>= 1.2, < 2.0)
   faraday (~> 1.9)
   ffi
   goo!
-  haml
+  haml (~> 5.2.2)
   json-schema (~> 2.0)
   minitest (~> 4.0)
   minitest-stub_any_instance
@@ -376,4 +394,4 @@ DEPENDENCIES
   unicorn-worker-killer
 
 BUNDLED WITH
-   2.3.20
+   2.3.23

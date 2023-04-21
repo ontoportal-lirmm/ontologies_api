@@ -22,7 +22,18 @@ class OntologySubmissionsController < ApplicationController
       ont = Ontology.find(params["acronym"]).include(:acronym).first
       error 422, "Ontology #{params["acronym"]} does not exist" unless ont
       check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
-      ont.bring(submissions: OntologySubmission.goo_attrs_to_load(includes_param))
+      if includes_param.first == :all
+        # When asking to display all metadata, we are using bring_remaining which is more performant than including all metadata (remove this when the query to get metadata will be fixed)
+        ont.bring(submissions: [:released, :creationDate, :status, :submissionId,
+                                {:contact=>[:name, :email], :ontology=>[:administeredBy, :acronym, :name, :summaryOnly, :ontologyType, :viewingRestriction, :acl, :group, :hasDomain, :views, :viewOf, :flat],
+                                 :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym]}, :submissionStatus])
+
+        ont.submissions.each do |sub|
+          sub.bring_remaining
+        end
+      else
+        ont.bring(submissions: OntologySubmission.goo_attrs_to_load(includes_param))
+      end
       reply ont.submissions.sort {|a,b| b.submissionId.to_i <=> a.submissionId.to_i }  # descending order of submissionId
     end
 
@@ -93,15 +104,16 @@ class OntologySubmissionsController < ApplicationController
       submission_attributes = [:submissionId, :submissionStatus, :uploadFilePath, :pullLocation]
       included = Ontology.goo_attrs_to_load.concat([submissions: submission_attributes])
       ont = Ontology.find(acronym).include(included).first
-      ont.bring(:viewingRestriction) if ont.bring?(:viewingRestriction)
       error 422, "You must provide an existing `acronym` to download" if ont.nil?
+      ont.bring(:viewingRestriction) if ont.bring?(:viewingRestriction)
       check_access(ont)
       ont_restrict_downloads = LinkedData::OntologiesAPI.settings.restrict_download
       error 403, "License restrictions on download for #{acronym}" if ont_restrict_downloads.include? acronym
       submission = ont.submission(params['ontology_submission_id'].to_i)
       error 404, "There is no such submission for download" if submission.nil?
       file_path = submission.uploadFilePath
-
+      # handle edge case where uploadFilePath is not set
+      error 422, "Upload File Path is not set for this submission" if file_path.to_s.empty?
       download_format = params["download_format"].to_s.downcase
       allowed_formats = ["csv", "rdf"]
       if download_format.empty?

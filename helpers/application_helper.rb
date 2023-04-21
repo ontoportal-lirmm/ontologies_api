@@ -21,15 +21,16 @@ module Sinatra
 
         # Make sure everything is loaded
         if obj.is_a?(LinkedData::Models::Base)
-          obj.bring_remaining unless !obj.exist?
+          obj.bring_remaining if obj.exist?
+          no_writable_attributes = obj.class.attributes(:all) - obj.class.attributes
+          params = params.reject  {|k,v| no_writable_attributes.include? k.to_sym}
         end
-
         params.each do |attribute, value|
           next if value.nil?
 
-          # Deal with empty strings
+          # Deal with empty strings for String and URI
           empty_string = value.is_a?(String) && value.empty?
-          old_string_value_exists = obj.respond_to?(attribute) && obj.send(attribute).is_a?(String)
+          old_string_value_exists = obj.respond_to?(attribute) && (obj.send(attribute).is_a?(String) || obj.send(attribute).is_a?(RDF::URI))
           if old_string_value_exists && empty_string
             value = nil
           elsif empty_string
@@ -83,9 +84,15 @@ module Sinatra
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:date_time)
             # TODO: Remove this awful hack when obj.class.model_settings[:range][attribute] contains DateTime class
             value = DateTime.parse(value)
+          elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:uri) && attribute_settings[:enforce].include?(:list)
+            # in case its a list of URI, convert all value to IRI
+            value = value.map { |v| RDF::IRI.new(v) }
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:uri)
             # TODO: Remove this awful hack when obj.class.model_settings[:range][attribute] contains RDF::IRI class
-            value = RDF::IRI.new(value)
+            if !value.nil?
+              # If pass an empty string for an URI : set it as nil.
+              value = RDF::IRI.new(value)
+            end
           end
 
           # Don't populate naming attributes if they exist
@@ -344,8 +351,7 @@ module Sinatra
       # If the setting is enabled, replace the URL prefix with the proper id prefix
       # EX: http://stagedata.bioontology.org/ontologies/BRO would become http://data.bioontology.org/ontologies/BRO
       def replace_url_prefix(id)
-        id = id.sub(LinkedData.settings.rest_url_prefix, LinkedData.settings.id_url_prefix) if LinkedData.settings.replace_url_prefix && id.start_with?(LinkedData.settings.rest_url_prefix)
-        id
+        LinkedData::Models::Base.replace_url_prefix_to_id(id)
       end
 
       def retrieve_latest_submissions(options = {})
@@ -355,6 +361,7 @@ module Sinatra
         any = true if status.eql?("ANY")
         include_views = options[:also_include_views] || false
         includes = OntologySubmission.goo_attrs_to_load(includes_param)
+
         includes << :submissionStatus unless includes.include?(:submissionStatus)
         if any
           submissions_query = OntologySubmission.where
@@ -363,17 +370,27 @@ module Sinatra
         end
 
         submissions_query = submissions_query.filter(Goo::Filter.new(ontology: [:viewOf]).unbound) unless include_views
+        submissions_query = submissions_query.filter(filter) if filter?
+        # When asking to display all metadata, we are using bring_remaining on each submission. Slower but best way to retrieve all attrs
+        if includes_param.first == :all
+          includes = [:submissionId, {:contact=>[:name, :email], :ontology=>[:administeredBy, :acronym, :name, :summaryOnly, :ontologyType, :viewingRestriction, :acl,
+                                       :group, :hasDomain, :views, :viewOf, :flat], :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym]}, :submissionStatus]
+        end
         submissions = submissions_query.include(includes).to_a
-
+        
         # Figure out latest parsed submissions using all submissions
         latest_submissions = {}
         submissions.each do |sub|
+          # To retrieve all metadata, but slow when a lot of ontologies
+          if includes_param.first == :all
+            sub.bring_remaining
+          end
           next if include_ready && !sub.ready?
           next if sub.ontology.nil?
           latest_submissions[sub.ontology.acronym] ||= sub
           latest_submissions[sub.ontology.acronym] = sub if sub.submissionId.to_i > latest_submissions[sub.ontology.acronym].submissionId.to_i
         end
-        return latest_submissions
+        latest_submissions
       end
 
       def get_ontology_and_submission
@@ -421,6 +438,23 @@ module Sinatra
         return class_params_include || params_include
       end
 
+
+      ##
+      # Checks to see if the request has a file attached
+      def request_has_file?
+        @params.any? {|p,v| v.instance_of?(Hash) && v.key?(:tempfile) && v[:tempfile].instance_of?(Tempfile)}
+      end
+
+      ##
+      # Looks for a file that was included as a multipart in a request
+      def file_from_request
+        @params.each do |param, value|
+          if value.instance_of?(Hash) && value.has_key?(:tempfile) && value[:tempfile].instance_of?(Tempfile)
+            return value[:filename], value[:tempfile]
+          end
+        end
+        return nil, nil
+      end
       private
 
       def naive_expiring_cache_write(key, object, timeout = 60)
