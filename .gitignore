@@ -34,6 +34,7 @@ bin/**
 config/environments/*
 !config/environments/development.rb.sample
 !config/environments/config.rb.sample
+!config/environments/biodiv-denbi-config.rb.sample
 
 #ignore capistrano deployment
 config/deploy/*
