@@ -15,7 +15,7 @@ class IdentifierRequestsController < ApplicationController
     get do
       check_last_modified_collection(LinkedData::Models::IdentifierRequest)
       id_requests = IdentifierRequest.where.include(IdentifierRequest.goo_attrs_to_load(includes_param)).all
-      id_requests = id_requests.select { |r| (!r.submission.nil? && !r.submission.ontology.nil? rescue false) }
+      id_requests = id_requests.select { |r| (!r.submission.nil? rescue false) }
       reply id_requests
     end
 
