@@ -1,5 +1,4 @@
 require 'sinatra/base'
-require_relative '../utils/utils'
 
 module Sinatra
   module Helpers
