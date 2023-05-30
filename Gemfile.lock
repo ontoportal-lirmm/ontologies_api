@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 7cf430eb13b4af52ec0db2d373a33a55a4f3903b
+  revision: 23fa0bb5cf15a0a4d26ea63897e9961acdaaafdd
   branch: ecoportal-ontoportal-reset
   specs:
     ontologies_linked_data (0.0.1)
