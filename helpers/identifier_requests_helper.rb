@@ -10,7 +10,7 @@ module Sinatra
                                                    .include(IdentifierRequest.goo_attrs_to_load(includes_param))
                                                    .include(requestedBy: [:username, :email],
                                                             processedBy: [:username, :email],
-                                                            submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym]])
+                                                            submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :viewingRestriction]])
                                                    .all
       end
       def find_identifier_request(id = params["requestId"])
