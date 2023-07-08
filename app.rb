@@ -29,15 +29,12 @@ require_relative 'lib/rack/slow_requests'
 require_relative 'lib/rack/cube_reporter'
 require_relative 'lib/rack/param_translator'
 require_relative 'lib/rack/slice_detection'
-require_relative 'lib/rack/request_lang'
 
 # Logging setup
 require_relative "config/logging"
 
 # Inflector setup
 require_relative "config/inflections"
-
-require 'request_store'
 
 # Protection settings
 set :protection, :except => :path_traversal
@@ -145,9 +142,6 @@ use Rack::SliceDetection
 use Rack::Accept
 use Rack::PostBodyToParams
 use Rack::ParamTranslator
-
-use RequestStore::Middleware
-use Rack::RequestLang
 
 use LinkedData::Security::Authorization
 use LinkedData::Security::AccessDenied

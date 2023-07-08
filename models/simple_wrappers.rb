@@ -30,12 +30,4 @@ ProvisionalRelation = LinkedData::Models::ProvisionalRelation
 
 SearchHelper = Sinatra::Helpers::SearchHelper
 
-
 IdentifierRequest = LinkedData::Models::IdentifierRequest
-
-Contact = LinkedData::Models::Contact
-
-Creator = LinkedData::Models::Creator
-
-Affiliation = LinkedData::Models::Affiliation
-

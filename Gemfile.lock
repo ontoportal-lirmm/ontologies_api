@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 7e5f15bfdd95139a0fecd89b4a0af44be71b2daf
+  revision: 273cbb43cd2696c8b1436b62aa463d9405365ce1
   branch: ecoportal-ontoportal-reset
   specs:
     ontologies_linked_data (0.0.1)
@@ -31,8 +31,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6c1790433c6897dd398dce89ff724646e1c7e6af
-  branch: development
+  revision: c310e3854705b241a6259faad14cf6cd4eb97053
+  branch: ecoportal
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
