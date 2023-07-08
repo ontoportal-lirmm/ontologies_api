@@ -3,7 +3,7 @@
 APP_PATH = '/srv/ontoportal'
 
 set :application, 'ontologies_api'
-set :repo_url, "https://github.com/ncbo/#{fetch(:application)}.git"
+set :repo_url, "https://github.com/lifewatch-eric/#{fetch(:application)}.git"
 
 set :deploy_via, :remote_cache
 
@@ -31,6 +31,9 @@ set :deploy_to, "#{APP_PATH}/#{fetch(:application)}"
 # Default value for linked_dirs is []
 # set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 set :linked_dirs, %w{log vendor/bundle tmp/pids tmp/sockets public/system}
+append :linked_files, "config/unicorn.rb"
+append :linked_dirs, 'config/environments', 'log', 'tmp', '.bundle'
+
 
 # rbenv
 # set :rbenv_type, :system #or :user
@@ -105,8 +108,8 @@ namespace :deploy do
     end
   end
 
-  after :publishing, :get_config
-  after :get_config, :restart
+  after :publishing, :restart
+  #after :get_config, :restart
   # after :deploy, :smoke_test
 
   after :restart, :clear_cache do
