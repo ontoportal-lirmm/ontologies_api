@@ -31,8 +31,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: e03f6e8f209a3408a348290d76d129743c0f2fed
-  branch: master
+  revision: 6c1790433c6897dd398dce89ff724646e1c7e6af
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -383,7 +383,7 @@ DEPENDENCIES
   rack-timeout
   rake (~> 10.0)
   redcarpet
-  redis
+  redis (~> 4.8.1)
   redis-activesupport
   redis-rack-cache (~> 2.0)
   redis-store (= 1.9.1)
