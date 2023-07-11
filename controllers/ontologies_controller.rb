@@ -47,7 +47,12 @@ class OntologiesController < ApplicationController
           latest.bring({:contact=>[:name, :email],
                       :ontology=>[:acronym, :name, :administeredBy, :group, :viewingRestriction, :doNotUpdate, :flat,
                                   :hasDomain, :summaryOnly, :acl, :viewOf, :ontologyType],
-                      :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym], :metrics =>[:classes, :individuals, :properties]})
+                      :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym],
+                        :metrics =>[:classes, :individuals, :properties]},
+                       hasCreator: LinkedData::Models::Agent.goo_attrs_to_load +
+                         [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load],
+                       publisher: LinkedData::Models::Agent.goo_attrs_to_load +
+                         [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load])
         else
           includes = OntologySubmission.goo_attrs_to_load(includes_param)
 

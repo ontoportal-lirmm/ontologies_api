@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 273cbb43cd2696c8b1436b62aa463d9405365ce1
+  revision: 40511e217163c10797fa78fb7f989d5b1e681f11
   branch: ecoportal-ontoportal-reset
   specs:
     ontologies_linked_data (0.0.1)
@@ -239,7 +239,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.1)
+    public_suffix (5.0.3)
     rack (1.6.13)
     rack-accept (0.4.5)
       rack (>= 0.4)

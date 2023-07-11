@@ -5,6 +5,8 @@ class IdentifierRequestsController < ApplicationController
     error 422, "You must provide an existing `acronym` " if acronym.nil? || acronym.empty?
     reply IdentifierRequest.where(submission: [ontology: [acronym: acronym]])
                            .include(IdentifierRequest.goo_attrs_to_load(includes_param))
+                           .include(requestedBy: [:username, :email], processedBy: [:username, :email])
+                           .include(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :viewingRestriction]])
                            .all
   end
 
@@ -14,8 +16,12 @@ class IdentifierRequestsController < ApplicationController
     # Display all IdentifierRequest
     get do
       check_last_modified_collection(LinkedData::Models::IdentifierRequest)
-      id_requests = IdentifierRequest.where.include(IdentifierRequest.goo_attrs_to_load(includes_param)).all
+      id_requests = IdentifierRequest.where.include(IdentifierRequest.goo_attrs_to_load(includes_param))
+                                     .include(requestedBy: [:username, :email], processedBy: [:username, :email])
+                                     .include(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :viewingRestriction]])
+                                     .all
       id_requests = id_requests.select { |r| (!r.submission.nil? rescue false) }
+
       reply id_requests
     end
 
@@ -28,32 +34,41 @@ class IdentifierRequestsController < ApplicationController
                              .include(IdentifierRequest.goo_attrs_to_load(includes_param))
                              .include(requestedBy: [:username, :email])
                              .include(processedBy: [:username, :email])
-                             .include(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym]])
+                             .include(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :viewingRestriction]])
                              .all
     end
 
     ##
     # Display a IdentifierRequest with a specific requestId
     get "/:requestId" do
-      reply find_identifier_request
+      id = find_identifier_request
+      id.bring(submission: OntologySubmission.goo_attrs_to_load(includes_param))
+      id.bring(requestedBy: [:username, :email])
+      id.bring(processedBy: [:username, :email])
+      id.bring(processedBy: [:username, :email])
+      reply id
     end
 
     get "/:requestId/submission" do
 
       identifier_req_obj = find_identifier_request
       identifier_req_obj.bring(submission: OntologySubmission.goo_attrs_to_load(includes_param))
+      identifier_req_obj.bring(requestedBy: [:username, :email])
+      identifier_req_obj.bring(processedBy: [:username, :email])
       reply identifier_req_obj.submission
     end
 
     get "/:requestId/requestedBy" do
       identifier_req_obj = find_identifier_request
-      identifier_req_obj.bring(requestedBy: User.goo_attrs_to_load(includes_param))
+      identifier_req_obj.bring(requestedBy: [:username, :email])
+      identifier_req_obj.bring(processedBy: [:username, :email])
       reply identifier_req_obj.requestedBy
     end
 
     get "/:requestId/processedBy" do
       identifier_req_obj = find_identifier_request
-      identifier_req_obj.bring(processedBy: User.goo_attrs_to_load(includes_param))
+      identifier_req_obj.bring(requestedBy: [:username, :email])
+      identifier_req_obj.bring(processedBy: [:username, :email])
       reply identifier_req_obj.processedBy
     end
 
@@ -63,6 +78,7 @@ class IdentifierRequestsController < ApplicationController
       identifier_request = create_identifier_request
 
       identifier_request.bring(requestedBy: [:username, :email])
+      identifier_request.bring(processedBy: [:username, :email])
       identifier_request.bring(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :administeredBy, :acl, :viewingRestriction]])
 
       reply 201, identifier_request
@@ -72,6 +88,9 @@ class IdentifierRequestsController < ApplicationController
     # Update an IdentifierRequest
     patch '/:requestId' do
       identifier_request = find_identifier_request
+      identifier_request.bring(requestedBy: [:username, :email])
+      identifier_request.bring(processedBy: [:username, :email])
+      identifier_request.bring(submission: [:submissionId, :identifier, :identifierType, ontology: [:acronym, :administeredBy, :acl, :viewingRestriction]])
 
       populate_from_params(identifier_request, params)
       if identifier_request.valid?
