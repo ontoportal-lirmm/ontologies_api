@@ -196,6 +196,41 @@ class TestOntologySubmissionsController < TestCase
   end
 
   def test_export_datacite_metadata
+    hash, sub = _test_eco_portal_exporter(format: 'datacite_metadata_json')
+    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["doi"]
+  end
+  def test_export_ecoportal_metadata
+    hash, sub = _test_eco_portal_exporter
+
+    sub.hasOntologyLanguage.bring :acronym
+    sub.contact.each{|c| c.bring_remaining }
+
+    assert_equal sub.status, hash["status"]
+    assert_equal sub.hasOntologyLanguage.acronym, hash["format"]["acronym"]
+    assert_equal sub.contact.map{|c|  {"name" => c.name, "email" => c.email}}, hash["contact"]
+    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["identifier"]
+    assert_equal 'DOI', hash["identifierType"]
+  end
+
+  def test_submissions_pagination
+    num_onts_created, created_ont_acronyms = create_ontologies_and_submissions(ont_count: 2, submission_count: 2)
+
+    get "/submissions"
+    assert last_response.ok?
+    submissions = MultiJson.load(last_response.body)
+
+    assert_equal 2, submissions.length
+
+
+    get "/submissions?page=1&pagesize=1"
+    assert last_response.ok?
+    submissions = MultiJson.load(last_response.body)
+    assert_equal 1, submissions["collection"].length
+  end
+
+  private
+
+  def _test_eco_portal_exporter(format: 'ecoportal_metadata_json')
 
     num_onts_created, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: false)
     ontology = created_ont_acronyms.first
@@ -247,7 +282,7 @@ class TestOntologySubmissionsController < TestCase
 
     sub.save
 
-    get "/ontologies/#{ontology}/latest_submission/datacite_metadata_json"
+    get "/ontologies/#{ontology}/latest_submission/#{format}"
     assert last_response.ok?
     hash = MultiJson.load(last_response.body)
 
@@ -267,7 +302,7 @@ class TestOntologySubmissionsController < TestCase
     assert_equal 'Dataset', hash["types"]["resourceTypeGeneral"]
 
     assert_equal sub.released.year, hash["publicationYear"]
-    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["doi"]
+
 
     assert_equal sub.publisher.map{|x| x.name}.sort, hash["publisher"].split(', ').sort
 
@@ -302,21 +337,8 @@ class TestOntologySubmissionsController < TestCase
         assert_equal identifier.notation, nameId["nameIdentifier"]
       end
     end
+
+    [hash, sub]
   end
 
-  def test_submissions_pagination
-    num_onts_created, created_ont_acronyms = create_ontologies_and_submissions(ont_count: 2, submission_count: 2)
-
-    get "/submissions"
-    assert last_response.ok?
-    submissions = MultiJson.load(last_response.body)
-
-    assert_equal 2, submissions.length
-
-
-    get "/submissions?page=1&pagesize=1"
-    assert last_response.ok?
-    submissions = MultiJson.load(last_response.body)
-    assert_equal 1, submissions["collection"].length
-  end
 end
