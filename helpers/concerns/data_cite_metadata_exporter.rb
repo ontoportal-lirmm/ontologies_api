@@ -11,7 +11,7 @@ module Sinatra
           publisher: sub.publisher.map{|p| p.name}.join(', '),
           creators: to_data_cite_creators(sub.hasCreator),
           identifier: search_doi(sub.identifier) || sub.identifier.first&.to_s,
-          identifierType: search_doi(sub.identifier).nil? ? 'Other' : 'DOI',
+          identifierType: identifier_type(sub),
           titles: sub.alternative.map { |x| { title: x, titleType: 'AlternativeTitle' } },
           resourceTypeGeneral: 'Dataset',
           resourceType: sub.isOfType.to_s.split('/').last
@@ -29,6 +29,15 @@ module Sinatra
       end
 
       private
+
+      def identifier_type(sub)
+        identifiers = sub.identifier
+
+        return 'None' if identifiers.nil? || identifiers.empty?
+
+        search_doi(identifiers).nil? ? 'Other' : 'DOI'
+      end
+
       def to_data_cite_creators(creators)
         creators.map do |creator|
           {

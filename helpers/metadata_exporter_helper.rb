@@ -1,14 +1,20 @@
 require 'sinatra/base'
 require_relative 'concerns/data_cite_metadata_exporter'
+require_relative 'concerns/ecoportal_metadata_exporter'
 
 module Sinatra
   module Helpers
     module MetadataExporterHelper
 
       include Sinatra::Concerns::DataCiteMetadataExporter
+      include Sinatra::Concerns::EcoPortalMetadataExporter
 
       def to_data_cite_facet(submission)
         remove_empty_values(to_date_cite(submission))
+      end
+
+      def to_eco_portal_facet(submission)
+        remove_empty_values(to_eco_portal(submission))
       end
 
       private

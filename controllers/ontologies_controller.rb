@@ -69,10 +69,11 @@ class OntologiesController < ApplicationController
     end
 
     get "/:acronym/latest_submission/ecoportal_metadata_json" do
+      params["display"] = 'all'
       latest = find_latest_submission
       latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
       if latest
-         getEcoportalMetadataJSON(latest)
+        to_eco_portal_facet(latest).to_json
       else
         reply {}
       end
