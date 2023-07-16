@@ -195,6 +195,115 @@ class TestOntologySubmissionsController < TestCase
     end
   end
 
+  def test_export_datacite_metadata
+
+    num_onts_created, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: false)
+    ontology = created_ont_acronyms.first
+    onts.first.bring :submissions
+    sub = onts.first.submissions.first
+
+    sub.bring_remaining
+
+    sub.released = DateTime.now
+    sub.version = '2.4.1'
+    sub.publication = [RDF::URI.new('https://test.com')]
+    sub.description = "Test description"
+    sub.alternative = ["alternative title 1", "alternative title 2", "alternative title 3"]
+    sub.isOfType = RDF::URI.new('https://test.com/Ontology')
+    sub.identifier = ['http://orcid.org/ontology/TEST', 'http://ror.org/ontology/TEST', 'http://doi.org/ontology/TEST'].map{|i| RDF::URI.new(i)}
+
+
+    created_agents = [LinkedData::Models::Agent.new(name: 'publisher test', agentType: 'person', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'publisher test 2', agentType: 'person', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test', agentType: 'organization', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 2 test', agentType: 'organization', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 1 affiliation 1 test', agentType: 'organization', creator: @@user).save]
+
+    sub.publisher = [created_agents[0], created_agents[1]]
+
+    created_agents << LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test',
+                                                    agentType: 'organization',
+                                                    creator: @@user,
+                                                    identifiers: [
+                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2', schemaAgency: 'ROR',creator: @@user).save
+                                                    ],
+                                                    affiliations: [
+                                                      created_agents[2]
+                                                    ]).save
+
+    created_agents << LinkedData::Models::Agent.new(name: 'creator 1 test',
+                                                    agentType: 'person',
+                                                    creator: @@user,
+                                                    identifiers: [
+                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID', schemaAgency: 'ORCID',creator: @@user).save,
+                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testROR', schemaAgency: 'ROR', creator: @@user).save,
+                                                    ],
+                                                    affiliations: [
+                                                      created_agents[4],
+                                                      created_agents[5]
+                                                    ]).save
+    sub.hasCreator = [created_agents[6], created_agents[3]]
+
+
+    sub.save
+
+    get "/ontologies/#{ontology}/latest_submission/datacite_metadata_json"
+    assert last_response.ok?
+    hash = MultiJson.load(last_response.body)
+
+
+    ["description", "version"].each do |key|
+      assert_equal sub.send(key), hash[key]
+    end
+
+    assert_equal sub.publication.first.to_s, hash["url"]
+
+    assert_equal sub.alternative.sort, hash["titles"].map{|x| x["title"]}.sort
+    assert_equal ['AlternativeTitle'], hash["titles"].map{|x| x["titleType"]}.uniq
+
+
+
+    assert_equal sub.isOfType.to_s.split('/').last, hash["types"]["resourceType"]
+    assert_equal 'Dataset', hash["types"]["resourceTypeGeneral"]
+
+    assert_equal sub.released.year, hash["publicationYear"]
+    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["doi"]
+
+    assert_equal sub.publisher.map{|x| x.name}.sort, hash["publisher"].split(', ').sort
+
+    assert_equal sub.hasCreator.size, hash["creators"].size
+    hash["creators"].each do |c|
+      creator = sub.hasCreator.select {|creator| creator.name.eql?(c["creatorName"])}.first
+
+      assert_equal creator.agentType.eql?('person') ? 'Personal' : 'Organizational', c["nameType"]
+      assert_equal creator.name.split(' ').first, c["givenName"]
+      assert_equal creator.name.split(' ').drop(1).join(' '), c["familyName"]
+      assert_equal creator.name, c["creatorName"]
+
+      assert (creator.affiliations && c["affiliations"]) || (creator.affiliations.nil? && c["affiliations"].empty?)
+      assert_equal creator.affiliations.size, c["affiliations"].size if creator.affiliations && c["affiliations"]
+      c["affiliations"].each do |aff|
+        affiliation = creator.affiliations.select{|affiliation| affiliation.name.eql?(aff["affiliation"])}.first
+        identifier = affiliation.identifiers&.first
+        next if identifier.nil?
+
+        assert_equal identifier&.schemaAgency, aff["affiliationIdentifierScheme"]
+        assert_equal "#{identifier&.schemeURI}#{identifier&.notation}", aff["affiliationIdentifier"]
+        assert_equal affiliation.name, aff["affiliation"]
+      end
+
+      assert (creator.identifiers && c["nameIdentifiers"]) || (creator.identifiers.nil? && c["nameIdentifiers"].empty?)
+      assert_equal creator.identifiers.size, c["nameIdentifiers"].size if creator.identifiers && c["nameIdentifiers"]
+      c["nameIdentifiers"].each do |nameId|
+
+        identifier = creator.identifiers.select{|identifier| identifier.notation.eql?(nameId["nameIdentifier"])}.first
+        assert_equal identifier.schemaAgency, nameId["nameIdentifierScheme"]
+        assert_equal identifier.schemeURI, nameId["schemeURI"]
+        assert_equal identifier.notation, nameId["nameIdentifier"]
+      end
+    end
+  end
+
   def test_submissions_pagination
     num_onts_created, created_ont_acronyms = create_ontologies_and_submissions(ont_count: 2, submission_count: 2)
 
