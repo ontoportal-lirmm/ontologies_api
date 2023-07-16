@@ -13,6 +13,7 @@ gem 'rake', '~> 10.0'
 gem 'sinatra', '~> 1.0'
 gem 'sinatra-advanced-routes'
 gem 'sinatra-contrib', '~> 1.0'
+gem 'request_store'
 
 # Rack middleware
 gem 'ffi'
@@ -26,8 +27,9 @@ gem 'rack-timeout'
 gem 'redis-rack-cache', '~> 2.0'
 
 # Data access (caching)
-gem 'redis'
+gem 'redis', '~> 4.8.1'
 gem 'redis-activesupport'
+gem 'redis-store', '1.9.1'
 
 # Monitoring
 gem 'cube-ruby', require: 'cube'
@@ -42,12 +44,13 @@ gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
 gem 'redcarpet'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', git: 'https://github.com/ontoportal-lirmm/goo.git', branch: 'master'
+gem 'goo', git: 'https://github.com/ontoportal-lirmm/goo.git', branch: 'ecoportal'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'master'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
-gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'master'
+gem 'ontologies_linked_data', git: 'https://github.com/lifewatch-eric/ontologies_linked_data.git', branch: 'ecoportal-ontoportal-reset'
+gem 'request_store'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42

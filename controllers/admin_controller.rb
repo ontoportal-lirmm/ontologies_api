@@ -127,6 +127,22 @@ class AdminController < ApplicationController
       halt 204
     end
 
+    get "/doi_requests_list" do
+      reply find_all_identifier_requests
+    end
+
+    #Searches and returns the request with the id passed as parameter
+    get "/doi_request/:id" do
+      error 400, "You must provide the id of the request" if params[:id].nil?
+
+      all_identifier_requests = find_all_identifier_requests
+
+      error 500, "request not found" if all_identifier_requests.nil? || all_identifier_requests.length == 0
+      error 500, "More than one request was found" if all_identifier_requests.length > 1
+
+      reply all_identifier_requests[0]
+    end
+
     private
 
     def process_long_operation(timeout, args)
