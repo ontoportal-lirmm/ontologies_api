@@ -58,10 +58,11 @@ class OntologiesController < ApplicationController
 
     # Ontology latest submission datacite metadata as Json
     get "/:acronym/latest_submission/datacite_metadata_json" do
+      params["display"] = 'all'
       latest = find_latest_submission
       latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
       if latest
-        getDataciteMetadataJSON(latest)
+        to_data_cite_facet(latest).to_json
       else
         reply {}
       end

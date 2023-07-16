@@ -2,8 +2,8 @@ class OntologySubmissionsController < ApplicationController
   get "/submissions" do
     check_last_modified_collection(LinkedData::Models::OntologySubmission)
     options = {
-               also_include_views: params["also_include_views"],
-               status: (params["include_status"] || "ANY")
+      also_include_views: params["also_include_views"],
+      status: (params["include_status"] || "ANY")
     }
     subs = retrieve_latest_submissions(options)
     subs = subs.values unless page?
@@ -66,20 +66,14 @@ class OntologySubmissionsController < ApplicationController
 
     # Ontology a submission datacite metadata as Json
     get "/:ontology_submission_id/datacite_metadata_json" do
-      begin
-        # LOGGER.debug("ONTOLOGIES_API - ontology_submissions_controller.rb - datacite_metadata_json")
-        ont = Ontology.find(params["acronym"]).include(:acronym).first
-        check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
-        ont.bring(:submissions)
-        ont_submission = ont.submission(params["ontology_submission_id"])
-        error 404, "`submissionId` not found" if ont_submission.nil?
-        #ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
-        ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
-        getDataciteMetadataJSON(ont_submission)
-      rescue => e
-        LOGGER.debug("ONTOLOGIES_API - ontology_submissions_controller.rb - datacite_metadata_json - ECCEZIONE : #{e.message}\n#{e.backtrace.join("\n")}")
-        raise e
-      end
+      params["display"] = 'all'
+      ont = Ontology.find(params["acronym"]).include(:acronym).first
+      check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
+      ont_submission = ont.submission(params["ontology_submission_id"])
+      error 404, "`submissionId` not found" if ont_submission.nil?
+      # ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+      ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+      to_data_cite_facet(ont_submission)
     end
 
     ##
@@ -88,7 +82,7 @@ class OntologySubmissionsController < ApplicationController
     patch '/:ontology_submission_id' do
       ont = Ontology.find(params["acronym"]).first
       error 422, "You must provide an existing `acronym` to patch" if ont.nil?
-      
+
       submission = ont.submission(params[:ontology_submission_id])
       error 422, "You must provide an existing `submissionId` to patch" if submission.nil?
 
@@ -192,6 +186,5 @@ class OntologySubmissionsController < ApplicationController
     end
 
   end
-
 
 end
