@@ -254,13 +254,19 @@ class TestOntologySubmissionsController < TestCase
                       LinkedData::Models::Agent.new(name: 'creator 2 test', agentType: 'organization', creator: @@user).save,
                       LinkedData::Models::Agent.new(name: 'creator 1 affiliation 1 test', agentType: 'organization', creator: @@user).save]
 
+
+    identifiers = [
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2', schemaAgency: 'ROR',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID', schemaAgency: 'ORCID',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR', schemaAgency: 'ROR', creator: @@user).save
+    ]
     sub.publisher = [created_agents[0], created_agents[1]]
 
     created_agents << LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test',
                                                     agentType: 'organization',
                                                     creator: @@user,
                                                     identifiers: [
-                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2', schemaAgency: 'ROR',creator: @@user).save
+                                                      identifiers[0]
                                                     ],
                                                     affiliations: [
                                                       created_agents[2]
@@ -270,8 +276,7 @@ class TestOntologySubmissionsController < TestCase
                                                     agentType: 'person',
                                                     creator: @@user,
                                                     identifiers: [
-                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID', schemaAgency: 'ORCID',creator: @@user).save,
-                                                      LinkedData::Models::AgentIdentifier.new(notation: 'testROR', schemaAgency: 'ROR', creator: @@user).save,
+                                                      identifiers[1], identifiers[2]
                                                     ],
                                                     affiliations: [
                                                       created_agents[4],
@@ -338,6 +343,8 @@ class TestOntologySubmissionsController < TestCase
       end
     end
 
+    created_agents.each{|x| x.delete}
+    identifiers.each { |x| x.delete }
     [hash, sub]
   end
 
