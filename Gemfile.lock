@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 40511e217163c10797fa78fb7f989d5b1e681f11
+  revision: 0b5b914bf4e66b7d3b6f8167a831ab3d9ca23e9e
   branch: ecoportal-ontoportal-reset
   specs:
     ontologies_linked_data (0.0.1)
@@ -228,7 +228,7 @@ GEM
       net-protocol
     net-ssh (7.1.0)
     netrc (0.11.0)
-    newrelic_rpm (9.3.0)
+    newrelic_rpm (9.3.1)
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
