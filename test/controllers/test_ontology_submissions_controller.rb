@@ -251,14 +251,14 @@ class TestOntologySubmissionsController < TestCase
     created_agents = [LinkedData::Models::Agent.new(name: 'publisher test', agentType: 'person', creator: @@user).save,
                       LinkedData::Models::Agent.new(name: 'publisher test 2', agentType: 'person', creator: @@user).save,
                       LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test', agentType: 'organization', creator: @@user).save,
-                      LinkedData::Models::Agent.new(name: 'creator 2 test', agentType: 'organization', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 2 test', agentType: 'person', creator: @@user).save,
                       LinkedData::Models::Agent.new(name: 'creator 1 affiliation 1 test', agentType: 'organization', creator: @@user).save]
 
 
     identifiers = [
-      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2', schemaAgency: 'ROR',creator: @@user).save,
-      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID', schemaAgency: 'ORCID',creator: @@user).save,
-      LinkedData::Models::AgentIdentifier.new(notation: 'testROR', schemaAgency: 'ROR', creator: @@user).save
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR' + rand.to_s[1..11], schemaAgency: 'ROR',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID' +rand.to_s[1..11], schemaAgency: 'ORCID',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2' +rand.to_s[1..11], schemaAgency: 'ROR', creator: @@user).save
     ]
     sub.publisher = [created_agents[0], created_agents[1]]
 
