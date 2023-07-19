@@ -44,15 +44,7 @@ class OntologiesController < ApplicationController
         if includes_param.first == :all
           # Bring what we need to display all attr of the submission
           latest.bring_remaining
-          latest.bring({:contact=>[:name, :email],
-                      :ontology=>[:acronym, :name, :administeredBy, :group, :viewingRestriction, :doNotUpdate, :flat,
-                                  :hasDomain, :summaryOnly, :acl, :viewOf, :ontologyType],
-                      :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym],
-                        :metrics =>[:classes, :individuals, :properties]},
-                       hasCreator: LinkedData::Models::Agent.goo_attrs_to_load +
-                         [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load],
-                       publisher: LinkedData::Models::Agent.goo_attrs_to_load +
-                         [identifiers: LinkedData::Models::AgentIdentifier.goo_attrs_to_load, affiliations: LinkedData::Models::Agent.goo_attrs_to_load])
+          latest.bring(*submission_attributes_all)
         else
           includes = OntologySubmission.goo_attrs_to_load(includes_param)
 
