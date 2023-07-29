@@ -11,7 +11,7 @@ module Sinatra
       def cron_daemon_options
         cron_settings_json = redis_cron.get "cron:daemon:options"
         error 500, "Unable to get CRON daemon options from Redis" if cron_settings_json.nil?
-        JSON.parse(cron_settings_json, symbolize_names: true)
+        ::JSON.parse(cron_settings_json, symbolize_names: true)
       end
 
       def scheduled_jobs_map
