@@ -82,6 +82,9 @@ module Sinatra
           end
         end
 
+        lang = params["lang"] || params["language"]
+        prefix = lang && !lang.eql?("all") ? "@#{lang}" : ""
+
         query = ""
         params["defType"] = "edismax"
         params["stopwords"] = "true"
@@ -98,15 +101,15 @@ module Sinatra
 
         if params[EXACT_MATCH_PARAM] == "true"
           query = "\"#{solr_escape(text)}\""
-          params["qf"] = "resource_id^20 prefLabelExact^10 synonymExact #{QUERYLESS_FIELDS_STR}"
-          params["hl.fl"] = "resource_id prefLabelExact synonymExact #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = "resource_id^20 prefLabelExact#{prefix}^10 synonymExact#{prefix} #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "resource_id prefLabelExact#{prefix} synonymExact#{prefix} #{QUERYLESS_FIELDS_STR}"
         elsif params[SUGGEST_PARAM] == "true" || text[-1] == '*'
           text.gsub!(/\*+$/, '')
           query = "\"#{solr_escape(text)}\""
           params["qt"] = "/suggest_ncbo"
-          params["qf"] = "prefLabelExact^100 prefLabelSuggestEdge^50 synonymSuggestEdge^10 prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = "prefLabelExact#{prefix}^100 prefLabelSuggestEdge^50 synonymSuggestEdge^10 prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
           params["pf"] = "prefLabelSuggest^50"
-          params["hl.fl"] = "prefLabelExact prefLabelSuggestEdge synonymSuggestEdge prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "prefLabelExact#{prefix} prefLabelSuggestEdge synonymSuggestEdge prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
         else
           if text.strip.empty?
             query = '*'
@@ -114,9 +117,9 @@ module Sinatra
             query = solr_escape(text)
           end
 
-          params["qf"] = "resource_id^100 prefLabelExact^90 prefLabel^70 synonymExact^50 synonym^10 #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = "resource_id^100 prefLabelExact#{prefix}^90 prefLabel#{prefix}^70 synonymExact#{prefix}^50 synonym#{prefix}^10 #{QUERYLESS_FIELDS_STR}"
           params["qf"] << " property" if params[INCLUDE_PROPERTIES_PARAM] == "true"
-          params["hl.fl"] = "resource_id prefLabelExact prefLabel synonymExact synonym #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "resource_id prefLabelExact#{prefix} prefLabel#{prefix} synonymExact#{prefix} synonym#{prefix} #{QUERYLESS_FIELDS_STR}"
           params["hl.fl"] = "#{params["hl.fl"]} property" if params[INCLUDE_PROPERTIES_PARAM] == "true"
         end
 
