@@ -88,7 +88,15 @@ services:
 
 
   solr-ut:
-    image: ontoportal/solr-ut:0.1
+    image: solr:8
+    volumes:
+      - ./test/solr/configsets:/configsets:ro
+    #ports:
+    #  - "8983:8983"
+    command: >
+      bash -c "precreate-core term_search_core1 /configsets/term_search
+      && precreate-core prop_search_core1 /configsets/property_search
+      && solr-foreground"
 
   mgrep-ut:
     image: ontoportal/mgrep-ncbo:0.1
