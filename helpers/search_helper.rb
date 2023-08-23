@@ -83,7 +83,7 @@ module Sinatra
         end
 
         lang = params["lang"] || params["language"]
-        lang_suffix  = lang && !lang.eql?("all") ? "@#{lang}" : ""
+        lang_suffix  = lang && !lang.eql?("all") ? "_#{lang}" : ""
 
         query = ""
         params["defType"] = "edismax"
