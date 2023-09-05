@@ -44,12 +44,13 @@ class OntologiesController < ApplicationController
         if includes_param.first == :all
           # Bring what we need to display all attr of the submission
           latest.bring_remaining
-          latest.bring({:contact=>[:name, :email],
-                      :ontology=>[:acronym, :name, :administeredBy, :group, :viewingRestriction, :doNotUpdate, :flat,
-                                  :hasDomain, :summaryOnly, :acl, :viewOf, :ontologyType],
-                      :submissionStatus=>[:code], :hasOntologyLanguage=>[:acronym]})
+          latest.bring(*submission_attributes_all)
         else
-          latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+          includes = OntologySubmission.goo_attrs_to_load(includes_param)
+
+          includes << {:contact=>[:name, :email]} if includes.find{|v| v.is_a?(Hash) && v.keys.first.eql?(:contact)}
+
+          latest.bring(*includes)
         end
       end
       #remove the whole previous if block and replace by it: latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest

@@ -36,6 +36,8 @@ require_relative "config/logging"
 # Inflector setup
 require_relative "config/inflections"
 
+require 'request_store'
+
 # Protection settings
 set :protection, :except => :path_traversal
 
@@ -142,6 +144,8 @@ use Rack::SliceDetection
 use Rack::Accept
 use Rack::PostBodyToParams
 use Rack::ParamTranslator
+
+use RequestStore::Middleware
 
 use LinkedData::Security::Authorization
 use LinkedData::Security::AccessDenied
