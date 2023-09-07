@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 1d78bde5a711d05475da0459308c7db074af5e21
+  revision: ddb95e427950fde3ac715aec340394208c8166fe
   branch: development
   specs:
     goo (0.0.2)
@@ -248,7 +248,7 @@ GEM
       rack (>= 0.4)
     rack-attack (6.6.1)
       rack (>= 1.0, < 3)
-    rack-cache (1.14.0)
+    rack-cache (1.13.0)
       rack (>= 0.4)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
@@ -294,7 +294,7 @@ GEM
     rubyzip (2.3.2)
     rufus-scheduler (2.0.24)
       tzinfo (>= 0.3.22)
-    signet (0.17.0)
+    signet (0.18.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 3.0)
@@ -350,7 +350,6 @@ GEM
     webrick (1.8.1)
 
 PLATFORMS
-  x86_64-darwin-21
   x86_64-linux
 
 DEPENDENCIES
@@ -407,4 +406,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.23
+   2.3.15
