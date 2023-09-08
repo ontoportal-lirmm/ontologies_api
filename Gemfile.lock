@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: 83e835de368bc9f19da800a477982e0ad770900d
+  revision: f440ae855a217807fead1d20629a0f187997b973
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: ddb95e427950fde3ac715aec340394208c8166fe
+  revision: 0c0dba92e28fd8c8261db1b3183946e0cf183b53
   branch: development
   specs:
     goo (0.0.2)
@@ -53,7 +53,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 4c89c8346766d23e09b24c8e29750bf3a91e6b53
+  revision: 1204ede68ed0a5af5e3fb355172496d5e0134544
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
