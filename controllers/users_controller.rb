@@ -1,13 +1,16 @@
+require 'jwt'
+
 class UsersController < ApplicationController
   namespace "/users" do
     post "/authenticate" do
-      user_id       = params["user"]
-      user_password = params["password"]
       # Modify params to show all user attributes
       params["display"] = User.attributes.join(",")
-      user = User.find(user_id).include(User.goo_attrs_to_load(includes_param) + [:passwordHash]).first
-      authenticated = user.authenticate(user_password) unless user.nil?
-      error 401, "Username/password combination invalid" unless authenticated
+      if $SSO_ENABLED
+        user = sso_auth
+      else
+        user = password_auth
+      end
+
       user.show_apikey = true
       reply user
     end
@@ -98,6 +101,48 @@ class UsersController < ApplicationController
 
     private
 
+    def password_auth
+      user_id = params["user"]
+      user_password = params["password"]
+      user = User.find(user_id).include(User.goo_attrs_to_load(includes_param) + [:passwordHash]).first
+      authenticated = user.authenticate(user_password) unless user.nil?
+      error 401, "Username/password combination invalid" unless authenticated
+      user
+    end
+
+    def sso_auth
+      bearer_token = params["token"]
+      error 401, "No bearer token provided" unless bearer_token
+
+      begin
+        decoded_token = LinkedData::Security::Authorization.decodeJWT(bearer_token)
+      rescue JWT::DecodeError => e
+        error 401, "Failed to decode JWT token: " + e.message
+      end
+      token_payload = decoded_token[0]
+
+      user_id = token_payload[LinkedData.settings.oauth2_username_claim]
+      given_name = token_payload[LinkedData.settings.oauth2_given_name_claim]
+      family_name = token_payload[LinkedData.settings.oauth2_family_name_claim]
+      email = token_payload[LinkedData.settings.oauth2_email_claim]
+
+      user = User.find(user_id).include(User.goo_attrs_to_load(includes_param)).first
+
+      if user.nil? # first-time access, register new user
+        user_creation_params = {
+          username: user_id,
+          firstName: given_name,
+          lastName: family_name,
+          email: email,
+          password: SecureRandom.hex(16)
+        }
+
+        user = instance_from_params(User, user_creation_params)
+        save_user(user)
+        user
+      end
+    end
+
     def token(len)
       chars = ("a".."z").to_a + ("A".."Z").to_a + ("1".."9").to_a
       token = ""
@@ -110,6 +155,11 @@ class UsersController < ApplicationController
       user = User.find(params["username"]).first
       error 409, "User with username `#{params["username"]}` already exists" unless user.nil?
       user = instance_from_params(User, params)
+      save_user(user)
+      reply 201, user
+    end
+
+    def save_user(user)
       if user.valid?
         user.save
         # Send an email to the administrator to warn him about the newly created user
@@ -122,7 +172,6 @@ class UsersController < ApplicationController
       else
         error 422, user.errors
       end
-      reply 201, user
     end
   end
 end
