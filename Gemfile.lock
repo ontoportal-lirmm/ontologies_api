@@ -110,6 +110,7 @@ GEM
     backports (3.24.1)
     bcrypt (3.1.19)
     bcrypt_pbkdf (1.1.0)
+    benchmark-ips (2.12.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
     capistrano (3.17.3)
@@ -353,6 +354,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 3.1)
   bcrypt_pbkdf (>= 1.0, < 2.0)
+  benchmark-ips (~> 2.12)
   bigdecimal (= 1.4.2)
   capistrano (~> 3)
   capistrano-bundler
@@ -404,4 +406,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.15
+   2.4.12
