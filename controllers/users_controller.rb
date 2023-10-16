@@ -139,8 +139,8 @@ class UsersController < ApplicationController
 
         user = instance_from_params(User, user_creation_params)
         save_user(user)
-        user
       end
+      user
     end
 
     def token(len)
