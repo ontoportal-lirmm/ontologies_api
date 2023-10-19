@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 69466682c1e9cb2c338539195013dbec9714ca7d
+  revision: 4c46c8a8d90f8d08c91e27164d337a899f852980
   branch: development
   specs:
     goo (0.0.2)
@@ -112,7 +112,7 @@ GEM
     bcrypt_pbkdf (1.1.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
-    capistrano (3.17.3)
+    capistrano (3.18.0)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
