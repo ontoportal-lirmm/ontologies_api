@@ -13,6 +13,11 @@ module Sinatra
         if includes.find{|v| v.is_a?(Hash) && v.keys.include?(:contact)}
           includes << {:contact=>[:name, :email]}
         end
+
+        if includes.find{|v| v.is_a?(Hash) && v.keys.include?(:metrics)}
+          includes << LinkedData::Models::Metric.goo_attrs_to_load([:all])
+        end
+
         includes
       end
 
