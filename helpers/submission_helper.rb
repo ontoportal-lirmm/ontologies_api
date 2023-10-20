@@ -15,7 +15,10 @@ module Sinatra
         end
 
         if includes.find{|v| v.is_a?(Hash) && v.keys.include?(:metrics)}
-          includes << LinkedData::Models::Metric.goo_attrs_to_load([:all])
+          includes << { metrics: [:maxChildCount, :properties, :classesWithMoreThan25Children,
+                                  :classesWithOneChild, :individuals, :maxDepth, :classes,
+                                  :classesWithNoDefinition, :averageChildCount, :numberOfAxioms,
+                                  :entities]}
         end
 
         includes
