@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 62b027bb6c0c084b3e1288f33334e565c94b193c
+  revision: aaa7b11d18cea6cecd781b203cc6bb3ecc248cb5
   branch: feature/migrate-to-virtuso
   specs:
     goo (0.0.2)
@@ -53,7 +53,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 189f5898e1e2422a647f3937495c3ea1c9894350
+  revision: 7cd62df2faaa4e00204940120e76ad1a357c85fe
   branch: feature/migrate-to-virtuoso
   specs:
     ontologies_linked_data (0.0.1)
@@ -164,7 +164,7 @@ GEM
       ffi (~> 1.0)
     google-apis-analytics_v3 (0.13.0)
       google-apis-core (>= 0.11.0, < 2.a)
-    google-apis-core (0.11.1)
+    google-apis-core (0.11.2)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
       httpclient (>= 2.8.1, < 3.a)

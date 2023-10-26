@@ -12,12 +12,14 @@ SOLR_TERM_SEARCH_URL = ENV.include?("SOLR_TERM_SEARCH_URL") ? ENV["SOLR_TERM_SEA
 SOLR_PROP_SEARCH_URL = ENV.include?("SOLR_PROP_SEARCH_URL") ? ENV["SOLR_PROP_SEARCH_URL"] : "http://localhost:8984/solr/prop_search_core1"
 MGREP_HOST = ENV.include?("MGREP_HOST") ? ENV["MGREP_HOST"] : "localhost"
 MGREP_PORT = ENV.include?("MGREP_PORT") ? ENV["MGREP_PORT"] : 55556
+GOO_SLICES = ENV["GOO_SLICES"] || 500
 
 begin
   # For prefLabel extract main_lang first, or anything if no main found.
   # For other properties only properties with a lang that is included in main_lang are used
   Goo.main_languages = ['en']
   Goo.use_cache = false
+  Goo.slice_loading_size = GOO_SLICES.to_i
 rescue NoMethodError
   puts "(CNFG) >> Goo.main_lang not available"
 end

@@ -198,7 +198,7 @@ class TestSearchController < TestCase
     # roots only with provisional class test
     get "search?also_search_provisional=true&valueset_roots_only=true&ontology_types=#{ontology_type}&ontologies=#{acronym}"
     results = MultiJson.load(last_response.body)
-    assert_equal 10, results["collection"].length
+    assert_includes [10, 6], results["collection"].length # depending if owlapi import SKOS concepts
     provisional = results["collection"].select {|res| assert_equal ontology_type, res["ontologyType"]; res["provisional"]}
     assert_equal 1, provisional.length
     assert_equal @@test_pc_root.label, provisional[0]["prefLabel"].first
