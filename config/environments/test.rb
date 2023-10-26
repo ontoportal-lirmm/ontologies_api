@@ -9,9 +9,9 @@ GOO_HOST = ENV.include?("GOO_HOST") ? ENV["GOO_HOST"] : "localhost"
 REDIS_HOST = ENV.include?("REDIS_HOST") ? ENV["REDIS_HOST"] : "localhost"
 REDIS_PORT = ENV.include?("REDIS_PORT") ? ENV["REDIS_PORT"] : 6379
 SOLR_TERM_SEARCH_URL = ENV.include?("SOLR_TERM_SEARCH_URL") ? ENV["SOLR_TERM_SEARCH_URL"] : "http://localhost:8983/solr/term_search_core1"
-SOLR_PROP_SEARCH_URL = ENV.include?("SOLR_PROP_SEARCH_URL") ? ENV["SOLR_PROP_SEARCH_URL"] : "http://localhost:8983/solr/prop_search_core1"
+SOLR_PROP_SEARCH_URL = ENV.include?("SOLR_PROP_SEARCH_URL") ? ENV["SOLR_PROP_SEARCH_URL"] : "http://localhost:8984/solr/prop_search_core1"
 MGREP_HOST = ENV.include?("MGREP_HOST") ? ENV["MGREP_HOST"] : "localhost"
-MGREP_PORT = ENV.include?("MGREP_PORT") ? ENV["MGREP_PORT"] : 55555
+MGREP_PORT = ENV.include?("MGREP_PORT") ? ENV["MGREP_PORT"] : 55556
 
 begin
   # For prefLabel extract main_lang first, or anything if no main found.

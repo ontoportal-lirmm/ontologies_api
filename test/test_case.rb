@@ -74,12 +74,15 @@ class AppUnit < MiniTest::Unit
 
   def backend_4s_delete
     if count_pattern("?s ?p ?o") < 400000
-      LinkedData::Models::Ontology.where.include(:acronym).each do |o|
-        query = "submissionAcronym:#{o.acronym}"
-        LinkedData::Models::Ontology.unindexByQuery(query)
+      puts 'clear backend & index'
+      raise StandardError, 'Too many triples in KB, does not seem right to run tests' unless
+        count_pattern('?s ?p ?o') < 400000
+
+      graphs = Goo.sparql_query_client.query("SELECT DISTINCT  ?g WHERE  { GRAPH ?g { ?s ?p ?o . } }")
+      graphs.each_solution do |sol|
+        Goo.sparql_data_client.delete_graph(sol[:g])
       end
-      LinkedData::Models::Ontology.indexCommit()
-      Goo.sparql_update_client.update("DELETE {?s ?p ?o } WHERE { ?s ?p ?o }")
+
       LinkedData::Models::SubmissionStatus.init_enum
       LinkedData::Models::OntologyType.init_enum
       LinkedData::Models::OntologyFormat.init_enum
