@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: f440ae855a217807fead1d20629a0f187997b973
+  revision: 013abea4af3b10910ec661dbb358a4b6cae198a4
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -53,7 +53,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: e9ff8c19c97d9bc401a0dea29ec0eba6aceed290
+  revision: b49ad10781e83360a5dd1968972c4048592eefda
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -350,10 +350,12 @@ GEM
     webrick (1.8.1)
 
 PLATFORMS
+  x86_64-darwin-21
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
-  activesupport (~> 3.1)
+  activesupport (~> 3.2)
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bigdecimal (= 1.4.2)
   capistrano (~> 3)
@@ -406,4 +408,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.15
+   2.3.26
