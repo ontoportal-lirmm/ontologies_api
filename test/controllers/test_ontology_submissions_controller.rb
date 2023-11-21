@@ -298,8 +298,13 @@ class TestOntologySubmissionsController < TestCase
 
     assert_equal sub.publication.first.to_s, hash["url"]
 
-    assert_equal sub.alternative.sort, hash["titles"].map{|x| x["title"]}.sort
-    assert_equal ['AlternativeTitle'], hash["titles"].map{|x| x["titleType"]}.uniq
+    if hash['ontology']
+      titles = sub.alternative.sort
+    else
+      titles = [sub.ontology.bring(:name).name] + sub.alternative.sort
+    end
+    assert_equal titles, hash["titles"].map{|x| x["title"]}.sort
+    assert_equal ['AlternativeTitle'], hash["titles"].map{|x| x["titleType"]}.reject(&:empty?).uniq
 
 
 

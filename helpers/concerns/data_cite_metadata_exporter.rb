@@ -4,7 +4,7 @@ module Sinatra
 
       def to_date_cite(sub)
         hash  = {
-          url: sub.publication.first&.to_s,
+          url: sub.publication.first ? sub.publication.first&.to_s : sub.URI&.to_s,
           version: sub.version,
           description: sub.description,
           publicationYear: sub.released&.year,
@@ -12,7 +12,7 @@ module Sinatra
           creators: to_data_cite_creators(sub.hasCreator),
           identifier: search_doi(sub.identifier) || sub.identifier.first&.to_s,
           identifierType: identifier_type(sub),
-          titles: sub.alternative.map { |x| { title: x, titleType: 'AlternativeTitle' } },
+          titles: [{title: sub.ontology.name, titleType: ''}] + sub.alternative.map { |x| { title: x, titleType: 'AlternativeTitle' } },
           resourceTypeGeneral: 'Dataset',
           resourceType: sub.isOfType.to_s.split('/').last
         }
