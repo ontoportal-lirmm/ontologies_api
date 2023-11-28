@@ -3,11 +3,19 @@ require_relative '../test_case'
 class TestSlicesController < TestCase
 
   def self.before_suite
-    onts = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1, submission_count: 0)[2]
+    ont_count, ont_acronyms, @@onts = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1, submission_count: 0)
 
     @@slice_acronyms = ["tst-a", "tst-b"].sort
-    _create_slice(@@slice_acronyms[0], "Test Slice A", onts)
-    _create_slice(@@slice_acronyms[1], "Test Slice B", onts)
+    _create_slice(@@slice_acronyms[0], "Test Slice A", @@onts)
+    _create_slice(@@slice_acronyms[1], "Test Slice B", @@onts)
+
+    @@user = User.new({
+                        username: "test-slice",
+                        email: "test-slice@example.org",
+                        password: "12345"
+                      }).save
+    @@new_slice_data = { acronym: 'tst-c', name: "Test Slice C", ontologies: ont_acronyms}
+    @@old_security_setting = LinkedData.settings.enable_security
   end
 
   def self.after_suite
@@ -26,7 +34,7 @@ class TestSlicesController < TestCase
     get "/slices"
     assert last_response.ok?
     slices = MultiJson.load(last_response.body)
-    assert_equal @@slice_acronyms, slices.map {|s| s["acronym"]}.sort
+    assert_equal @@slice_acronyms, slices.map { |s| s["acronym"] }.sort
   end
 
   def test_create_slices
@@ -61,10 +69,10 @@ class TestSlicesController < TestCase
 
   def self._create_slice(acronym, name, ontologies)
     slice = LinkedData::Models::Slice.new({
-      acronym: acronym,
-      name: "Test #{name}",
-      ontologies: ontologies
-    })
+                                            acronym: acronym,
+                                            name: "Test #{name}",
+                                            ontologies: ontologies
+                                          })
     slice.save
   end
 
