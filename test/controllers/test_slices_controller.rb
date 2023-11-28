@@ -10,11 +10,51 @@ class TestSlicesController < TestCase
     _create_slice(@@slice_acronyms[1], "Test Slice B", onts)
   end
 
+  def self.after_suite
+    LinkedData::Models::Slice.all.each(&:delete)
+    @@user.delete
+    reset_security(@@old_security_setting)
+  end
+
+  def setup
+    self.class.reset_security(@@old_security_setting)
+    self.class.reset_to_not_admin(@@user)
+    LinkedData::Models::Slice.find(@@new_slice_data[:acronym]).first&.delete
+  end
+
   def test_all_slices
     get "/slices"
     assert last_response.ok?
     slices = MultiJson.load(last_response.body)
     assert_equal @@slice_acronyms, slices.map {|s| s["acronym"]}.sort
+  end
+
+  def test_create_slices
+    self.class.enable_security
+
+    post "/slices?apikey=#{@@user.apikey}", MultiJson.dump(@@new_slice_data), "CONTENT_TYPE" => "application/json"
+    assert_equal 403, last_response.status
+
+    self.class.make_admin(@@user)
+
+    post "/slices?apikey=#{@@user.apikey}", MultiJson.dump(@@new_slice_data), "CONTENT_TYPE" => "application/json"
+
+    assert 201, last_response.status
+  end
+
+  def test_delete_slices
+    self.class.enable_security
+    LinkedData.settings.enable_security = @@old_security_setting
+    self.class._create_slice(@@new_slice_data[:acronym],  @@new_slice_data[:name], @@onts)
+
+
+    delete "/slices/#{@@new_slice_data[:acronym]}?apikey=#{@@user.apikey}"
+    assert_equal 403, last_response.status
+
+    self.class.make_admin(@@user)
+
+    delete "/slices/#{@@new_slice_data[:acronym]}?apikey=#{@@user.apikey}"
+    assert 201, last_response.status
   end
 
   private
@@ -27,4 +67,5 @@ class TestSlicesController < TestCase
     })
     slice.save
   end
+
 end
