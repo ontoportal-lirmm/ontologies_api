@@ -2,32 +2,39 @@
 
 # Function to display script usage information
 show_help() {
-  cat <<EOL
+  cat << EOL
 Usage: $0 {dev|test|run|help} [--reset-cache] [--api-url API_URL] [--api-key API_KEY] [--old-path OLD_PATH] [--goo-path GOO_PATH] [--sparql-client-path SPARQL_CLIENT_PATH]
-  dev            : Start the OntoPortal API development server.
+  dev            : Start the Ontoportal API development server.
                   Example: $0 dev --api-url http://localhost:9393
                   Use --reset-cache to remove volumes: $0 dev --reset-cache
-  test           : Run tests.
-  run            : Run a command in the OntoPortal API Docker container.
+  test           : Run tests. Specify either a test file or use 'all'.
+                  Example: $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
+                  Example (run all tests): $0 test all -v
+  run            : Run a command in the Ontoportal API Docker container.
   help           : Show this help message.
 
 Description:
-  This script provides convenient commands for managing an OntoPortal API
+  This script provides convenient commands for managing an Ontoportal API
   application using Docker Compose. It includes options for starting the development server,
-  running tests, and executing commands within the OntoPortal API Docker container.
+  running tests, and executing commands within the Ontoportal API Docker container.
 
 Options:
   --reset-cache             : Remove Docker volumes (used with 'dev').
   --api-url API_URL         : Specify the API URL.
+  --api-key API_KEY         : Specify the API key.
   --old-path OLD_PATH       : Specify the path for ontologies_linked_data.
   --goo-path GOO_PATH       : Specify the path for goo.
   --sparql-client-path      : Specify the path for sparql-client.
+  test_file | all            : Specify either a test file or  all the tests will be run.
+  -v                        : Enable verbosity.
+  --name=name_of_the_test   : Specify the name of the test.
 
 Goals:
-  - Simplify common tasks related to OntoPortal API development using Docker.
+  - Simplify common tasks related to Ontoportal API development using Docker.
   - Provide a consistent and easy-to-use interface for common actions.
 EOL
 }
+
 
 # Function to update or create the .env file with API_URL and API_KEY
 update_env_file() {
@@ -177,9 +184,30 @@ dev() {
 # Function to handle the "test" option
 test() {
   echo "Running tests..."
+  local test_path=""
+  local test_options=""
+  local all_arguments=()
+  # Check for command line arguments
+  while [ "$#" -gt 0 ]; do
+     case "$1" in
+         --api-url | --reset-cache | --old-path | --goo-path | --sparql-client-path)
+          all_arguments+=("$1" "$2")
+          shift 2
+          ;;
+       *)
+         if [ -z "$test_path" ]; then
+           test_path="$1"
+         else
+           test_options="$test_options $1"
+         fi
+         ;;
+     esac
+     shift
+  done
 
-  local custom_command="API_URL=$api_url bundle exec rake test TEST=\"$test_path\" TESTOPTS=\"$test_options\""
-  run_command "$custom_command" "$@"
+  local custom_command="bundle exec rake test TEST='$test_path' TESTOPTS='$test_options'"
+  echo "run :  $custom_command"
+  run_command "$custom_command" "${all_arguments[@]}"
 }
 
 # Function to handle the "run" option
