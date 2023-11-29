@@ -11,8 +11,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 5979402d5138850fb9bdb34edfa350e9af1b5d22
-  branch: development
+  revision: 74ea47defc7f6260b045a6c6997bbe6a59c7bf62
+  branch: master
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -53,8 +53,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: a199eff007f5d7f18205d61194f3823445aa6460
-  branch: development
+  revision: 80a331d053ea04397a903452288c2186822c340c
+  branch: master
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -189,10 +189,10 @@ GEM
     httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.6.3)
+    json (2.7.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_pure (2.6.3)
+    json_pure (2.7.1)
     jwt (2.7.1)
     kgio (2.11.4)
     libxml-ruby (4.1.2)
@@ -387,7 +387,7 @@ DEPENDENCIES
   rack-timeout
   rake (~> 10.0)
   redcarpet
-  redis
+  redis (~> 4.8.1)
   redis-activesupport
   redis-rack-cache (~> 2.0)
   redis-store (= 1.9.1)
