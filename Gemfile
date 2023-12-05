@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'activesupport', '~> 3.0'
+gem 'activesupport', '~> 3.1'
 # see https://github.com/ncbo/ontologies_api/issues/69
 gem 'bigdecimal', '1.4.2'
 gem 'faraday', '~> 1.9'
@@ -19,7 +19,7 @@ gem 'request_store'
 gem 'ffi'
 gem 'rack-accept', '~> 0.4'
 gem 'rack-attack', '~> 6.6.1', require: 'rack/attack'
-gem 'rack-cache', '~> 1.0'
+gem 'rack-cache', '~> 1.13.0'
 gem 'rack-cors', require: 'rack/cors'
 # GitHub dependency can be removed when https://github.com/niko/rack-post-body-to-params/pull/6 is merged and released
 gem 'rack-post-body-to-params', github: 'palexander/rack-post-body-to-params', branch: 'multipart_support'
@@ -29,6 +29,7 @@ gem 'redis-rack-cache', '~> 2.0'
 # Data access (caching)
 gem 'redis', '~> 4.8.1'
 gem 'redis-activesupport'
+gem 'redis-store', '1.9.1'
 
 # Monitoring
 gem 'cube-ruby', require: 'cube'
@@ -43,12 +44,12 @@ gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
 gem 'redcarpet'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'goo', git: 'https://github.com/ontoportal-lirmm/goo.git', branch: 'development'
+gem 'goo', git: 'https://github.com/ontoportal-lirmm/goo.git', branch: 'master'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'master'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
-gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
+gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'master'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
@@ -72,4 +73,5 @@ group :test do
   gem 'rack-test'
   gem 'simplecov', require: false
   gem 'simplecov-cobertura' # for codecov.io
+  gem 'webmock'
 end

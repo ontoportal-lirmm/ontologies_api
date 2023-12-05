@@ -29,14 +29,19 @@ module Sinatra
         build_filter
       end
 
-      def apply_filters(query)
+      def apply_filters(object, query)
+        attributes_to_filter = object.attributes(:all).select{|x| params.keys.include?(x.to_s)}
+        filters = attributes_to_filter.map {|key| [key, params[key]&.split(',')]}.to_h
+        add_direct_filters(filters, query)
+      end
+
+      def apply_submission_filters(query)
 
         filters = {
           naturalLanguage: params[:naturalLanguage]&.split(',') , #%w[http://lexvo.org/id/iso639-3/fra http://lexvo.org/id/iso639-3/eng],
           hasOntologyLanguage_acronym: params[:hasOntologyLanguage]&.split(',') , #%w[OWL SKOS],
           ontology_hasDomain_acronym:  params[:hasDomain]&.split(',') , #%w[Crop Vue_francais],
           ontology_group_acronym: params[:group]&.split(','), #%w[RICE CROP],
-          ontology_name: Array(params[:name]) + Array(params[:name]&.capitalize),
           isOfType: params[:isOfType]&.split(','), #["http://omv.ontoware.org/2005/05/ontology#Vocabulary"],
           hasFormalityLevel: params[:hasFormalityLevel]&.split(','), #["http://w3id.org/nkos/nkostype#thesaurus"],
           ontology_viewingRestriction: params[:viewingRestriction]&.split(','), #["private"]
