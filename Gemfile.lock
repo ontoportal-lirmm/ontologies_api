@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 5979402d5138850fb9bdb34edfa350e9af1b5d22
+  revision: 9aa0ccacc9d76bff096218e6d48edc5b0bffd54f
   branch: development
   specs:
     goo (0.0.2)
@@ -53,7 +53,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: a199eff007f5d7f18205d61194f3823445aa6460
+  revision: 9dd8d03ee38a4d07981f230a12ba85b98233e5c3
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -189,10 +189,10 @@ GEM
     httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.6.3)
+    json (2.7.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_pure (2.6.3)
+    json_pure (2.7.1)
     jwt (2.7.1)
     kgio (2.11.4)
     libxml-ruby (4.1.2)
@@ -207,7 +207,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1003)
+    mime-types-data (3.2023.1205)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -251,7 +251,7 @@ GEM
       rack (>= 0.4)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
-    rack-mini-profiler (3.1.1)
+    rack-mini-profiler (3.2.0)
       rack (>= 1.2.0)
     rack-protection (1.5.5)
       rack
