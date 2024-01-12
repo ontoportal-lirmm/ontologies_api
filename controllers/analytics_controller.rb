@@ -1,5 +1,6 @@
 require 'csv'
-class AnalyticsController < ApplicationController
+
+class OntologyAnalyticsController < ApplicationController
 
   ##
   # get all ontology analytics for a given year/month combination

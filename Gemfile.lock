@@ -11,8 +11,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6187c205a1310c2f8a72fe8e07fcf99477060fa9
-  branch: development
+  revision: 03da25b671d2ffa515b5dce51c6bd35980ae60c7
+  branch: master
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -37,7 +37,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 53ad701ab840ba43dbde0f13b7a883f234825183
+  revision: 155db7a33794f03858893d2367cb119f27726a31
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -53,8 +53,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: d5af89ba5563cbd9bfc06c51a8330015dd737614
-  branch: development
+  revision: e98b884999e5ce917a8be5fdc37f7b4797a1559e
+  branch: master
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -220,7 +220,7 @@ GEM
     multipart-post (2.3.0)
     mutex_m (0.2.0)
     net-http-persistent (2.9.4)
-    net-imap (0.4.9)
+    net-imap (0.4.8)
       date
       net-protocol
     net-pop (0.1.2)
@@ -407,4 +407,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.15
+   2.3.23
