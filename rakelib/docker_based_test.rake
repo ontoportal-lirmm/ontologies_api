@@ -12,7 +12,7 @@ namespace :test do
     end
     desc "run tests with docker AG backend"
     task :ag do
-      ENV["GOO_BACKEND_NAME"]="AG"
+      ENV["GOO_BACKEND_NAME"]="allegrograph"
       ENV["GOO_PORT"]="10035"
       ENV["GOO_PATH_QUERY"]="/repositories/ontoportal_test"
       ENV["GOO_PATH_DATA"]="/repositories/ontoportal_test/statements"
@@ -47,7 +47,7 @@ namespace :test do
 
     desc "run tests with docker Virtuoso backend"
     task :vo do
-      ENV["GOO_BACKEND_NAME"]="VO"
+      ENV["GOO_BACKEND_NAME"]="virtuoso"
       ENV["GOO_PORT"]="8890"
       ENV["GOO_PATH_QUERY"]="/sparql"
       ENV["GOO_PATH_DATA"]="/sparql"
@@ -75,7 +75,7 @@ namespace :test do
 
     desc "run tests with docker GraphDb backend"
     task :gb do
-      ENV["GOO_BACKEND_NAME"]="GB"
+      ENV["GOO_BACKEND_NAME"]="graphdb"
       ENV["GOO_PORT"]="7200"
       ENV["GOO_PATH_QUERY"]="/repositories/ontoportal"
       ENV["GOO_PATH_DATA"]="/repositories/ontoportal/statements"

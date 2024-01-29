@@ -88,7 +88,10 @@ module Sinatra
             value = retrieved_values
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:date_time)
             # TODO: Remove this awful hack when obj.class.model_settings[:range][attribute] contains DateTime class
-            value = DateTime.parse(value)
+            is_array = value.is_a?(Array)
+            value = Array(value).map{ |v| DateTime.parse(v) }
+            value = value.first unless is_array
+            value
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:uri) && attribute_settings[:enforce].include?(:list)
             # in case its a list of URI, convert all value to IRI
             value = value.map { |v| RDF::IRI.new(v) }
@@ -273,7 +276,7 @@ module Sinatra
         if params["month"]
           month = params["month"].strip
           if %r{(?<month>^(0[1-9]|[1-9]|1[0-2])$)}x === month
-            month.to_i
+            month.to_i.to_s
           end
         end
       end
@@ -284,7 +287,7 @@ module Sinatra
         if params["year"]
           year = params["year"].strip
           if %r{(?<year>^([1-2]\d{3})$)}x === year
-            year.to_i
+            year.to_i.to_s
           end
         end
       end

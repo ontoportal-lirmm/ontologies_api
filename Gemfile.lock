@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: f440ae855a217807fead1d20629a0f187997b973
+  revision: 013abea4af3b10910ec661dbb358a4b6cae198a4
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -11,8 +11,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: aaa7b11d18cea6cecd781b203cc6bb3ecc248cb5
-  branch: feature/migrate-to-virtuso
+  revision: f1a452ef7728f36719d3f5ddd869e67e2a768ff9
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -37,12 +37,13 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 8db3481116c57d2a21dc8f32bcd1695d95442280
+  revision: f33a917aae2000270d5b560cadf7044bff822779
   branch: master
   specs:
     ncbo_cron (0.0.1)
       dante
       goo
+      google-analytics-data
       google-apis-analytics_v3
       mlanett-redis-lock
       multi_json
@@ -53,8 +54,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 7cd62df2faaa4e00204940120e76ad1a357c85fe
-  branch: feature/migrate-to-virtuoso
+  revision: 0de5f3b2db02a5d2c008ace73a34d586c24e67a7
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -103,12 +104,12 @@ GEM
     activesupport (3.2.22.5)
       i18n (~> 0.6, >= 0.6.4)
       multi_json (~> 1.0)
-    addressable (2.8.5)
+    addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
-    airbrussh (1.5.0)
+    airbrussh (1.5.1)
       sshkit (>= 1.6.1, != 1.7.0)
     backports (3.24.1)
-    bcrypt (3.1.19)
+    bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
@@ -125,16 +126,16 @@ GEM
       capistrano (~> 3.1)
       sshkit (~> 1.3)
     coderay (1.1.3)
-    concurrent-ruby (1.2.2)
-    crack (0.4.5)
+    concurrent-ruby (1.2.3)
+    crack (0.4.6)
+      bigdecimal
       rexml
     cube-ruby (0.0.3)
     dante (0.2.0)
-    date (3.3.3)
+    date (3.3.4)
     declarative (0.0.20)
     docile (1.4.0)
-    domain_name (0.5.20190701)
-      unf (>= 0.0.5, < 1.0.0)
+    domain_name (0.6.20240107)
     ed25519 (1.3.0)
     faraday (1.10.3)
       faraday-em_http (~> 1.0)
@@ -160,43 +161,77 @@ GEM
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
     ffi (1.16.3)
+    gapic-common (0.21.1)
+      faraday (>= 1.9, < 3.a)
+      faraday-retry (>= 1.0, < 3.a)
+      google-protobuf (~> 3.18)
+      googleapis-common-protos (>= 1.4.0, < 2.a)
+      googleapis-common-protos-types (>= 1.11.0, < 2.a)
+      googleauth (~> 1.9)
+      grpc (~> 1.59)
     get_process_mem (0.2.7)
       ffi (~> 1.0)
-    google-apis-analytics_v3 (0.13.0)
-      google-apis-core (>= 0.11.0, < 2.a)
-    google-apis-core (0.11.2)
+    google-analytics-data (0.5.0)
+      google-analytics-data-v1beta (>= 0.11, < 2.a)
+      google-cloud-core (~> 1.6)
+    google-analytics-data-v1beta (0.11.1)
+      gapic-common (>= 0.21.1, < 2.a)
+      google-cloud-errors (~> 1.0)
+    google-apis-analytics_v3 (0.14.0)
+      google-apis-core (>= 0.12.0, < 2.a)
+    google-apis-core (0.13.0)
       addressable (~> 2.5, >= 2.5.1)
-      googleauth (>= 0.16.2, < 2.a)
+      googleauth (~> 1.9)
       httpclient (>= 2.8.1, < 3.a)
       mini_mime (~> 1.0)
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
       rexml
-      webrick
-    googleauth (1.8.1)
-      faraday (>= 0.17.3, < 3.a)
+    google-cloud-core (1.6.1)
+      google-cloud-env (>= 1.0, < 3.a)
+      google-cloud-errors (~> 1.0)
+    google-cloud-env (2.1.0)
+      faraday (>= 1.0, < 3.a)
+    google-cloud-errors (1.3.1)
+    google-protobuf (3.25.2-x86_64-darwin)
+    google-protobuf (3.25.2-x86_64-linux)
+    googleapis-common-protos (1.4.0)
+      google-protobuf (~> 3.14)
+      googleapis-common-protos-types (~> 1.2)
+      grpc (~> 1.27)
+    googleapis-common-protos-types (1.11.0)
+      google-protobuf (~> 3.18)
+    googleauth (1.9.2)
+      faraday (>= 1.0, < 3.a)
+      google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    grpc (1.60.0-x86_64-darwin)
+      google-protobuf (~> 3.25)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.60.0-x86_64-linux)
+      google-protobuf (~> 3.25)
+      googleapis-common-protos-types (~> 1.0)
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
-    hashdiff (1.0.1)
+    hashdiff (1.1.0)
     http-accept (1.7.0)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
     httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.6.3)
+    json (2.7.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_pure (2.6.3)
+    json_pure (2.7.1)
     jwt (2.7.1)
     kgio (2.11.4)
-    libxml-ruby (4.1.1)
-    logger (1.5.3)
+    libxml-ruby (5.0.2)
+    logger (1.6.0)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -205,9 +240,9 @@ GEM
       net-pop
       net-smtp
     method_source (1.0.0)
-    mime-types (3.5.1)
+    mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1003)
+    mime-types-data (3.2023.1205)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -215,21 +250,24 @@ GEM
       redis
     multi_json (1.15.0)
     multipart-post (2.3.0)
+    mutex_m (0.2.0)
     net-http-persistent (2.9.4)
-    net-imap (0.4.2)
+    net-imap (0.4.9.1)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
-    net-protocol (0.2.1)
+    net-protocol (0.2.2)
       timeout
     net-scp (4.0.0)
       net-ssh (>= 2.6.5, < 8.0.0)
-    net-smtp (0.4.0)
+    net-sftp (4.0.0)
+      net-ssh (>= 5.0.0, < 8.0.0)
+    net-smtp (0.4.0.1)
       net-protocol
-    net-ssh (7.2.0)
+    net-ssh (7.2.1)
     netrc (0.11.0)
-    newrelic_rpm (9.5.0)
+    newrelic_rpm (9.7.1)
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
@@ -240,7 +278,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.3)
+    public_suffix (5.0.4)
     rack (1.6.13)
     rack-accept (0.4.5)
       rack (>= 0.4)
@@ -250,7 +288,7 @@ GEM
       rack (>= 0.4)
     rack-cors (1.0.6)
       rack (>= 1.6.0)
-    rack-mini-profiler (3.1.1)
+    rack-mini-profiler (3.3.0)
       rack (>= 1.2.0)
     rack-protection (1.5.5)
       rack
@@ -319,20 +357,19 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
-    sshkit (1.21.5)
+    sshkit (1.22.0)
+      mutex_m
       net-scp (>= 1.1.2)
+      net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
     systemu (2.6.5)
     temple (0.10.3)
     tilt (2.3.0)
-    timeout (0.4.0)
+    timeout (0.4.1)
     trailblazer-option (0.1.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
-    unf (0.1.4)
-      unf_ext
-    unf_ext (0.0.8.2)
     unicorn (6.1.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
@@ -345,10 +382,9 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.8.1)
 
 PLATFORMS
-  x86_64-darwin-21
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -405,4 +441,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.12
+   2.4.21
