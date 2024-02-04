@@ -74,12 +74,15 @@ class AppUnit < MiniTest::Unit
 
   def backend_4s_delete
     if count_pattern("?s ?p ?o") < 400000
-      LinkedData::Models::Ontology.where.include(:acronym).each do |o|
-        query = "submissionAcronym:#{o.acronym}"
-        LinkedData::Models::Ontology.unindexByQuery(query)
+      puts 'clear backend & index'
+      raise StandardError, 'Too many triples in KB, does not seem right to run tests' unless
+        count_pattern('?s ?p ?o') < 400000
+
+      graphs = Goo.sparql_query_client.query("SELECT DISTINCT  ?g WHERE  { GRAPH ?g { ?s ?p ?o . } }")
+      graphs.each_solution do |sol|
+        Goo.sparql_data_client.delete_graph(sol[:g])
       end
-      LinkedData::Models::Ontology.indexCommit()
-      Goo.sparql_update_client.update("DELETE {?s ?p ?o } WHERE { ?s ?p ?o }")
+
       LinkedData::Models::SubmissionStatus.init_enum
       LinkedData::Models::OntologyType.init_enum
       LinkedData::Models::OntologyFormat.init_enum
@@ -146,6 +149,9 @@ class TestCase < MiniTest::Unit::TestCase
   # @option options [TrueClass, FalseClass] :random_submission_count Use a random number of submissions between 1 and :submission_count
   # @option options [TrueClass, FalseClass] :process_submission Parse the test ontology file
   def create_ontologies_and_submissions(options = {})
+    if options[:process_submission] && options[:process_options].nil?
+      options[:process_options] =  { process_rdf: true, extract_metadata: false, generate_missing_labels: false }
+    end
     LinkedData::SampleData::Ontology.create_ontologies_and_submissions(options)
   end
 
@@ -194,4 +200,23 @@ class TestCase < MiniTest::Unit::TestCase
     return errors.strip
   end
 
+  def unused_port
+    max_retries = 5
+    retries = 0
+    server_port = Random.rand(55000..65535)
+    while port_in_use?(server_port)
+      retries += 1
+      break if retries >= max_retries
+      server_port = Random.rand(55000..65535)
+    end
+    server_port
+  end
+  private
+  def port_in_use?(port)
+    server = TCPServer.new(port)
+    server.close
+    false
+  rescue Errno::EADDRINUSE
+    true
+  end
 end
