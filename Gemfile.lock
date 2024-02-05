@@ -11,8 +11,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: f8aeea33e270960afb530064d616eaf8343b5473
-  branch: development
+  revision: 8308441f435f7dd09e22afb22c817f229a585c5a
+  branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -54,8 +54,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 0de5f3b2db02a5d2c008ace73a34d586c24e67a7
-  branch: development
+  revision: ae998b8694fb6bd3fd3de598b638c5b52884cbd8
+  branch: feature/enhance-search
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -252,7 +252,7 @@ GEM
     multipart-post (2.3.0)
     mutex_m (0.2.0)
     net-http-persistent (2.9.4)
-    net-imap (0.4.9.1)
+    net-imap (0.4.10)
       date
       net-protocol
     net-pop (0.1.2)
