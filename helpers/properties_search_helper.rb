@@ -30,10 +30,10 @@ module Sinatra
 
         if params[SearchHelper::EXACT_MATCH_PARAM] == "true"
           query = "\"#{solr_escape(text)}\""
-          params["qf"] = "resource_id^20 labelExact^10 labelGeneratedExact^8"
-          params["hl.fl"] = "resource_id labelExact labelGeneratedExact"
+          params["qf"] = "resource_id^20 label_Exact^10 labelGenerated_Exact^8"
+          params["hl.fl"] = "resource_id label_Exact labelGenerated_Exact"
         else
-          params["qf"] = "labelExact^100 labelGeneratedExact^80 labelSuggestEdge^50 labelSuggestNgram label labelGenerated resource_id"
+          params["qf"] = "label_Exact^100 labelGenerated_Exact^80 label_SuggestEdge^50 labelGenerated_SuggestEdge^40 labelGenerated resource_id"
           query = solr_escape(text)
           # double quote the query if it is a URL (ID searches)
           query = "\"#{query}\"" if text =~ /\A#{URI::regexp(['http', 'https'])}\z/

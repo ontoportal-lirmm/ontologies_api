@@ -78,7 +78,7 @@ module Sinatra
             raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>]"
           else
             text = ''
-            params['sort'] = 'prefLabelExact asc, submissionAcronym asc' if sort == 'prefLabel'
+            params['sort'] = 'prefLabel_Exact asc, submissionAcronym asc' if sort == 'prefLabel'
           end
         end
 
@@ -101,15 +101,15 @@ module Sinatra
 
         if params[EXACT_MATCH_PARAM] == "true"
           query = "\"#{solr_escape(text)}\""
-          params["qf"] = "resource_id^20 prefLabelExact#{lang_suffix }^10 synonymExact#{lang_suffix } #{QUERYLESS_FIELDS_STR}"
-          params["hl.fl"] = "resource_id prefLabelExact#{lang_suffix } synonymExact#{lang_suffix } #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = "resource_id^20 prefLabel_Exact#{lang_suffix}^10 synonym_Exact#{lang_suffix} #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "resource_id prefLabel_Exact#{lang_suffix} synonym_Exact#{lang_suffix} #{QUERYLESS_FIELDS_STR}"
         elsif params[SUGGEST_PARAM] == "true" || text[-1] == '*'
           text.gsub!(/\*+$/, '')
           query = "\"#{solr_escape(text)}\""
           params["qt"] = "/suggest_ncbo"
-          params["qf"] = "prefLabelExact#{lang_suffix }^100 prefLabelSuggestEdge^50 synonymSuggestEdge^10 prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = " prefLabel_Exact#{lang_suffix}^100 prefLabel_SuggestEdge#{lang_suffix}^50 synonym#{lang_suffix}_SuggestEdge^10 prefLabel#{lang_suffix}_SuggestNgram synonym#{lang_suffix}_SuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
           params["pf"] = "prefLabelSuggest^50"
-          params["hl.fl"] = "prefLabelExact#{lang_suffix } prefLabelSuggestEdge synonymSuggestEdge prefLabelSuggestNgram synonymSuggestNgram resource_id #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "prefLabel_Exact#{lang_suffix} prefLabel_SuggestEdge#{lang_suffix} synonym_SuggestEdge#{lang_suffix} prefLabel_SuggestNgram#{lang_suffix} synonym_SuggestNgram#{lang_suffix} resource_id #{QUERYLESS_FIELDS_STR}"
         else
           if text.strip.empty?
             query = '*'
@@ -117,9 +117,9 @@ module Sinatra
             query = solr_escape(text)
           end
 
-          params["qf"] = "resource_id^100 prefLabelExact#{lang_suffix }^90 prefLabel#{lang_suffix }^70 synonymExact#{lang_suffix }^50 synonym#{lang_suffix }^10 #{QUERYLESS_FIELDS_STR}"
+          params["qf"] = "resource_id^100 prefLabel_Exact#{lang_suffix}^90 prefLabel#{lang_suffix}^70 synonym_Exact#{lang_suffix}^50 synonym#{lang_suffix }^10 #{QUERYLESS_FIELDS_STR}"
           params["qf"] << " property" if params[INCLUDE_PROPERTIES_PARAM] == "true"
-          params["hl.fl"] = "resource_id prefLabelExact#{lang_suffix } prefLabel#{lang_suffix } synonymExact#{lang_suffix } synonym#{lang_suffix } #{QUERYLESS_FIELDS_STR}"
+          params["hl.fl"] = "resource_id prefLabel_Exact#{lang_suffix} prefLabel#{lang_suffix } synonym_Exact#{lang_suffix} synonym#{lang_suffix } #{QUERYLESS_FIELDS_STR}"
           params["hl.fl"] = "#{params["hl.fl"]} property" if params[INCLUDE_PROPERTIES_PARAM] == "true"
         end
 
