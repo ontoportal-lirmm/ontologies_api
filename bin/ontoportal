@@ -207,7 +207,9 @@ test() {
 
   local custom_command="bundle exec rake test TEST='$test_path' TESTOPTS='$test_options'"
   echo "run :  $custom_command"
-  run_command "$custom_command" "${all_arguments[@]}"
+  #run_command "$custom_command" "${all_arguments[@]}"
+  run_command "$custom_command" --old-path /home/bourouche/PFE/backend/ontologies_linked_data --goo-path /home/bourouche/PFE/backend/goo
+
 }
 
 # Function to handle the "run" option

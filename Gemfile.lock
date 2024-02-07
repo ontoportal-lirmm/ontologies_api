@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 27a38376d7372d46cd39790dbae3eeed0fec15bb
+  revision: 6187c205a1310c2f8a72fe8e07fcf99477060fa9
   branch: development
   specs:
     goo (0.0.2)
@@ -54,8 +54,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 0de5f3b2db02a5d2c008ace73a34d586c24e67a7
-  branch: development
+  revision: 3745f308776d82bff5b346cfa6eebc143daf14bf
+  branch: feature/sparql-fetch-related-triples
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -248,7 +248,7 @@ GEM
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.15.0)
-    multipart-post (2.3.0)
+    multipart-post (2.4.0)
     mutex_m (0.2.0)
     net-http-persistent (2.9.4)
     net-imap (0.4.10)
@@ -298,6 +298,9 @@ GEM
     rake (10.5.0)
     rdf (1.0.8)
       addressable (>= 2.2)
+    rdf-raptor (1.0.1)
+      ffi (>= 1.0)
+      rdf (>= 1.0.0)
     redcarpet (3.6.0)
     redis (4.8.1)
     redis-activesupport (5.3.0)
@@ -422,6 +425,7 @@ DEPENDENCIES
   rack-test
   rack-timeout
   rake (~> 10.0)
+  rdf-raptor
   redcarpet
   redis (~> 4.8.1)
   redis-activesupport
@@ -440,4 +444,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.21
+   2.4.22
