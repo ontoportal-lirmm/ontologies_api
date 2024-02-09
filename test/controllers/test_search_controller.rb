@@ -3,6 +3,8 @@ require_relative '../test_case'
 class TestSearchController < TestCase
 
   def self.before_suite
+    LinkedData::Models::Ontology.indexClear
+    LinkedData::Models::Agent.indexClear
      count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
       process_submission: true,
       acronym: "BROSEARCHTEST",
@@ -61,6 +63,8 @@ class TestSearchController < TestCase
     @@test_user.delete
     LinkedData::Models::Class.indexClear
     LinkedData::Models::Class.indexCommit
+    LinkedData::Models::Ontology.indexClear
+    LinkedData::Models::Agent.indexClear
   end
 
   def test_search
@@ -255,6 +259,14 @@ class TestSearchController < TestCase
     refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
 
 
+  end
+
+
+  def test_show_all_collection
+    get '/search/collections'
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal res["collections"], Goo.search_connections.keys.map(&:to_s)
   end
 
 end

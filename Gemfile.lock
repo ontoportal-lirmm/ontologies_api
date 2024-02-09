@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 9d5c23d170e5739d3635861de1af7eec3b988009
+  revision: a74645bbe5f801b64839f4f38461a456b3b90fc5
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
@@ -54,8 +54,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: db96af1c8ad925a9392e15fbebee9cfebcc7e608
-  branch: feature/enhance-search
+  revision: aa39d724c26c7fad30866c5a343c040d029f094a
+  branch: feature/index-ontology-agent-metadata
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
