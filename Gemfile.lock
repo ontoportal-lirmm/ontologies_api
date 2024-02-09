@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 8308441f435f7dd09e22afb22c817f229a585c5a
+  revision: 9d5c23d170e5739d3635861de1af7eec3b988009
   branch: feature/add-model-based-search
   specs:
     goo (0.0.2)
@@ -37,7 +37,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: f33a917aae2000270d5b560cadf7044bff822779
+  revision: 9ec0147203007cc368a5119ffe1a019fa8701c14
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -54,7 +54,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: ae998b8694fb6bd3fd3de598b638c5b52884cbd8
+  revision: db96af1c8ad925a9392e15fbebee9cfebcc7e608
   branch: feature/enhance-search
   specs:
     ontologies_linked_data (0.0.1)
@@ -201,7 +201,7 @@ GEM
       grpc (~> 1.27)
     googleapis-common-protos-types (1.11.0)
       google-protobuf (~> 3.18)
-    googleauth (1.9.2)
+    googleauth (1.10.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
@@ -242,14 +242,14 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1205)
+    mime-types-data (3.2024.0206)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.15.0)
-    multipart-post (2.3.0)
+    multipart-post (2.4.0)
     mutex_m (0.2.0)
     net-http-persistent (2.9.4)
     net-imap (0.4.10)
@@ -313,7 +313,7 @@ GEM
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
       uber (< 0.2.0)
-    request_store (1.5.1)
+    request_store (1.6.0)
       rack (>= 1.4)
     rest-client (2.1.0)
       http-accept (>= 1.7.0, < 2.0)
@@ -378,7 +378,7 @@ GEM
       unicorn (>= 4, < 7)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.19.1)
+    webmock (3.20.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
