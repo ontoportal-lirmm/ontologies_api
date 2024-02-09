@@ -12,6 +12,11 @@ class SearchController < ApplicationController
       process_search()
     end
 
+    get '/collections' do
+      collections =  { collections: Goo.search_connections.keys.map(&:to_s)}
+      reply(200, collections)
+    end
+
     private
 
     def process_search(params=nil)
