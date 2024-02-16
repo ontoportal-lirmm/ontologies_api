@@ -127,6 +127,44 @@ class AdminController < ApplicationController
       halt 204
     end
 
+    namespace "/search" do
+      get '/collections' do
+        collections =  { collections: Goo.search_connections.keys.map(&:to_s)}
+        reply(200, collections)
+      end
+
+      get '/collections/:collection/schema' do
+        collection = params[:collection].to_sym
+        collection_schema = Goo.search_connections[collection].fetch_schema
+
+        reply(200, collection_schema)
+      end
+
+      post '/collections/:collection/schema/init' do
+        collection = params[:collection].to_sym
+        collection_schema = Goo.search_connections[collection].init_schema
+        reply(200, collection_schema)
+      end
+
+      post '/index_batch/:model_name' do
+        error 500, "model_name parameter not set" if params["model_name"].blank?
+
+        model = Goo.model_by_name(params["model_name"].to_sym)
+        error 500, "#{params["model_name"]} is not indexable" if model.nil? || !model.index_enabled?
+
+        all_attrs = get_attributes_to_include([:all], model)
+
+        collection = model.where.include(all_attrs).all
+
+        response = model.indexBatch(collection).dig("responseHeader", "status")
+
+        if response.eql?(0)
+          reply(200, "Batch indexing for #{model.model_name} complete")
+        else
+          reply(500, "Batch indexing for #{model.model_name} failed: #{response}")
+        end
+      end
+    end
     private
 
     def process_long_operation(timeout, args)
