@@ -24,6 +24,7 @@ class SearchController < ApplicationController
         has_format = params.fetch("hasFormat", "").split(',')
         visibility = params["visibility"]&.presence || "public"
         show_views = params["show_views"] == 'true'
+        sort = params.fetch("sort", "score desc, ontology_name_sort asc, ontology_acronym_sort asc")
         page, page_size = page_params
 
         fq = [
@@ -54,13 +55,6 @@ class SearchController < ApplicationController
             "ontology_acronymSuggestNgram^2 ontology_nameSuggestNgram^1.5 descriptionSuggestNgram" # substring match last
           ].join(' ')
         end
-
-        if params[:sort]
-          sort = "#{params[:sort]} asc, score desc"
-        else
-          sort = "score desc, ontology_name_sort asc, ontology_acronym_sort asc"
-        end
-
 
         page_data = search(Ontology, query, {
           fq: fq,
@@ -96,7 +90,7 @@ class SearchController < ApplicationController
 
         docs = docs.values
 
-        docs.sort! {|a, b| [b["score"], b["ontology_rank"]] <=> [a["score"], a["ontology_rank"]]}
+        docs.sort! {|a, b| [b["score"], b["ontology_rank"]] <=> [a["score"], a["ontology_rank"]]} unless params[:sort].present?
 
         page = page_object(docs, total_found)
 
