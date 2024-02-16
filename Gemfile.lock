@@ -54,7 +54,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 00d321a32d10acf6d659ef2aa9a305141b181cac
+  revision: 4773e7f90a1afba33f3d84d4b05105826465d8a9
   branch: feature/index-ontology-agent-metadata
   specs:
     ontologies_linked_data (0.0.1)

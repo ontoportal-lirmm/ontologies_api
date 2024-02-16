@@ -155,6 +155,27 @@ class TestCase < MiniTest::Unit::TestCase
     LinkedData::SampleData::Ontology.create_ontologies_and_submissions(options)
   end
 
+
+  def agent_data(type: 'organization')
+    schema_agencies = LinkedData::Models::AgentIdentifier::IDENTIFIER_SCHEMES.keys
+    users = LinkedData::Models::User.all
+    users = [LinkedData::Models::User.new(username: "tim", email: "tim@example.org", password: "password").save] if users.empty?
+    test_identifiers = 5.times.map { |i| { notation: rand.to_s[2..11], schemaAgency: schema_agencies.sample.to_s } }
+    user = users.sample.id.to_s
+
+    i = rand.to_s[2..11]
+    return {
+      agentType: type,
+      name: "name #{i}",
+      homepage: "home page #{i}",
+      acronym: "acronym #{i}",
+      email: "email_#{i}@test.com",
+      identifiers: test_identifiers.sample(2).map { |x| x.merge({ creator: user }) },
+      affiliations: [],
+      creator: user
+    }
+  end
+
   ##
   # Delete all ontologies and their submissions
   def delete_ontologies_and_submissions
