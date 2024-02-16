@@ -5,19 +5,161 @@ class SearchController < ApplicationController
   namespace "/search" do
     # execute a search query
     get do
-      process_search()
+      process_search
     end
 
     post do
-      process_search()
+      process_search
     end
 
-    get '/collections' do
-      collections =  { collections: Goo.search_connections.keys.map(&:to_s)}
-      reply(200, collections)
+    namespace "/ontologies" do
+      get do
+        query = params[:query] || params[:q]
+        groups = params.fetch("groups", "").split(',')
+        categories = params.fetch("hasDomain", "").split(',')
+        languages = params.fetch("languages", "").split(',')
+        status = params.fetch("status", "").split(',')
+        format = params.fetch("hasOntologyLanguage", "").split(',')
+        is_of_type = params.fetch("isOfType", "").split(',')
+        has_format = params.fetch("hasFormat", "").split(',')
+        visibility = params["visibility"]&.presence || "public"
+        show_views = params["show_views"] == 'true'
+        page, page_size = page_params
+
+        fq = [
+          'resource_model:"ontology_submission"',
+          'submissionStatus_txt:ERROR_* OR submissionStatus_txt:"RDF" OR submissionStatus_txt:"UPLOADED"',
+          "ontology_viewingRestriction_t:#{visibility}",
+          groups.map{|x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\""}.join(' OR '),
+          categories.map{|x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\""}.join(' OR '),
+          languages.map{|x| "naturalLanguage_txt:\"#{x.downcase}\""}.join(' OR '),
+        ]
+
+        fq << "!ontology_viewOf_t:*" unless show_views
+
+        fq << format.map{|x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\""}.join(' OR ') unless format.blank?
+
+        fq << status.map{|x| "status_t:#{x}"}.join(' OR ') unless status.blank?
+        fq << is_of_type.map{|x| "isOfType_t:#{x}"}.join(' OR ') unless is_of_type.blank?
+        fq << has_format.map{|x| "hasFormalityLevel_t:#{x}"}.join(' OR ') unless has_format.blank?
+
+        fq.reject!(&:blank?)
+
+        if params[:qf]
+          qf = params[:qf]
+        else
+          qf = [
+            "ontology_acronymSuggestEdge^25  ontology_nameSuggestEdge^15 descriptionSuggestEdge^10 ", # start of the word first
+            "ontology_acronym_text^15  ontology_name_text^10 description_text^5 ", # full word match
+            "ontology_acronymSuggestNgram^2 ontology_nameSuggestNgram^1.5 descriptionSuggestNgram" # substring match last
+          ].join(' ')
+        end
+
+        if params[:sort]
+          sort = "#{params[:sort]} asc, score desc"
+        else
+          sort = "score desc, ontology_name_sort asc, ontology_acronym_sort asc"
+        end
+
+
+        page_data = search(Ontology, query, {
+          fq: fq,
+          qf: qf,
+          page: page,
+          page_size: page_size,
+          sort: sort
+        })
+
+        #resp = Ontology.search(query, search_params)
+        total_found = page_data.aggregate
+        ontology_rank = LinkedData::Models::Ontology.rank
+        docs = {}
+        acronyms_ids = {}
+        page_data.each do |doc|
+          resource_id = doc["resource_id"]
+          id = doc["submissionId_i"]
+          acronym = doc["ontology_acronym_text"]
+          old_resource_id = acronyms_ids[acronym]
+          old_id = old_resource_id.split('/').last.to_i rescue 0
+
+          if acronym.blank? || old_id && id && (id <= old_id)
+            total_found-= 1
+            next
+          end
+
+          docs.delete(old_resource_id)
+          acronyms_ids[acronym] = resource_id
+
+          doc["ontology_rank"] = ontology_rank.dig(doc["ontology_acronym_text"], :normalizedScore) || 0.0
+          docs[resource_id] =  doc
+        end
+
+        docs = docs.values
+
+        docs.sort! {|a, b| [b["score"], b["ontology_rank"]] <=> [a["score"], a["ontology_rank"]]}
+
+        page = page_object(docs, total_found)
+
+        reply 200, page
+      end
+    end
+
+    namespace "/agents" do
+      get do
+        query = params[:query] || params[:q]
+        page, page_size = page_params
+        type = params[:agentType].blank? ? nil : params[:agentType]
+
+        fq =  "agentType_t:#{type}" if type
+
+        qf = [
+          "acronymSuggestEdge^25  nameSuggestEdge^15 emailSuggestEdge^15 identifiersSuggestEdge^10 ", # start of the word first
+          "identifiers_texts^20 acronym_text^15  name_text^10 email_text^10 ", # full word match
+          "acronymSuggestNgram^2 nameSuggestNgram^1.5 email_text^1" # substring match last
+        ].join(' ')
+
+        if params[:sort]
+          sort = "#{params[:sort]} asc, score desc"
+        else
+          sort = "score desc, acronym_sort asc, name_sort asc"
+        end
+
+
+        reply 200, search(LinkedData::Models::Agent,
+                          query,
+                          fq: fq, qf: qf,
+                          page: page, page_size: page_size,
+                          sort: sort)
+      end
     end
 
     private
+
+    def search(model, query, params = {})
+      query = query.blank? ? "*" : query
+
+      resp = model.search(query,  search_params(params))
+
+      total_found = resp["response"]["numFound"]
+      docs = resp["response"]["docs"]
+
+      page_object(docs, total_found)
+    end
+
+    def search_params(defType: "edismax", fq: , qf: , stopwords: "true", lowercaseOperators: "true", page: , page_size: , fl: '*,score', sort: )
+      {
+        defType: defType,
+        fq: fq,
+        qf: qf,
+        sort: sort,
+        start: (page - 1) * page_size,
+        rows: page_size,
+        fl: fl,
+        stopwords: stopwords,
+        lowercaseOperators: lowercaseOperators,
+      }
+    end
+
 
     def process_search(params=nil)
       params ||= @params
