@@ -1,115 +1,138 @@
 require_relative '../test_case'
+require 'rexml/document'
+
 
 class TestImadController < TestCase
 
     def self.before_suite
-        #LinkedData::TestCase.backend_4s_delete
-=begin  
-        data = %(
-            @prefix ex: <http://example.org/> .
-            @prefix rdf: <#{Goo.vocabulary(:rdf)}> .
-            @prefix owl: <#{Goo.vocabulary(:owl)}> .
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+        LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+            process_submission: true,
+            acronym: 'INRAETHES',
+            name: 'INRAETHES',
+            file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
+            ont_count: 1,
+            submission_count: 1
+        })
+        ont = Ontology.find('INRAETHES-0').include(:acronym).first
+        sub = ont.latest_submission
+        sub.bring_remaining
+        sub.hasOntologyLanguage = LinkedData::Models::OntologyFormat.find('SKOS').first
+        sub.save
+        @@graph = "http://data.bioontology.org/ontologies/INRAETHES-0/submissions/1"
+        @@uri = "http://opendata.inrae.fr/thesaurusINRAE/c_6496"
+    end
 
-            ex:TestSubject1 rdf:type owl:Ontology .
-            ex:TestSubject1 ex:TestPredicate11 "TestObject11" .
-            ex:TestSubject1 ex:TestPredicate12 ex:test .
-            ex:TestSubject1 ex:TestPredicate13 1 .
-            ex:TestSubject1 ex:TestPredicate14 true .
-            ex:TestSubject1 ex:TestPredicate15 "1.9"^^xsd:float .
-            ex:TestSubject2 ex:TestPredicate2 1.9 .
+
+    def test_dereference_resource_controller_json
+        skip
+        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "json"}
+        assert last_response.ok?
+
+        result = last_response.body
+        expected_result = %(
+            {
+                "@context": {
+                  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                  "skos": "http://www.w3.org/2004/02/skos/core#",
+                  "owl": "http://www.w3.org/2002/07/owl#"
+                },
+                "@id": "http://opendata.inrae.fr/thesaurusINRAE/c_6496",
+                "@type": [
+                  "skos:Concept",
+                  "owl:NamedIndividual"
+                ],
+                "skos:broader": {
+                  "@id": "http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"
+                },
+                "skos:inScheme": [
+                  {
+                    "@id": "http://opendata.inrae.fr/thesaurusINRAE/mt_65"
+                  },
+                  {
+                    "@id": "http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"
+                  }
+                ],
+                "skos:prefLabel": {
+                  "@language": "fr",
+                  "@value": "altération de l'ADN"
+                },
+                "skos:topConceptOf": {
+                  "@id": "http://opendata.inrae.fr/thesaurusINRAE/mt_65"
+                }
+            }
         )
-        graph = "http://example.org/test_graph"
-        Goo.sparql_data_client.execute_append_request(graph, data, "application/x-turtle")
-=end
-        _set_vars
-        _create_user
-        _create_onts
-    end
 
-
-    def self._set_vars
-        @@acronym = "TST"
-        @@name = "Test Ontology"
-        @@test_file = File.expand_path("../../data/ontology_files/BRO_v3.1.owl", __FILE__)
-        @@file_params = {
-        name: @@name,
-        hasOntologyLanguage: "OWL",
-        administeredBy: "tim",
-        "file" => Rack::Test::UploadedFile.new(@@test_file, ""),
-        released: DateTime.now.to_s,
-        contact: [{name: "test_name", email: "test3@example.org"}],
-        URI: 'https://test.com/test',
-        status: 'production',
-        description: 'ontology description'
-        }
-        @@status_uploaded = "UPLOADED"
-        @@status_rdf = "RDF"
-    end
-
-    def self._create_user
-        username = "tim"
-        test_user = User.new(username: username, email: "#{username}@example.org", password: "password")
-        test_user.save if test_user.valid?
-        @@user = test_user.valid? ? test_user : User.find(username).first
-    end
-
-    def self._create_onts
-        ont = Ontology.new(acronym: @@acronym, name: @@name, administeredBy: [@@user])
-        ont.save
-    end
-
-    def submit_ontology
-        post "/ontologies/#{@@acronym}/submissions", @@file_params
-        assert_equal(201, last_response.status, msg=get_errors(last_response))
-        sub = MultiJson.load(last_response.body)
-        get "/ontologies/#{@@acronym}"
-        ont = MultiJson.load(last_response.body)
-        assert ont["acronym"].eql?(@@acronym)
-    end
-
-
-    def test_imad_controller
-        submit_ontology()
-        
-        post "/dereference_resource", { acronym: "http://data.bioontology.org/ontologies/TST/submissions/1", uri: "http://data.bioontology.org/users/tim" }
-        puts
-        puts last_response.body
-        puts
-        assert last_response.ok?
-
-
-        post "/dereference_resource", { acronym: "http://data.bioontology.org/ontologies/TST/submissions/1", uri: "http://data.bioontology.org/users/tim", output_format: "json"}
-        puts
-        puts last_response.body
-        puts
-        assert last_response.ok?
-
-
-        post "/dereference_resource", { acronym: "http://data.bioontology.org/ontologies/TST/submissions/1", uri: "http://data.bioontology.org/users/tim", output_format: "xml"}
-        puts
-        puts last_response.body
-        puts
-        assert last_response.ok?
-
-
-        post "/dereference_resource", { acronym: "http://data.bioontology.org/ontologies/TST/submissions/1", uri: "http://data.bioontology.org/users/tim", output_format: "ntriples"}
-        puts
-        puts last_response.body
-        puts
-        assert last_response.ok?
-
-
-        post "/dereference_resource", { acronym: "http://data.bioontology.org/ontologies/TST/submissions/1", uri: "http://data.bioontology.org/users/tim", output_format: "turtle"}
-        puts
-        puts last_response.body
-        puts
-        assert last_response.ok?
-        
-        # Cleanup
-        #delete "/ontologies/#{@@acronym}/submissions/#{sub['submissionId']}"
-        #assert_equal(204, last_response.status, msg=get_errors(last_response))
+        a = result.gsub(' ', '').gsub("\n", '')
+        b = expected_result.gsub(' ', '').gsub("\n", '')
     
-   end
+        assert_equal b, a
+    end
+
+    def test_dereference_resource_controller_xml
+        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "xml"}
+        assert last_response.ok?
+
+        result = last_response.body
+        expected_result = %(
+            <?xml version="1.0" encoding="UTF-8"?>
+            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:owl="http://www.w3.org/2002/07/owl#">
+            <skos:Concept rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
+                <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+                <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
+                <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+                <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+                <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
+                <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
+            </skos:Concept>
+            </rdf:RDF>
+        )
+        a = result.gsub('\\"', '"').gsub('\\n', "").gsub(" ", "")[1..-2]
+        b = expected_result.gsub(' ', '').gsub("\n", '')
+
+        assert_equal b, a
+    end
+
+    def test_dereference_resource_controller_ntriples
+        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "ntriples"}
+        assert last_response.ok?
+
+        result = last_response.body
+        expected_result = %(
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#NamedIndividual> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#broader> <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#topConceptOf> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
+        )
+        a =  result.gsub('\\"', '"').gsub(' ', '').gsub("\\n", '')[1..-2]
+        b = expected_result.gsub(' ', '').gsub("\n", '')
+
+        assert_equal b, a
+    end
+
+    def test_dereference_resource_controller_turtle
+        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "turtle"}
+        assert last_response.ok?
+        
+        result = last_response.body
+        expected_result = %(
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            
+            <http://opendata.inrae.fr/thesaurusINRAE/c_6496>
+                a owl:NamedIndividual, skos:Concept ;
+                skos:broader <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> ;
+                skos:inScheme <http://opendata.inrae.fr/thesaurusINRAE/mt_65>, <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> ;
+                skos:prefLabel "altération de l'ADN" ;
+                skos:topConceptOf <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
+        )
+        a = result.gsub('\\"','"').gsub(' ', '').gsub("\\n", '')[1..-2]
+        b = expected_result.gsub(' ', '').gsub("\n", '')
+
+        assert_equal b, a
+    end
 
 end
