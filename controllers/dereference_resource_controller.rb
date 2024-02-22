@@ -4,51 +4,48 @@ require_relative '../test/test_case'
 class ImadController < ApplicationController
 
     namespace '/dereference_resource' do
-
-        get do
-            raise error 405, "Method Not Allowd: This route must be provided via POST request with acronym, uri, output_format parameters"
-        end
         
-        def set_vars
-            @@acronym = "TST"
-            @@name = "Test Ontology"
-            @@test_file = File.expand_path("../../test/data/ontology_files/BRO_v3.1.owl", __FILE__)
-            @@file_params = {
-            name: @@name,
-            hasOntologyLanguage: "OWL",
-            administeredBy: "tim",
-            "file" => Rack::Test::UploadedFile.new(@@test_file, ""),
-            released: DateTime.now.to_s,
-            contact: [{name: "test_name", email: "test3@example.org"}],
-            URI: 'https://test.com/test',
-            status: 'production',
-            description: 'ontology description'
-            }
-            @@status_uploaded = "UPLOADED"
-            @@status_rdf = "RDF"
+        get do
+            reply "GET: /:acronym/:uri?output_format= OR POST: acronym, uri, output_format parameters"
         end
-    
-        def create_user
-            username = "tim"
-            test_user = User.new(username: username, email: "#{username}@example.org", password: "password")
-            test_user.save if test_user.valid?
-            @@user = test_user.valid? ? test_user : User.find(username).first
+
+        get "/:acronym/:uri" do
+            acronym = params[:acronym]
+            uri = params[:uri]
+            output_format = params[:output_format].presence || 'jsonld'
+            process_request(acronym, uri, output_format)
         end
-    
-        def create_onts
-            ont = Ontology.new(acronym: @@acronym, name: @@name, administeredBy: [@@user])
+
+        get "/parse" do
+            LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                process_submission: true,
+                acronym: 'INRAETHES',
+                name: 'INRAETHES',
+                file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
+                ont_count: 1,
+                submission_count: 1
+            })
+            ont = Ontology.find('INRAETHES-0').include(:acronym).first
+            sub = ont.latest_submission
+            sub.bring_remaining
+            sub.hasOntologyLanguage = LinkedData::Models::OntologyFormat.find('SKOS').first
+            sub.save
+            reply "OK: ONTOLOGY PARSED"
         end
 
         post do
-            set_vars()
-            create_user()
-            create_onts()
 
             acronym = params[:acronym]
             uri = params[:uri]
             output_format = params[:output_format].presence || 'jsonld'
-            acronym = URI.decode_www_form_component(acronym)
-            uri = URI.decode_www_form_component(uri)
+            process_request(acronym, uri, output_format)
+        end
+
+        private
+
+        def process_request(acronym_param, uri_param, output_format)
+            acronym = URI.decode_www_form_component(acronym_param)
+            uri = URI.decode_www_form_component(uri_param)
             unless valid_url?(acronym) && valid_url?(uri)
                 raise error 500, "INVALID URLs"
                 return
@@ -76,8 +73,6 @@ class ImadController < ApplicationController
             end
 
         end
-
-        private
 
         def valid_url?(url)
             uri = URI.parse(url)
