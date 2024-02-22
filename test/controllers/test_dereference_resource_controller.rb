@@ -2,7 +2,7 @@ require_relative '../test_case'
 require 'rexml/document'
 
 
-class TestImadController < TestCase
+class TestDereferenceResourceController < TestCase
 
     def self.before_suite
         LinkedData::SampleData::Ontology.create_ontologies_and_submissions({

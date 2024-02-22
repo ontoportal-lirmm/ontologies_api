@@ -1,7 +1,7 @@
 require_relative '../test/test_case'
 
 
-class ImadController < ApplicationController
+class DereferenceResourceController < ApplicationController
 
     namespace '/dereference_resource' do
         
@@ -16,22 +16,6 @@ class ImadController < ApplicationController
             process_request(acronym, uri, output_format)
         end
 
-        get "/parse" do
-            LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-                process_submission: true,
-                acronym: 'INRAETHES',
-                name: 'INRAETHES',
-                file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
-                ont_count: 1,
-                submission_count: 1
-            })
-            ont = Ontology.find('INRAETHES-0').include(:acronym).first
-            sub = ont.latest_submission
-            sub.bring_remaining
-            sub.hasOntologyLanguage = LinkedData::Models::OntologyFormat.find('SKOS').first
-            sub.save
-            reply "OK: ONTOLOGY PARSED"
-        end
 
         post do
 
