@@ -36,6 +36,26 @@ class TestSearchModelsController < TestCase
     assert_includes fields, 'resource_model'
   end
 
+  def test_collection_search
+
+    count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                                                process_submission: false,
+                                                                                                acronym: "BROSEARCHTEST",
+                                                                                                name: "BRO Search Test",
+                                                                                                file_path: "./test/data/ontology_files/BRO_v3.2.owl",
+                                                                                                ont_count: 1,
+                                                                                                submission_count: 1,
+                                                                                                ontology_type: "VALUE_SET_COLLECTION"
+                                                                                              })
+    collection = 'ontology_metadata'
+    post "/admin/search/collections/#{collection}/search", {q: ""}
+
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal 2,  res['response']['numFound']
+  end
+
+
   def test_ontology_metadata_search
     count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
                                                                                                 process_submission: false,
