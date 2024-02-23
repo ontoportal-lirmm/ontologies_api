@@ -146,6 +146,19 @@ class AdminController < ApplicationController
         reply(200, collection_schema)
       end
 
+
+      post '/collections/:collection/search' do
+        collection = params[:collection].to_sym
+
+        search_keys = %w[defType fq qf sort start rows fl stopwords lowercaseOperators]
+
+        search_params = params.select { |key, _|  search_keys.include?(key) }
+        search_query = params[:query] || params[:q]
+        search_query = search_query.blank? ? '*' : search_query
+
+        reply(200, Goo.search_connections[collection].search(search_query, search_params).to_h)
+      end
+
       post '/index_batch/:model_name' do
         error 500, "model_name parameter not set" if params["model_name"].blank?
 
