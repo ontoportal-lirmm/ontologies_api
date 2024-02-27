@@ -14,7 +14,7 @@ gem 'sinatra', '~> 1.0'
 gem 'sinatra-advanced-routes'
 gem 'sinatra-contrib', '~> 1.0'
 gem 'request_store'
-
+gem 'addressable', '~> 2.8'
 # Rack middleware
 gem 'ffi'
 gem 'rack-accept', '~> 0.4'
@@ -74,5 +74,5 @@ group :test do
   gem 'rack-test'
   gem 'simplecov', require: false
   gem 'simplecov-cobertura' # for codecov.io
-  gem 'webmock'
+  gem 'webmock', '~> 3.19.1'
 end

@@ -18,7 +18,7 @@ class TestSearchModelsController < TestCase
     get '/admin/search/collections'
     assert last_response.ok?
     res = MultiJson.load(last_response.body)
-    assert_equal res["collections"], Goo.search_connections.keys.map(&:to_s)
+    assert_equal res["collections"].sort, Goo.search_connections.keys.map(&:to_s).sort
   end
 
   def test_collection_schema
@@ -340,5 +340,61 @@ class TestSearchModelsController < TestCase
     assert last_response.ok?
     agents = MultiJson.load(last_response.body)
     assert_equal agent_org.id.to_s, agents["collection"].first["id"]
+  end
+
+  def test_search_data
+    count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                                                process_submission: true,
+                                                                                                process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                acronym: "BROSEARCHTEST",
+                                                                                                name: "BRO Search Test",
+                                                                                                file_path: "./test/data/ontology_files/BRO_v3.2.owl",
+                                                                                                ont_count: 1,
+                                                                                                submission_count: 1,
+                                                                                                ontology_type: "VALUE_SET_COLLECTION"
+                                                                                              })
+
+    count, acronyms, mccl = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                                                 process_submission: true,
+                                                                                                 process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                 acronym: "MCCLSEARCHTEST",
+                                                                                                 name: "MCCL Search Test",
+                                                                                                 file_path: "./test/data/ontology_files/CellLine_OWL_BioPortal_v1.0.owl",
+                                                                                                 ont_count: 1,
+                                                                                                 submission_count: 1
+                                                                                               })
+
+
+    subs = LinkedData::Models::OntologySubmission.all
+    count = []
+    subs.each do |s|
+      s.bring_remaining
+      s.index_all_data(Logger.new($stdout))
+      count << Goo.sparql_query_client.query("SELECT  (COUNT( DISTINCT ?id) as ?c)  FROM <#{s.id}> WHERE {?id ?p ?v}")
+                 .first[:c]
+                 .to_i
+    end
+
+    get "/search/ontologies/content?q=*"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal count.sum, res['totalCount']
+
+
+    get "/search/ontologies/content?q=*&ontologies=MCCLSEARCHTEST-0,BROSEARCHTEST-0"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal count.sum, res['totalCount']
+
+    get "/search/ontologies/content?q=*&ontologies=BROSEARCHTEST-0"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_includes count, res['totalCount']
+
+    get "/search/ontologies/content?q=*&ontologies=MCCLSEARCHTEST-0"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_includes count, res['totalCount']
+
   end
 end
