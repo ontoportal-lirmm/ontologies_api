@@ -129,20 +129,23 @@ class AdminController < ApplicationController
 
     namespace "/search" do
       get '/collections' do
-        collections =  { collections: Goo.search_connections.keys.map(&:to_s)}
+        conn = SOLR::SolrConnector.new(Goo.search_conf, '')
+        collections =  { collections: conn.fetch_all_collections}
         reply(200, collections)
       end
 
       get '/collections/:collection/schema' do
         collection = params[:collection].to_sym
-        collection_schema = Goo.search_connections[collection].fetch_schema
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        collection_schema = conn.fetch_schema
 
         reply(200, collection_schema)
       end
 
       post '/collections/:collection/schema/init' do
         collection = params[:collection].to_sym
-        collection_schema = Goo.search_connections[collection].init_schema
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        collection_schema = conn.init_schema
         reply(200, collection_schema)
       end
 
@@ -155,8 +158,8 @@ class AdminController < ApplicationController
         search_params = params.select { |key, _|  search_keys.include?(key) }
         search_query = params[:query] || params[:q]
         search_query = search_query.blank? ? '*' : search_query
-
-        reply(200, Goo.search_connections[collection].search(search_query, search_params).to_h)
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        reply(200, conn.search(search_query, search_params).to_h)
       end
 
       post '/index_batch/:model_name' do
