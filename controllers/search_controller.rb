@@ -31,18 +31,18 @@ class SearchController < ApplicationController
           'resource_model:"ontology_submission"',
           'submissionStatus_txt:ERROR_* OR submissionStatus_txt:"RDF" OR submissionStatus_txt:"UPLOADED"',
           "ontology_viewingRestriction_t:#{visibility}",
-          groups.map{|x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\""}.join(' OR '),
-          categories.map{|x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\""}.join(' OR '),
-          languages.map{|x| "naturalLanguage_txt:\"#{x.downcase}\""}.join(' OR '),
+          groups.map { |x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\"" }.join(' OR '),
+          categories.map { |x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\"" }.join(' OR '),
+          languages.map { |x| "naturalLanguage_txt:\"#{x.downcase}\"" }.join(' OR '),
         ]
 
         fq << "!ontology_viewOf_t:*" unless show_views
 
-        fq << format.map{|x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\""}.join(' OR ') unless format.blank?
+        fq << format.map { |x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\"" }.join(' OR ') unless format.blank?
 
-        fq << status.map{|x| "status_t:#{x}"}.join(' OR ') unless status.blank?
-        fq << is_of_type.map{|x| "isOfType_t:#{x}"}.join(' OR ') unless is_of_type.blank?
-        fq << has_format.map{|x| "hasFormalityLevel_t:#{x}"}.join(' OR ') unless has_format.blank?
+        fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
+        fq << is_of_type.map { |x| "isOfType_t:#{x}" }.join(' OR ') unless is_of_type.blank?
+        fq << has_format.map { |x| "hasFormalityLevel_t:#{x}" }.join(' OR ') unless has_format.blank?
 
         fq.reject!(&:blank?)
 
@@ -63,8 +63,7 @@ class SearchController < ApplicationController
           page_size: page_size,
           sort: sort
         })
-
-        #resp = Ontology.search(query, search_params)
+        
         total_found = page_data.aggregate
         ontology_rank = LinkedData::Models::Ontology.rank
         docs = {}
@@ -77,7 +76,7 @@ class SearchController < ApplicationController
           old_id = old_resource_id.split('/').last.to_i rescue 0
 
           if acronym.blank? || old_id && id && (id <= old_id)
-            total_found-= 1
+            total_found -= 1
             next
           end
 
@@ -85,16 +84,39 @@ class SearchController < ApplicationController
           acronyms_ids[acronym] = resource_id
 
           doc["ontology_rank"] = ontology_rank.dig(doc["ontology_acronym_text"], :normalizedScore) || 0.0
-          docs[resource_id] =  doc
+          docs[resource_id] = doc
         end
 
         docs = docs.values
 
-        docs.sort! {|a, b| [b["score"], b["ontology_rank"]] <=> [a["score"], a["ontology_rank"]]} unless params[:sort].present?
+        docs.sort! { |a, b| [b["score"], b["ontology_rank"]] <=> [a["score"], a["ontology_rank"]] } unless params[:sort].present?
 
         page = page_object(docs, total_found)
 
         reply 200, page
+      end
+
+      get '/content' do
+        query = params[:query] || params[:q]
+        page, page_size = page_params
+        ontologies = params.fetch("ontologies", "").split(',')
+        qf = params.fetch("qf", "")
+
+        fq = []
+
+        fq << ontologies.map { |x| "ontology_t:\"#{x}\"" }.join(' OR ') unless ontologies.blank?
+
+
+        conn = SOLR::SolrConnector.new(Goo.search_conf, :ontology_data)
+
+        resp = conn.search(query, fq: fq, qf: qf,
+                                 page: page, page_size: page_size)
+
+        total_found = resp["response"]["numFound"]
+        docs = resp["response"]["docs"]
+
+
+        reply 200,page_object(docs, total_found)
       end
     end
 
@@ -104,7 +126,7 @@ class SearchController < ApplicationController
         page, page_size = page_params
         type = params[:agentType].blank? ? nil : params[:agentType]
 
-        fq =  "agentType_t:#{type}" if type
+        fq = "agentType_t:#{type}" if type
 
         qf = [
           "acronymSuggestEdge^25  nameSuggestEdge^15 emailSuggestEdge^15 identifiersSuggestEdge^10 ", # start of the word first
@@ -117,7 +139,6 @@ class SearchController < ApplicationController
         else
           sort = "score desc, acronym_sort asc, name_sort asc"
         end
-
 
         reply 200, search(LinkedData::Models::Agent,
                           query,
@@ -132,7 +153,7 @@ class SearchController < ApplicationController
     def search(model, query, params = {})
       query = query.blank? ? "*" : query
 
-      resp = model.search(query,  search_params(params))
+      resp = model.search(query, search_params(params))
 
       total_found = resp["response"]["numFound"]
       docs = resp["response"]["docs"]
@@ -140,7 +161,7 @@ class SearchController < ApplicationController
       page_object(docs, total_found)
     end
 
-    def search_params(defType: "edismax", fq: , qf: , stopwords: "true", lowercaseOperators: "true", page: , page_size: , fl: '*,score', sort: )
+    def search_params(defType: "edismax", fq:, qf:, stopwords: "true", lowercaseOperators: "true", page:, page_size:, fl: '*,score', sort:)
       {
         defType: defType,
         fq: fq,
@@ -154,8 +175,7 @@ class SearchController < ApplicationController
       }
     end
 
-
-    def process_search(params=nil)
+    def process_search(params = nil)
       params ||= @params
       text = params["q"]
 
@@ -191,13 +211,13 @@ class SearchController < ApplicationController
 
       unless params['sort']
         if !text.nil? && text[-1] == '*'
-          docs.sort! {|a, b| [b[:score], a[:prefLabelExact].downcase, b[:ontology_rank]] <=> [a[:score], b[:prefLabelExact].downcase, a[:ontology_rank]]}
+          docs.sort! { |a, b| [b[:score], a[:prefLabelExact].downcase, b[:ontology_rank]] <=> [a[:score], b[:prefLabelExact].downcase, a[:ontology_rank]] }
         else
-          docs.sort! {|a, b| [b[:score], b[:ontology_rank]] <=> [a[:score], a[:ontology_rank]]}
+          docs.sort! { |a, b| [b[:score], b[:ontology_rank]] <=> [a[:score], a[:ontology_rank]] }
         end
       end
 
-      #need to return a Page object
+      # need to return a Page object
       page = page_object(docs, total_found)
 
       reply 200, page
