@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_annotator.git
-  revision: 57204d8e54432ba660af4c49806e2a3019a23fa2
-  branch: master
+  revision: 1eb751b65d10ae23d45c74e0516c78754a8419f0
+  branch: development
   specs:
     ncbo_annotator (0.0.1)
       goo
@@ -398,7 +398,7 @@ GEM
       unicorn (>= 4, < 7)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.19.1)
+    webmock (3.23.0)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
