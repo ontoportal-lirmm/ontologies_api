@@ -1,38 +1,48 @@
 x-app: &app
-  build:
-    context: .
-    args:
-      RUBY_VERSION: '2.7'
-  # Increase the version number in the image tag every time Dockerfile or its arguments is changed
-  image: ontologies_ld-dev:0.0.2
+  image: agroportal/ontologies_api:development
   environment: &env
-    # default bundle config resolves to /usr/local/bundle/config inside of the container
-    # we are setting it to local app directory if we need to use 'bundle config local'
     BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
     BUNDLE_PATH: /srv/ontoportal/bundle
     COVERAGE: 'true' # enable simplecov code coverage
     REDIS_HOST: redis-ut
     REDIS_PORT: 6379
-    SOLR_TERM_SEARCH_URL: http://solr-term-ut:8983/solr/term_search_core1
-    SOLR_PROP_SEARCH_URL: http://solr-prop-ut:8984/solr/prop_search_core1
+    SOLR_TERM_SEARCH_URL: http://solr-ut:8983/solr
+    SOLR_PROP_SEARCH_URL: http://solr-ut:8983/solr
   stdin_open: true
   tty: true
   command: /bin/bash
-  volumes:
-    # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
+  volumes: # <-- This seems to be incorrectly indented in your original YAML
     - bundle:/srv/ontoportal/bundle
-    - .:/srv/ontoportal/ontologies_linked_data
-    # mount directory containing development version of the gems if you need to use 'bundle config local'
-    #- /Users/alexskr/ontoportal:/Users/alexskr/ontoportal
+    - .:/srv/ontoportal/ontologies_api
   depends_on: &depends_on
-    solr-prop-ut:
-      condition: service_healthy
-    solr-term-ut:
+    solr-ut:
       condition: service_healthy
     redis-ut:
       condition: service_healthy
 
 services:
+  api:
+    <<: *app
+    env_file:
+      .env
+    environment:
+      <<: *env
+      GOO_BACKEND_NAME: 4store
+      GOO_PORT: 9000
+      GOO_HOST: 4store-ut
+      GOO_PATH_QUERY: /sparql/
+      GOO_PATH_DATA: /data/
+      GOO_PATH_UPDATE: /update/
+
+    ports:
+      - "9393:9393"
+    profiles:
+      - fs
+    depends_on:
+      - solr-ut
+      - redis-ut
+      - mgrep-ut
+      - 4store-ut
 
   mgrep-ut:
     image: ontoportal/mgrep-ncbo:0.1
@@ -61,29 +71,13 @@ services:
     profiles:
       - fs
 
-  solr-term-ut:
+  solr-ut:
     image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
     ports:
       - "8983:8983"
-    command: [ "solr-precreate", "term_search_core1", "/configsets/term_search" ]
+    command: bin/solr start -cloud -f
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/term_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  solr-prop-ut:
-    image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
-    ports:
-      - "8984:8983"
-    command: [ "solr-precreate", "prop_search_core1", "/configsets/property_search" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/prop_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
       start_period: 5s
       interval: 10s
       timeout: 5s
@@ -99,9 +93,6 @@ services:
     ports:
       #      - 10035:10035
       - 10000-10035:10000-10035
-    volumes:
-      - agdata:/agraph/data
-      #      - ./agraph/etc:/agraph/etc
     command: >
       bash -c "/agraph/bin/agraph-control --config /agraph/etc/agraph.cfg start
       ; agtool repos create ontoportal_test --supersede
@@ -156,4 +147,3 @@ services:
 
 volumes:
   bundle:
-  agdata:

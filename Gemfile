@@ -14,6 +14,7 @@ gem 'sinatra', '~> 1.0'
 gem 'sinatra-advanced-routes'
 gem 'sinatra-contrib', '~> 1.0'
 gem 'request_store'
+gem "parallel"
 
 # Rack middleware
 gem 'ffi'
@@ -38,6 +39,10 @@ gem 'newrelic_rpm'
 # HTTP server
 gem 'unicorn'
 gem 'unicorn-worker-killer'
+gem "puma", "~> 6.4"
+gem "faye-websocket", "~> 0.11.3"
+
+
 
 # Templating
 gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
@@ -60,7 +65,7 @@ group :development do
   gem 'capistrano-rbenv', require: false
   gem 'ed25519', '>= 1.2', '< 2.0', require: false
   gem 'pry'
-  gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
+  gem "listen", "~> 3.9"
 end
 
 

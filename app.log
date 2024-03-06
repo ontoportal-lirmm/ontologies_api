@@ -1,0 +1,59 @@
+# Logfile created on 2024-03-06 04:41:57 +0000 by logger.rb/v1.6.0
+Starting to process INRAETHES-0/submissions/1
+Java call [java -DentityExpansionLimit=2500000 -Xmx10240M -jar /srv/ontoportal/bundle/ruby/2.7.0/bundler/gems/ontologies_linked_data-d37aeafbd7be/bin/owlapi-wrapper.jar -m /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/CSOPRA\ Summary.owl -o /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1 -r true]
+2024-03-06T04:41:58 [main] INFO  o.s.n.o.w.OntologyParserCommand - Parsing invocation with values: ParserInvocation [inputRepositoryFolder=null, outputRepositoryFolder=/srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1, masterFileName=/srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/CSOPRA Summary.owl, invocationId=0, parserLog=, userReasoner= true]
+
+2024-03-06T04:41:58 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - executor ...
+
+2024-03-06T04:41:59 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - Input repository folder is null. Unique file being parsed.
+
+2024-03-06T04:42:04 [main] INFO  o.s.n.o.w.metrics.OntologyMetrics - Calculating metrics for /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/CSOPRA Summary.owl
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.o.w.metrics.OntologyMetrics - Finished metrics calculation for /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/CSOPRA Summary.owl in 21 milliseconds
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.o.w.metrics.OntologyMetrics - Generated metrics CSV file for /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/CSOPRA Summary.owl
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - Ontology document format: org.semanticweb.owlapi.formats.RDFXMLDocumentFormat
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - useImports: http://ecoinformatics.org/oboe/oboe.1.2/oboe-core.owl
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - useImports: http://purl.obolibrary.org/obo/agro-edit.owl
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - isPrefixOWLOntologyFormat: true
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - isPrefixOWLOntologyFormat: true
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - isPrefixOWLOntologyFormat: true
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - isOBO: false
+
+2024-03-06T04:42:05 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - Serializing ontology in RDF ...
+
+2024-03-06T04:42:07 [main] INFO  o.s.n.owlapi.wrapper.OntologyParser - Serialization done!
+
+2024-03-06T04:42:07 [main] INFO  o.s.n.o.w.OntologyParserCommand - Parse result: true
+
+2024-03-06T04:42:07 [main] INFO  o.s.n.o.w.OntologyParserCommand - Output triples in: {}/srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/owlapi.xrdf
+
+2024-03-06T04:42:07 [main] INFO  o.s.n.o.w.OntologyParserCommand - Finished parsing!
+
+OWLAPI Java command: parsing finished successfully.
+Output size 7726913 in `/srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/owlapi.xrdf`
+OWL_IMPORT_MISSING: file:///opt/owl/anaee-onto-onto-fr.owl
+Triples /srv/ontoportal/ontologies_api/test/data/ontology_files/repo/INRAETHES-0/1/owlapi.xrdf appended in <http://data.bioontology.org/ontologies/INRAETHES-0/submissions/1>
+Empty page encountered. Retrying 1 times...
+Empty page encountered. Retrying 2 times...
+Empty page encountered. Retrying 3 times...
+Empty page encountered. Retrying 4 times...
+Empty page encountered. Retrying 5 times...
+Empty page encountered. Retrying 6 times...
+Empty page encountered. Retrying 7 times...
+Empty page encountered. Retrying 8 times...
+Empty page encountered. Retrying 9 times...
+Empty page encountered. Retrying 10 times...
+Empty page 1 of 2 persisted after retrying 10 times. Missing Labels Generation of 1 aborted...
+Starting to process INRAETHES-0/submissions/1
+Extraction metadata from ontology http://csopralibs.org#
+Additional metadata extracted.
+Submission processing of http://data.bioontology.org/ontologies/INRAETHES-0/submissions/1 completed successfully
+Starting to process INRAETHES-0/submissions/1
