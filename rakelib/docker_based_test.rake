@@ -5,6 +5,19 @@ namespace :test do
   namespace :docker do
     task :up do
       system("docker compose up -d") || abort("Unable to start docker containers")
+      unless system("curl -sf  http://localhost:8983/solr  || exit 1")
+        printf("waiting for Solr container to initialize")
+        sec = 0
+        until system("curl -sf http://localhost:8983/solr || exit 1") do
+          sleep(1)
+          printf(".")
+          sec += 1
+          if sec > 30
+            abort("  Solr container hasn't initialized properly")
+          end
+        end
+        printf("\n")
+      end
     end
     task :down do
       #system("docker compose --profile fs --profile ag stop")

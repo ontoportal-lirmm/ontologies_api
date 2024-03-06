@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 1be1c83158177935cfc77230d42054de984e2d09
+  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
   branch: development
   specs:
     goo (0.0.2)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 18a45c2b8a4f8d6c9f56181b4f25b7e0b116a44c
+  revision: d37aeafbd7bef120917fb4d601f8287a9a859f69
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -111,7 +111,7 @@ GEM
       public_suffix (>= 2.0.2, < 6.0)
     airbrussh (1.5.1)
       sshkit (>= 1.6.1, != 1.7.0)
-    backports (3.24.1)
+    backports (3.25.0)
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.0)
@@ -233,7 +233,7 @@ GEM
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_pure (2.7.1)
-    jwt (2.8.0)
+    jwt (2.8.1)
       base64
     kgio (2.11.4)
     libxml-ruby (5.0.2)
@@ -249,7 +249,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0206)
+    mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -279,6 +279,7 @@ GEM
     omni_logger (0.1.4)
       logger
     os (1.1.4)
+    parallel (1.24.0)
     parseconfig (1.1.2)
     pony (1.13.1)
       mail (>= 2.0)
@@ -431,6 +432,7 @@ DEPENDENCIES
   newrelic_rpm
   oj (~> 2.0)
   ontologies_linked_data!
+  parallel
   parseconfig
   pry
   rack
