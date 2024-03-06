@@ -80,12 +80,10 @@ services:
       - 4store
 
   solr-ut:
-    image: solr:8
-    ports:
-      - 8983:8983
-    command: bin/solr start -cloud -f
-   # volumes:
-      #- solr_data:/var/solr/data
+      image: solr:8
+      ports:
+        - 8983:8983
+      command: bin/solr start -cloud -f
   agraph-ut:
     image: franzinc/agraph:v8.1.0
     platform: linux/amd64
