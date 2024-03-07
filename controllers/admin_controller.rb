@@ -127,6 +127,60 @@ class AdminController < ApplicationController
       halt 204
     end
 
+    namespace "/search" do
+      get '/collections' do
+        conn = SOLR::SolrConnector.new(Goo.search_conf, '')
+        collections =  { collections: conn.fetch_all_collections}
+        reply(200, collections)
+      end
+
+      get '/collections/:collection/schema' do
+        collection = params[:collection].to_sym
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        collection_schema = conn.fetch_schema
+
+        reply(200, collection_schema)
+      end
+
+      post '/collections/:collection/schema/init' do
+        collection = params[:collection].to_sym
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        collection_schema = conn.init_schema
+        reply(200, collection_schema)
+      end
+
+
+      post '/collections/:collection/search' do
+        collection = params[:collection].to_sym
+
+        search_keys = %w[defType fq qf sort start rows fl stopwords lowercaseOperators]
+
+        search_params = params.select { |key, _|  search_keys.include?(key) }
+        search_query = params[:query] || params[:q]
+        search_query = search_query.blank? ? '*' : search_query
+        conn = SOLR::SolrConnector.new(Goo.search_conf, collection)
+        reply(200, conn.search(search_query, search_params).to_h)
+      end
+
+      post '/index_batch/:model_name' do
+        error 500, "model_name parameter not set" if params["model_name"].blank?
+
+        model = Goo.model_by_name(params["model_name"].to_sym)
+        error 500, "#{params["model_name"]} is not indexable" if model.nil? || !model.index_enabled?
+
+        all_attrs = get_attributes_to_include([:all], model)
+
+        collection = model.where.include(all_attrs).all
+
+        response = model.indexBatch(collection).dig("responseHeader", "status")
+
+        if response.eql?(0)
+          reply(200, "Batch indexing for #{model.model_name} complete")
+        else
+          reply(500, "Batch indexing for #{model.model_name} failed: #{response}")
+        end
+      end
+    end
     private
 
     def process_long_operation(timeout, args)
