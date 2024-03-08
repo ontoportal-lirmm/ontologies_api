@@ -170,14 +170,33 @@ class AdminController < ApplicationController
 
         all_attrs = get_attributes_to_include([:all], model)
 
-        collection = model.where.include(all_attrs).all
+        collections = model.where.include(all_attrs).all
+        indexed = []
+        not_indexed = []
+        collections.each do |m|
+          begin
+            response = m.index.dig("responseHeader", "status")
+            if response.eql?(0)
+              indexed << m.id
+            else
+              not_indexed << m.id
+            end
+          rescue StandardError
+            not_indexed << m.id
+          end
+        end
 
-        response = model.indexBatch(collection).dig("responseHeader", "status")
+        if !indexed.empty?
+          msg = "Batch indexing for #{model.model_name} completed for"
 
-        if response.eql?(0)
-          reply(200, "Batch indexing for #{model.model_name} complete")
+          if not_indexed.empty?
+            msg +=  " all models"
+          else
+            msg +=  " #{indexed.join(', ')} and not for the following #{not_indexed.join(', ')}, see logs for more details"
+          end
+          reply(200, msg)
         else
-          reply(500, "Batch indexing for #{model.model_name} failed: #{response}")
+          reply(500, "Batch indexing for #{model.model_name} failed")
         end
       end
     end
