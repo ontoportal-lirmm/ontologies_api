@@ -61,36 +61,13 @@ services:
     profiles:
       - fs
 
-  solr-term-ut:
-    image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
-    ports:
-      - "8983:8983"
-    command: [ "solr-precreate", "term_search_core1", "/configsets/term_search" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/term_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  solr-prop-ut:
-    image: solr:8
-    volumes:
-      - ./test/solr/configsets:/configsets:ro
-    ports:
-      - "8984:8983"
-    command: [ "solr-precreate", "prop_search_core1", "/configsets/property_search" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/prop_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+  solr-ut:
+      image: solr:8
+      ports:
+        - 8983:8983
+      command: bin/solr start -cloud -f
   agraph-ut:
-    image: franzinc/agraph:v8.0.0.rc1
+    image: franzinc/agraph:v8.1.0
     platform: linux/amd64
     environment:
       - AGRAPH_SUPER_USER=test
