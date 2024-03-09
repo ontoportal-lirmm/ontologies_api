@@ -15,6 +15,7 @@ gem 'sinatra-advanced-routes'
 gem 'sinatra-contrib', '~> 1.0'
 gem 'request_store'
 gem 'parallel'
+gem 'json-ld'
 
 # Rack middleware
 gem 'ffi'
