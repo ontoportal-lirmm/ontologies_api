@@ -22,7 +22,8 @@ class TestDereferenceResourceController < TestCase
 
 
     def test_dereference_resource_controller_json
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=json"
+        header 'Accept', 'application/json'
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}"
         assert last_response.ok?
 
         result = last_response.body
@@ -81,7 +82,8 @@ class TestDereferenceResourceController < TestCase
     end
 
     def test_dereference_resource_controller_xml
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=xml"
+        header 'Accept', 'application/xml'
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}"
         assert last_response.ok?
 
         result = last_response.body
@@ -133,8 +135,7 @@ class TestDereferenceResourceController < TestCase
           </rdf:Description>
         </rdf:RDF>
       XML
-
-      a = result.gsub('\\"', '"').gsub(" ", "")[1..-2].split("\\n").reject(&:empty?)
+      a = result.gsub(' ', '').split("\n").reject(&:empty?)
       b_1 = expected_result_1.gsub(' ', '').split("\n").reject(&:empty?)
       b_2 = expected_result_2.gsub(' ', '').split("\n").reject(&:empty?)
 
@@ -142,7 +143,8 @@ class TestDereferenceResourceController < TestCase
     end
 
     def test_dereference_resource_controller_ntriples
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=ntriples"
+        header 'Accept', 'application/n-triples'
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}"
         assert last_response.ok?
 
         result = last_response.body
@@ -153,20 +155,21 @@ class TestDereferenceResourceController < TestCase
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#topConceptOf> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
-          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\u00E9rationdel'ADN"@fr .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/prefLabel> "c_6496" .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingLoom> "c6496" .
           <http://opendata.inrae.fr/thesaurusINRAE/mt_65> <http://www.w3.org/2004/02/skos/core#hasTopConcept> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
         NTRIPLES
-        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+        a = result.gsub(' ', '').split("\n").reject(&:empty?)
         b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
         assert_equal b.sort, a.sort
     end
 
     def test_dereference_resource_controller_turtle
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=turtle"
+        header 'Accept', 'text/turtle'
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}"
         assert last_response.ok?
         
         result = last_response.body
@@ -190,7 +193,7 @@ class TestDereferenceResourceController < TestCase
           ns0:mt_65
               skos:hasTopConcept ns0:c_6496 .
         TURTLE
-        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+        a = result.gsub(' ', '').split("\n").reject(&:empty?)
         b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
 
         assert_equal b.sort, a.sort
