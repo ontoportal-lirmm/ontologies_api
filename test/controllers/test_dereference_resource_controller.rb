@@ -24,47 +24,36 @@ class TestDereferenceResourceController < TestCase
 
 
     def test_dereference_resource_controller_json
-        skip
         post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "json"}
         assert last_response.ok?
 
         result = last_response.body
-        expected_result = %(
-            {
-                "@context": {
-                  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                  "skos": "http://www.w3.org/2004/02/skos/core#",
-                  "owl": "http://www.w3.org/2002/07/owl#"
-                },
-                "@id": "http://opendata.inrae.fr/thesaurusINRAE/c_6496",
-                "@type": [
-                  "skos:Concept",
-                  "owl:NamedIndividual"
-                ],
-                "skos:broader": {
-                  "@id": "http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"
-                },
-                "skos:inScheme": [
-                  {
-                    "@id": "http://opendata.inrae.fr/thesaurusINRAE/mt_65"
-                  },
-                  {
-                    "@id": "http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"
-                  }
-                ],
-                "skos:prefLabel": {
-                  "@language": "fr",
-                  "@value": "altération de l'ADN"
-                },
-                "skos:topConceptOf": {
-                  "@id": "http://opendata.inrae.fr/thesaurusINRAE/mt_65"
-                }
-            }
-        )
-
-        a = result.gsub(' ', '').gsub("\n", '')
-        b = expected_result.gsub(' ', '').gsub("\n", '')
-    
+        expected_result = <<-JSON
+          {
+            "@context": {
+              "ns0": "http://opendata.inrae.fr/thesaurusINRAE/",
+              "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+              "owl": "http://www.w3.org/2002/07/owl#",
+              "skos": "http://www.w3.org/2004/02/skos/core#"
+            },
+            "@graph": [
+              {
+                "@id": "ns0:c_6496",
+                "@type": ["owl:NamedIndividual", "skos:Concept"],
+                "skos:broader": {"@id": "ns0:c_a9d99f3a"},
+                "skos:topConceptOf": {"@id": "ns0:mt_65"},
+                "skos:inScheme": [{"@id": "ns0:thesaurusINRAE"}, {"@id": "ns0:mt_65"}],
+                "skos:prefLabel": {"@value": "altération de l'ADN", "@language": "fr"}
+              },
+              {
+                "@id": "ns0:mt_65",
+                "skos:hasTopConcept": {"@id": "ns0:c_6496"}
+              }
+            ]
+          }
+        JSON
+        a = sort_nested_hash(JSON.parse(result))
+        b = sort_nested_hash(JSON.parse(expected_result))
         assert_equal b, a
     end
 
@@ -73,23 +62,26 @@ class TestDereferenceResourceController < TestCase
         assert last_response.ok?
 
         result = last_response.body
-        expected_result = %(
-            <?xml version="1.0" encoding="UTF-8"?>
-            <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:owl="http://www.w3.org/2002/07/owl#">
-            <skos:Concept rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
-                <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-                <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
-                <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
-                <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
-                <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
-                <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
-            </skos:Concept>
-            </rdf:RDF>
-        )
-        a = result.gsub('\\"', '"').gsub('\\n', "").gsub(" ", "")[1..-2]
-        b = expected_result.gsub(' ', '').gsub("\n", '')
+        expected_result = <<-XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+            <owl:NamedIndividual rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
+              <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+              <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
+              <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+              <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
+              <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+              <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
+            </owl:NamedIndividual>
+            <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/mt_65">
+              <skos:hasTopConcept rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+            </rdf:Description>
+          </rdf:RDF>
+        XML
+        a = result.gsub('\\"', '"').gsub(" ", "")[1..-2].split("\\n").reject(&:empty?)
+        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
 
-        assert_equal b, a
+        assert_equal b.sort , a.sort
     end
 
     def test_dereference_resource_controller_ntriples
@@ -97,19 +89,20 @@ class TestDereferenceResourceController < TestCase
         assert last_response.ok?
 
         result = last_response.body
-        expected_result = %(
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#NamedIndividual> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#broader> <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#topConceptOf> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
-        )
-        a =  result.gsub('\\"', '"').gsub(' ', '').gsub("\\n", '')[1..-2]
-        b = expected_result.gsub(' ', '').gsub("\n", '')
+        expected_result = <<-NTRIPLES
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#NamedIndividual> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#broader> <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#topConceptOf> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
+          <http://opendata.inrae.fr/thesaurusINRAE/mt_65> <http://www.w3.org/2004/02/skos/core#hasTopConcept> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
+        NTRIPLES
+        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
 
-        assert_equal b, a
+        assert_equal b.sort, a.sort
     end
 
     def test_dereference_resource_controller_turtle
@@ -117,22 +110,44 @@ class TestDereferenceResourceController < TestCase
         assert last_response.ok?
         
         result = last_response.body
-        expected_result = %(
-            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            
-            <http://opendata.inrae.fr/thesaurusINRAE/c_6496>
-                a owl:NamedIndividual, skos:Concept ;
-                skos:broader <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> ;
-                skos:inScheme <http://opendata.inrae.fr/thesaurusINRAE/mt_65>, <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> ;
-                skos:prefLabel "altération de l'ADN" ;
-                skos:topConceptOf <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
-        )
-        a = result.gsub('\\"','"').gsub(' ', '').gsub("\\n", '')[1..-2]
-        b = expected_result.gsub(' ', '').gsub("\n", '')
+        expected_result = <<-TURTLE
+          @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+          @prefix ns0: <http://opendata.inrae.fr/thesaurusINRAE/> .
+          @prefix owl: <http://www.w3.org/2002/07/owl#> .
+          @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
-        assert_equal b, a
+          ns0:c_6496
+            a owl:NamedIndividual, skos:Concept ;
+            skos:broader ns0:c_a9d99f3a ;
+            skos:inScheme ns0:mt_65, ns0:thesaurusINRAE ;
+            skos:prefLabel "altération de l'ADN"@fr ;
+            skos:topConceptOf ns0:mt_65 .
+
+          ns0:mt_65
+            skos:hasTopConcept ns0:c_6496 .
+        TURTLE
+        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
+
+        assert_equal b.sort, a.sort
+    end
+
+    private
+
+    def sort_nested_hash(hash)
+      sorted_hash = {}
+  
+      hash.each do |key, value|
+        if value.is_a?(Hash)
+          sorted_hash[key] = sort_nested_hash(value)
+        elsif value.is_a?(Array)
+          sorted_hash[key] = value.map { |item| item.is_a?(Hash) ? sort_nested_hash(item) : item }.sort_by { |item| item.to_s }
+        else
+          sorted_hash[key] = value
+        end
+      end
+  
+      sorted_hash.sort.to_h
     end
 
 end
