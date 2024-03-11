@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
+  revision: 3f8b1f0b62c4334306f9ed5cb7b17a1b645e7db3
   branch: development
   specs:
     goo (0.0.2)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: c9738faf4079fbbd36dcf9c45cc4f9525a9812b6
+  revision: 337dce98ec27627d14a440ff2a6ed09483cdac12
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -117,7 +117,7 @@ GEM
     bcrypt_pbkdf (1.1.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
-    capistrano (3.18.0)
+    capistrano (3.18.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -404,7 +404,6 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -421,7 +420,7 @@ DEPENDENCIES
   ffi
   goo!
   haml (~> 5.2.2)
-  json-ld (~> 3.0.2)
+  json-ld
   json-schema (~> 2.0)
   minitest (~> 4.0)
   minitest-stub_any_instance
@@ -463,4 +462,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.4.22
+   2.4.21

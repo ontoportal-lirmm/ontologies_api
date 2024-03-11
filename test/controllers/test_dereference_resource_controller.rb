@@ -32,20 +32,45 @@ class TestDereferenceResourceController < TestCase
               "ns0": "http://opendata.inrae.fr/thesaurusINRAE/",
               "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
               "owl": "http://www.w3.org/2002/07/owl#",
-              "skos": "http://www.w3.org/2004/02/skos/core#"
+              "skos": "http://www.w3.org/2004/02/skos/core#",
+              "metadata_def": "http://data.bioontology.org/metadata/def/"
             },
             "@graph": [
               {
                 "@id": "ns0:c_6496",
-                "@type": ["owl:NamedIndividual", "skos:Concept"],
-                "skos:broader": {"@id": "ns0:c_a9d99f3a"},
-                "skos:topConceptOf": {"@id": "ns0:mt_65"},
-                "skos:inScheme": [{"@id": "ns0:thesaurusINRAE"}, {"@id": "ns0:mt_65"}],
-                "skos:prefLabel": {"@value": "altération de l'ADN", "@language": "fr"}
+                "@type": [
+                  "owl:NamedIndividual",
+                  "skos:Concept"
+                ],
+                "skos:broader": {
+                  "@id": "ns0:c_a9d99f3a"
+                },
+                "skos:topConceptOf": {
+                  "@id": "ns0:mt_65"
+                },
+                "skos:inScheme": [
+                  {
+                    "@id": "ns0:thesaurusINRAE"
+                  },
+                  {
+                    "@id": "ns0:mt_65"
+                  }
+                ],
+                "skos:prefLabel": {
+                  "@value": "altération de l'ADN",
+                  "@language": "fr"
+                },
+                "metadata_def:prefLabel": "c_6496",
+                "metadata_def:mappingSameURI": {
+                  "@id": "ns0:c_6496"
+                },
+                "metadata_def:mappingLoom": "c6496"
               },
               {
                 "@id": "ns0:mt_65",
-                "skos:hasTopConcept": {"@id": "ns0:c_6496"}
+                "skos:hasTopConcept": {
+                  "@id": "ns0:c_6496"
+                }
               }
             ]
           }
@@ -60,9 +85,10 @@ class TestDereferenceResourceController < TestCase
         assert last_response.ok?
 
         result = last_response.body
-        expected_result = <<-XML
+
+        expected_result_1 = <<-XML
           <?xml version="1.0" encoding="UTF-8"?>
-          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:metadata_def="http://data.bioontology.org/metadata/def/">
             <owl:NamedIndividual rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
               <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
               <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
@@ -70,16 +96,49 @@ class TestDereferenceResourceController < TestCase
               <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
               <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
               <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
+              <metadata_def:prefLabel>c_6496</metadata_def:prefLabel>
+              <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+              <metadata_def:mappingLoom>c6496</metadata_def:mappingLoom>
             </owl:NamedIndividual>
             <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/mt_65">
-              <skos:hasTopConcept rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+              <skos:hasTopConcept>
+                <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
+                  <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+                </rdf:Description>
+              </skos:hasTopConcept>
             </rdf:Description>
           </rdf:RDF>
         XML
-        a = result.gsub('\\"', '"').gsub(" ", "")[1..-2].split("\\n").reject(&:empty?)
-        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
 
-        assert_equal b.sort , a.sort
+        expected_result_2 = <<-XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:metadata_def="http://data.bioontology.org/metadata/def/">
+          <skos:Concept rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
+            <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
+            <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
+            <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+            <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
+            <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+            <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
+            <metadata_def:prefLabel>c_6496</metadata_def:prefLabel>
+            <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+            <metadata_def:mappingLoom>c6496</metadata_def:mappingLoom>
+          </skos:Concept>
+          <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/mt_65">
+            <skos:hasTopConcept>
+              <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
+                <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
+              </rdf:Description>
+            </skos:hasTopConcept>
+          </rdf:Description>
+        </rdf:RDF>
+      XML
+
+      a = result.gsub('\\"', '"').gsub(" ", "")[1..-2].split("\\n").reject(&:empty?)
+      b_1 = expected_result_1.gsub(' ', '').split("\n").reject(&:empty?)
+      b_2 = expected_result_2.gsub(' ', '').split("\n").reject(&:empty?)
+
+      assert(b_1.sort == a.sort || b_2.sort == a.sort)
     end
 
     def test_dereference_resource_controller_ntriples
@@ -95,11 +154,14 @@ class TestDereferenceResourceController < TestCase
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/prefLabel> "c_6496" .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingLoom> "c6496" .
           <http://opendata.inrae.fr/thesaurusINRAE/mt_65> <http://www.w3.org/2004/02/skos/core#hasTopConcept> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
+          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
         NTRIPLES
         a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
         b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
-
         assert_equal b.sort, a.sort
     end
 
@@ -113,16 +175,20 @@ class TestDereferenceResourceController < TestCase
           @prefix ns0: <http://opendata.inrae.fr/thesaurusINRAE/> .
           @prefix owl: <http://www.w3.org/2002/07/owl#> .
           @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-
+          @prefix metadata_def: <http://data.bioontology.org/metadata/def/> .
+          
           ns0:c_6496
-            a owl:NamedIndividual, skos:Concept ;
-            skos:broader ns0:c_a9d99f3a ;
-            skos:inScheme ns0:mt_65, ns0:thesaurusINRAE ;
-            skos:prefLabel "altération de l'ADN"@fr ;
-            skos:topConceptOf ns0:mt_65 .
-
+              metadata_def:mappingLoom "c6496" ;
+              metadata_def:mappingSameURI ns0:c_6496 ;
+              metadata_def:prefLabel "c_6496" ;
+              a owl:NamedIndividual, skos:Concept ;
+              skos:broader ns0:c_a9d99f3a ;
+              skos:inScheme ns0:mt_65, ns0:thesaurusINRAE ;
+              skos:prefLabel "altération de l'ADN"@fr ;
+              skos:topConceptOf ns0:mt_65 .
+          
           ns0:mt_65
-            skos:hasTopConcept ns0:c_6496 .
+              skos:hasTopConcept ns0:c_6496 .
         TURTLE
         a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
         b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
