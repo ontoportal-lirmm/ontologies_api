@@ -1,5 +1,6 @@
 require_relative '../test/test_case'
 
+use ContentNegotiationMiddleware
 
 class DereferenceResourceController < ApplicationController
   namespace "/ontologies" do
@@ -11,7 +12,8 @@ class DereferenceResourceController < ApplicationController
         error 500, "Usage: ontologies/:acronym/resolve/:uri?output_format= OR POST: acronym, uri, output_format parameters"
       end
 
-      output_format = params[:output_format].presence || 'jsonld'
+      output_format = env["format"].presence || 'application/n-triples'
+
       process_request(acronym, uri, output_format)
     end
 
@@ -28,24 +30,18 @@ class DereferenceResourceController < ApplicationController
 
       r = Resource.new(sub.id, uri)
       case output_format
-      when 'jsonld'
-        content_type 'application/json'
-        reply  JSON.parse(r.to_json)
-      when 'json'
-        content_type 'application/json'
-        reply JSON.parse(r.to_json)
-      when 'xml'
-        content_type 'application/xml'
-        reply r.to_xml
-      when 'turtle'
-        content_type 'text/turtle'
-        reply r.to_turtle
-      when 'ntriples'
-        content_type 'application/n-triples'
-        reply r.to_ntriples
+      when 'application/ld+json'
+          r.to_json
+      when 'application/rdf+xml'
+          r.to_xml
+      when 'text/turtle'
+          r.to_turtle
+      when 'application/n-triples'
+          r.to_ntriples
       else
-        error 500, "Invalid output format"
+          error 500, "Invalid output format"
       end
+
 
     end
 
