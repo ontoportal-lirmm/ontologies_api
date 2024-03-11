@@ -7,24 +7,22 @@ class TestDereferenceResourceController < TestCase
     def self.before_suite
         LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
             process_submission: true,
+            process_options: {process_rdf: true, extract_metadata: false},
             acronym: 'INRAETHES',
             name: 'INRAETHES',
             file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
             ont_count: 1,
+            ontology_format: 'SKOS',
             submission_count: 1
         })
-        ont = Ontology.find('INRAETHES-0').include(:acronym).first
-        sub = ont.latest_submission
-        sub.bring_remaining
-        sub.hasOntologyLanguage = LinkedData::Models::OntologyFormat.find('SKOS').first
-        sub.save
-        @@graph = "http://data.bioontology.org/ontologies/INRAETHES-0/submissions/1"
-        @@uri = "http://opendata.inrae.fr/thesaurusINRAE/c_6496"
+
+        @@graph = "INRAETHES-0"
+        @@uri = CGI.escape("http://opendata.inrae.fr/thesaurusINRAE/c_6496")
     end
 
 
     def test_dereference_resource_controller_json
-        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "json"}
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=json"
         assert last_response.ok?
 
         result = last_response.body
@@ -58,7 +56,7 @@ class TestDereferenceResourceController < TestCase
     end
 
     def test_dereference_resource_controller_xml
-        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "xml"}
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=xml"
         assert last_response.ok?
 
         result = last_response.body
@@ -85,7 +83,7 @@ class TestDereferenceResourceController < TestCase
     end
 
     def test_dereference_resource_controller_ntriples
-        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "ntriples"}
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=ntriples"
         assert last_response.ok?
 
         result = last_response.body
@@ -106,7 +104,7 @@ class TestDereferenceResourceController < TestCase
     end
 
     def test_dereference_resource_controller_turtle
-        post "/dereference_resource", { acronym: @@graph, uri: @@uri , output_format: "turtle"}
+        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=turtle"
         assert last_response.ok?
         
         result = last_response.body
