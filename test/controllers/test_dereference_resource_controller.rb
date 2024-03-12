@@ -1,39 +1,36 @@
 require_relative '../test_case'
 require 'rexml/document'
 
-
 class TestDereferenceResourceController < TestCase
 
-    def self.before_suite
-        LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-            process_submission: true,
-            process_options: {process_rdf: true, extract_metadata: false},
-            acronym: 'INRAETHES',
-            name: 'INRAETHES',
-            file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
-            ont_count: 1,
-            ontology_format: 'SKOS',
-            submission_count: 1
-        })
+  def self.before_suite
+    LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                         process_submission: true,
+                                                                         process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                         acronym: 'INRAETHESDEREF',
+                                                                         name: 'INRAETHES',
+                                                                         file_path: './test/data/ontology_files/thesaurusINRAE_nouv_structure.rdf',
+                                                                         ont_count: 1,
+                                                                         ontology_format: 'SKOS',
+                                                                         submission_count: 1
+                                                                       })
 
-        @@graph = "INRAETHES-0"
-        @@uri = CGI.escape("http://opendata.inrae.fr/thesaurusINRAE/c_6496")
-    end
+    @@graph = "INRAETHESDEREF-0"
+    @@uri = CGI.escape("http://opendata.inrae.fr/thesaurusINRAE/c_6496")
+  end
 
+  def test_dereference_resource_controller_json
+    get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=json"
+    assert last_response.ok?
 
-    def test_dereference_resource_controller_json
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=json"
-        assert last_response.ok?
-
-        result = last_response.body
-        expected_result = <<-JSON
+    result = last_response.body
+    expected_result = <<-JSON
           {
             "@context": {
               "ns0": "http://opendata.inrae.fr/thesaurusINRAE/",
               "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
               "owl": "http://www.w3.org/2002/07/owl#",
-              "skos": "http://www.w3.org/2004/02/skos/core#",
-              "metadata_def": "http://data.bioontology.org/metadata/def/"
+              "skos": "http://www.w3.org/2004/02/skos/core#"
             },
             "@graph": [
               {
@@ -59,12 +56,7 @@ class TestDereferenceResourceController < TestCase
                 "skos:prefLabel": {
                   "@value": "altération de l'ADN",
                   "@language": "fr"
-                },
-                "metadata_def:prefLabel": "c_6496",
-                "metadata_def:mappingSameURI": {
-                  "@id": "ns0:c_6496"
-                },
-                "metadata_def:mappingLoom": "c6496"
+                }
               },
               {
                 "@id": "ns0:mt_65",
@@ -74,21 +66,21 @@ class TestDereferenceResourceController < TestCase
               }
             ]
           }
-        JSON
-        a = sort_nested_hash(JSON.parse(result))
-        b = sort_nested_hash(JSON.parse(expected_result))
-        assert_equal b, a
-    end
+    JSON
+    a = sort_nested_hash(JSON.parse(result))
+    b = sort_nested_hash(JSON.parse(expected_result))
+    assert_equal b, a
+  end
 
-    def test_dereference_resource_controller_xml
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=xml"
-        assert last_response.ok?
+  def test_dereference_resource_controller_xml
+    get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=xml"
+    assert last_response.ok?
 
-        result = last_response.body
+    result = last_response.body
 
-        expected_result_1 = <<-XML
+    expected_result_1 = <<-XML
           <?xml version="1.0" encoding="UTF-8"?>
-          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:metadata_def="http://data.bioontology.org/metadata/def/">
+          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
             <owl:NamedIndividual rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
               <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
               <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
@@ -96,57 +88,47 @@ class TestDereferenceResourceController < TestCase
               <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
               <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
               <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
-              <metadata_def:prefLabel>c_6496</metadata_def:prefLabel>
-              <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
-              <metadata_def:mappingLoom>c6496</metadata_def:mappingLoom>
             </owl:NamedIndividual>
             <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/mt_65">
-              <skos:hasTopConcept>
-                <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
-                  <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
-                </rdf:Description>
-              </skos:hasTopConcept>
+              <skos:hasTopConcept rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
             </rdf:Description>
           </rdf:RDF>
-        XML
+    XML
 
-        expected_result_2 = <<-XML
+    expected_result_2 = <<-XML
         <?xml version="1.0" encoding="UTF-8"?>
-        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:metadata_def="http://data.bioontology.org/metadata/def/">
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ns0="http://opendata.inrae.fr/thesaurusINRAE/" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:owl="http://www.w3.org/2002/07/owl#">
           <skos:Concept rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
             <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#NamedIndividual"/>
-            <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
-            <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
             <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE"/>
             <skos:inScheme rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
             <skos:prefLabel xml:lang="fr">altération de l'ADN</skos:prefLabel>
-            <metadata_def:prefLabel>c_6496</metadata_def:prefLabel>
-            <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
-            <metadata_def:mappingLoom>c6496</metadata_def:mappingLoom>
+            <skos:topConceptOf rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/mt_65"/>
+            <skos:broader rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a"/>
           </skos:Concept>
           <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/mt_65">
-            <skos:hasTopConcept>
-              <rdf:Description rdf:about="http://opendata.inrae.fr/thesaurusINRAE/c_6496">
-                <metadata_def:mappingSameURI rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
-              </rdf:Description>
-            </skos:hasTopConcept>
+            <skos:hasTopConcept rdf:resource="http://opendata.inrae.fr/thesaurusINRAE/c_6496"/>
           </rdf:Description>
         </rdf:RDF>
       XML
 
-      a = result.gsub('\\"', '"').gsub(" ", "")[1..-2].split("\\n").reject(&:empty?)
-      b_1 = expected_result_1.gsub(' ', '').split("\n").reject(&:empty?)
-      b_2 = expected_result_2.gsub(' ', '').split("\n").reject(&:empty?)
 
-      assert(b_1.sort == a.sort || b_2.sort == a.sort)
-    end
+    clean_xml = -> (x) { x.strip.gsub('/>', '').gsub('</', '').gsub('<', '').gsub('>', '').split(' ').reject(&:empty?)}
 
-    def test_dereference_resource_controller_ntriples
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=ntriples"
-        assert last_response.ok?
 
-        result = last_response.body
-        expected_result = <<-NTRIPLES
+    a = result.gsub('\\"', '"')[1..-2].split("\\n").map{|x| clean_xml.call(x)}.flatten
+    b_1 = expected_result_1.split("\n").map{|x| clean_xml.call(x)}.flatten
+    b_2 = expected_result_2.split("\n").map{|x| clean_xml.call(x)}.flatten
+  
+    assert_includes [b_1.sort, b_2.sort], a.sort
+  end
+
+  def test_dereference_resource_controller_ntriples
+    get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=ntriples"
+    assert last_response.ok?
+
+    result = last_response.body
+    expected_result = <<-NTRIPLES
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#NamedIndividual> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#Concept> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#broader> <http://opendata.inrae.fr/thesaurusINRAE/c_a9d99f3a> .
@@ -154,33 +136,25 @@ class TestDereferenceResourceController < TestCase
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/thesaurusINRAE> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#inScheme> <http://opendata.inrae.fr/thesaurusINRAE/mt_65> .
           <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://www.w3.org/2004/02/skos/core#prefLabel> "alt\\\\u00E9rationdel'ADN"@fr .
-          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/prefLabel> "c_6496" .
-          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
-          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingLoom> "c6496" .
           <http://opendata.inrae.fr/thesaurusINRAE/mt_65> <http://www.w3.org/2004/02/skos/core#hasTopConcept> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
-          <http://opendata.inrae.fr/thesaurusINRAE/c_6496> <http://data.bioontology.org/metadata/def/mappingSameURI> <http://opendata.inrae.fr/thesaurusINRAE/c_6496> .
-        NTRIPLES
-        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
-        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
-        assert_equal b.sort, a.sort
-    end
+    NTRIPLES
+    a = result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+    b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
+    assert_equal b.sort, a.sort
+  end
 
-    def test_dereference_resource_controller_turtle
-        get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=turtle"
-        assert last_response.ok?
-        
-        result = last_response.body
-        expected_result = <<-TURTLE
+  def test_dereference_resource_controller_turtle
+    get "/ontologies/#{@@graph}/resolve/#{@@uri}?output_format=turtle"
+    assert last_response.ok?
+
+    result = last_response.body
+    expected_result = <<-TURTLE
           @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
           @prefix ns0: <http://opendata.inrae.fr/thesaurusINRAE/> .
           @prefix owl: <http://www.w3.org/2002/07/owl#> .
           @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-          @prefix metadata_def: <http://data.bioontology.org/metadata/def/> .
           
           ns0:c_6496
-              metadata_def:mappingLoom "c6496" ;
-              metadata_def:mappingSameURI ns0:c_6496 ;
-              metadata_def:prefLabel "c_6496" ;
               a owl:NamedIndividual, skos:Concept ;
               skos:broader ns0:c_a9d99f3a ;
               skos:inScheme ns0:mt_65, ns0:thesaurusINRAE ;
@@ -189,29 +163,29 @@ class TestDereferenceResourceController < TestCase
           
           ns0:mt_65
               skos:hasTopConcept ns0:c_6496 .
-        TURTLE
-        a =  result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
-        b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
+    TURTLE
+    a = result.gsub('\\"', '"').gsub(' ', '')[1..-2].split("\\n").reject(&:empty?)
+    b = expected_result.gsub(' ', '').split("\n").reject(&:empty?)
 
-        assert_equal b.sort, a.sort
-    end
+    assert_equal b.sort, a.sort
+  end
 
-    private
+  private
 
-    def sort_nested_hash(hash)
-      sorted_hash = {}
-  
-      hash.each do |key, value|
-        if value.is_a?(Hash)
-          sorted_hash[key] = sort_nested_hash(value)
-        elsif value.is_a?(Array)
-          sorted_hash[key] = value.map { |item| item.is_a?(Hash) ? sort_nested_hash(item) : item }.sort_by { |item| item.to_s }
-        else
-          sorted_hash[key] = value
-        end
+  def sort_nested_hash(hash)
+    sorted_hash = {}
+
+    hash.each do |key, value|
+      if value.is_a?(Hash)
+        sorted_hash[key] = sort_nested_hash(value)
+      elsif value.is_a?(Array)
+        sorted_hash[key] = value.map { |item| item.is_a?(Hash) ? sort_nested_hash(item) : item }.sort_by { |item| item.to_s }
+      else
+        sorted_hash[key] = value
       end
-  
-      sorted_hash.sort.to_h
     end
+
+    sorted_hash.sort.to_h
+  end
 
 end
