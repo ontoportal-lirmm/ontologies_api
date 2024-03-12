@@ -31,21 +31,25 @@ class ContentNegotiationMiddleware
     # @return [Array(Integer, Hash, #each)] Status, Headers and Body
     # @see    https://rubydoc.info/github/rack/rack/file/SPEC
     def call(env)
-        if env.has_key?('HTTP_ACCEPT')
-            accepted_headers = parse_accept_header(env['HTTP_ACCEPT'])
-            if !accepted_headers.empty?
-                env["format"] = accepted_headers[0]
-                response = app.call(env)
-                response[1] = response[1].merge(VARY).merge('Content-Type' => accepted_headers[0])
-                response
+        if env['PATH_INFO'].match?(%r{^/ontologies/[^/]+/resolve/[^/]+$})
+            if env.has_key?('HTTP_ACCEPT')
+                accepted_headers = parse_accept_header(env['HTTP_ACCEPT'])
+                if !accepted_headers.empty?
+                    env["format"] = accepted_headers[0]
+                    response = app.call(env)
+                    response[1] = response[1].merge(VARY).merge('Content-Type' => accepted_headers[0])
+                    response
+                else
+                    not_acceptable
+                end
             else
-                not_acceptable
+                env["format"] = @options[:default]
+                response = app.call(env)
+                response[1] = response[1].merge(VARY).merge('Content-Type' => "application/n-triples")
+                response
             end
         else
-            env["format"] = @options[:default]
-            response = app.call(env)
-            response[1] = response[1].merge(VARY).merge('Content-Type' => accepted_headers)
-            response
+            app.call(env)
         end
     end
 
