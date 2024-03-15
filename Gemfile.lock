@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6c51346b6f150a69391794b7909b30592acbbe0e
+  revision: 3f8b1f0b62c4334306f9ed5cb7b17a1b645e7db3
   branch: development
   specs:
     goo (0.0.2)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: d37aeafbd7bef120917fb4d601f8287a9a859f69
+  revision: 337dce98ec27627d14a440ff2a6ed09483cdac12
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -117,7 +117,7 @@ GEM
     bcrypt_pbkdf (1.1.0)
     bigdecimal (1.4.2)
     builder (3.2.4)
-    capistrano (3.18.0)
+    capistrano (3.18.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -191,12 +191,12 @@ GEM
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
       rexml
-    google-cloud-core (1.6.1)
+    google-cloud-core (1.7.0)
       google-cloud-env (>= 1.0, < 3.a)
       google-cloud-errors (~> 1.0)
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
-    google-cloud-errors (1.3.1)
+    google-cloud-errors (1.4.0)
     google-protobuf (3.25.3-x86_64-darwin)
     google-protobuf (3.25.3-x86_64-linux)
     googleapis-common-protos (1.5.0)
@@ -230,13 +230,16 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     json (2.7.1)
+    json-ld (3.0.2)
+      multi_json (~> 1.12)
+      rdf (>= 2.2.8, < 4.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
     json_pure (2.7.1)
     jwt (2.8.1)
       base64
     kgio (2.11.4)
-    libxml-ruby (5.0.2)
+    libxml-ruby (5.0.3)
     link_header (0.0.8)
     logger (1.6.0)
     macaddr (1.7.2)
@@ -422,6 +425,7 @@ DEPENDENCIES
   ffi
   goo!
   haml (~> 5.2.2)
+  json-ld
   json-schema (~> 2.0)
   minitest (~> 4.0)
   minitest-stub_any_instance
