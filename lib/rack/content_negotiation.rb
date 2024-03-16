@@ -6,7 +6,7 @@ module Rack
     # @return [#call]
     attr_reader :app
 
-    # @return [Hash{Symbol => Object}]
+    # @return [Hash{Symbol => String}]
     attr_reader :options
 
     ##
@@ -42,7 +42,7 @@ module Rack
             not_acceptable
           end
         else
-          env["format"] = @options[:default]
+          env["format"] = options[:default]
           response = app.call(env)
           response[1] = response[1].merge(VARY).merge('Content-Type' => "application/n-triples")
           response
@@ -85,39 +85,16 @@ module Rack
     # @return [String, nil]
     def find_content_type_for_media_range(media_range)
       case media_range.to_s
-      when '*/*'
+      when '*/*', 'text/*'
         options[:default]
-
-      when 'text/*'
-        options[:default]
-
       when 'application/n-triples'
         'application/n-triples'
-
       when 'text/turtle'
         'text/turtle'
-
-      when 'application/*'
+      when 'application/json', 'application/ld+json', 'application/*'
         'application/ld+json'
-
-      when 'application/json'
-        'application/ld+json'
-
-      when 'application/ld+json'
-        'application/ld+json'
-
-      when 'application/xml'
+      when 'text/xml', 'text/rdf+xml',  'application/rdf+xml', 'application/xml'
         'application/rdf+xml'
-
-      when 'application/rdf+xml'
-        'application/rdf+xml'
-
-      when 'text/xml'
-        'application/rdf+xml'
-
-      when 'text/rdf+xml'
-        'application/rdf+xml'
-
       else
         nil
       end
@@ -129,28 +106,11 @@ module Rack
     # @param  [String, #to_s] message
     # @return [Array(Integer, Hash, #each)]
     def not_acceptable(message = nil)
-      http_error(406, message, VARY)
+      code = 406
+      http_status =  [code, Rack::Utils::HTTP_STATUS_CODES[code]].join(' ')
+      message = http_status + (message.nil? ? "\n" : " (#{message})\n")
+      [code, { 'Content-Type' => "text/plain" }.merge(VARY), [message]]
     end
 
-    ##
-    # Outputs an HTTP `4xx` or `5xx` response.
-    #
-    # @param  [Integer, #to_i]         code
-    # @param  [String, #to_s]          message
-    # @param  [Hash{String => String}] headers
-    # @return [Array(Integer, Hash, #each)]
-    def http_error(code, message = nil, headers = {})
-      message = http_status(code) + (message.nil? ? "\n" : " (#{message})\n")
-      [code, { 'Content-Type' => "text/plain" }.merge(headers), [message]]
-    end
-
-    ##
-    # Returns the standard HTTP status message for the given status `code`.
-    #
-    # @param  [Integer, #to_i] code
-    # @return [String]
-    def http_status(code)
-      [code, Rack::Utils::HTTP_STATUS_CODES[code]].join(' ')
-    end
   end
 end
