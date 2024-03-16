@@ -2,6 +2,7 @@ module Rack
   class ContentNegotiation
     DEFAULT_CONTENT_TYPE = "application/n-triples" # N-Triples
     VARY = { 'Vary' => 'Accept' }.freeze
+    ENDPOINTS_FILTER = %r{^/ontologies/[^/]+/resolve/[^/]+$} # Accepted API endpoints to apply content negotiation
 
     # @return [#call]
     attr_reader :app
@@ -30,22 +31,18 @@ module Rack
     # @return [Array(Integer, Hash, #each)] Status, Headers and Body
     # @see    https://rubydoc.info/github/rack/rack/file/SPEC
     def call(env)
-      if env['PATH_INFO'].match?(%r{^/ontologies/[^/]+/resolve/[^/]+$})
+      if env['PATH_INFO'].match?(ENDPOINTS_FILTER)
         if env.has_key?('HTTP_ACCEPT')
-          accepted_headers = parse_accept_header(env['HTTP_ACCEPT'])
-          if !accepted_headers.empty?
-            env["format"] = accepted_headers[0]
-            response = app.call(env)
-            response[1] = response[1].merge(VARY).merge('Content-Type' => accepted_headers[0])
-            response
+          accepted_types = parse_accept_header(env['HTTP_ACCEPT'])
+          if !accepted_types.empty?
+            env["format"] = accepted_types.first
+            add_content_type_header(app.call(env), env["format"])
           else
             not_acceptable
           end
         else
           env["format"] = options[:default]
-          response = app.call(env)
-          response[1] = response[1].merge(VARY).merge('Content-Type' => "application/n-triples")
-          response
+          add_content_type_header(app.call(env), env["format"])
         end
       else
         app.call(env)
@@ -54,27 +51,40 @@ module Rack
 
     protected
 
-    ##
-    # Parses an HTTP `Accept` header, returning an array of MIME content
-    # types ordered by the precedence rules defined in HTTP/1.1 §14.1.
+    # Parses an HTTP `Accept` header, returning an array of MIME content types ordered by precedence rules.
     #
     # @param  [String, #to_s] header
-    # @return [Array<String>]
+    # @return [Array<String>] Array of content types sorted by precedence
     # @see    https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
     def parse_accept_header(header)
       entries = header.to_s.split(',')
-      entries = entries.map { |e| accept_entry(e) }.sort_by(&:last).map(&:first)
-      entries.map { |e| find_content_type_for_media_range(e) }.flatten.compact
+      parsed_entries = entries.map { |entry| parse_accept_entry(entry) }
+      sorted_entries = parsed_entries.sort_by { |entry| entry.quality }.reverse
+      content_types = sorted_entries.map { |entry| entry.content_type }
+      content_types.flatten.compact
     end
 
-    # Returns pair of content_type (including non-'q' parameters)
-    # and array of quality, number of '*' in content-type, and number of non-'q' parameters
-    def accept_entry(entry)
-      type, *options = entry.split(';').map(&:strip)
-      quality = 0 # we sort smallest first
-      options.delete_if { |e| quality = 1 - e[2..-1].to_f if e.start_with? 'q=' }
-      [options.unshift(type).join(';'), [quality, type.count('*'), 1 - options.size]]
+
+
+    # Parses an individual entry from the Accept header.
+    #
+    # @param [String] entry An entry from the Accept header
+    # @return [Entry] An object representing the parsed entry
+    def parse_accept_entry(entry)
+      # Represents an entry parsed from the Accept header
+      entry_struct = Struct.new(:content_type, :quality, :wildcard_count, :param_count)
+      content_type, *params = entry.split(';').map(&:strip)
+      quality = 1.0 # Default quality
+      params.reject! do |param|
+        if param.start_with?('q=')
+          quality = param[2..-1].to_f
+          true
+        end
+      end
+      wildcard_count = content_type.count('*')
+      entry_struct.new(content_type, quality, wildcard_count, params.size)
     end
+
 
     ##
     # Returns a content type appropriate for the given `media_range`,
@@ -110,6 +120,11 @@ module Rack
       http_status =  [code, Rack::Utils::HTTP_STATUS_CODES[code]].join(' ')
       message = http_status + (message.nil? ? "\n" : " (#{message})\n")
       [code, { 'Content-Type' => "text/plain" }.merge(VARY), [message]]
+    end
+
+    def add_content_type_header(response, type)
+      response[1] = response[1].merge(VARY).merge('Content-Type' => type)
+      response
     end
 
   end

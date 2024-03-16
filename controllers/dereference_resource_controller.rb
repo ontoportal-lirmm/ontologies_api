@@ -30,16 +30,16 @@ class DereferenceResourceController < ApplicationController
 
       r = Resource.new(sub.id, uri)
       case output_format
-      when 'application/ld+json'
+      when 'application/ld+json', 'application/json'
           r.to_json
-      when 'application/rdf+xml'
+      when 'application/rdf+xml', 'application/xml'
           r.to_xml
       when 'text/turtle'
           r.to_turtle
       when 'application/n-triples'
           r.to_ntriples
       else
-          error 500, "Invalid output format, valid format are: application/ld+json, application/rdf+xml, text/turtle and application/n-triples"
+          error 500, "Invalid output format, valid format are: application/json, application/ld+json,  application/xml, application/rdf+xml, text/turtle and application/n-triples"
       end
 
 
