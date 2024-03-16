@@ -39,7 +39,7 @@ class DereferenceResourceController < ApplicationController
       when 'application/n-triples'
           r.to_ntriples
       else
-          error 500, "Invalid output format"
+          error 500, "Invalid output format, valid format are: application/ld+json, application/rdf+xml, text/turtle and application/n-triples"
       end
 
 
