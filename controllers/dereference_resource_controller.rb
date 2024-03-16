@@ -1,6 +1,6 @@
 require_relative '../test/test_case'
 
-use ContentNegotiationMiddleware
+use Rack::ContentNegotiation
 
 class DereferenceResourceController < ApplicationController
   namespace "/ontologies" do
@@ -12,7 +12,7 @@ class DereferenceResourceController < ApplicationController
         error 500, "Usage: ontologies/:acronym/resolve/:uri?output_format= OR POST: acronym, uri, output_format parameters"
       end
 
-      output_format = env["format"].presence || 'application/n-triples'
+      output_format = env["format"].presence || params[:output_format].presence || 'application/n-triples'
 
       process_request(acronym, uri, output_format)
     end
