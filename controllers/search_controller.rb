@@ -109,7 +109,7 @@ class SearchController < ApplicationController
 
         conn = SOLR::SolrConnector.new(Goo.search_conf, :ontology_data)
         resp = conn.search(query, fq: fq, qf: qf, defType: "edismax",
-                                 page: page, page_size: page_size)
+                           start: (page - 1) * page_size, rows: page_size)
 
         total_found = resp["response"]["numFound"]
         docs = resp["response"]["docs"]
