@@ -100,11 +100,13 @@ class SearchController < ApplicationController
         query = params[:query] || params[:q]
         page, page_size = page_params
         ontologies = params.fetch("ontologies", "").split(',')
+        types = params.fetch("types", "").split(',')
         qf = params.fetch("qf", "")
 
         fq = []
 
         fq << ontologies.map { |x| "ontology_t:\"#{x}\"" }.join(' OR ') unless ontologies.blank?
+        fq << types.map { |x| "type_t:\"#{x}\" OR type_txt:\"#{x}\"" }.join(' OR ') unless types.blank?
 
 
         conn = SOLR::SolrConnector.new(Goo.search_conf, :ontology_data)
