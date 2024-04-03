@@ -200,6 +200,27 @@ class TestCase < MiniTest::Unit::TestCase
     return errors.strip
   end
 
+  def self.enable_security
+    LinkedData.settings.enable_security = true
+  end
+
+  def self.reset_security(old_security =  @@old_security_setting)
+    LinkedData.settings.enable_security = old_security
+  end
+
+
+  def self.make_admin(user)
+    user.bring_remaining
+    user.role = [LinkedData::Models::Users::Role.find(LinkedData::Models::Users::Role::ADMIN).first]
+    user.save
+  end
+
+  def self.reset_to_not_admin(user)
+    user.bring_remaining
+    user.role = [LinkedData::Models::Users::Role.find(LinkedData::Models::Users::Role::DEFAULT).first]
+    user.save
+  end
+
   def unused_port
     max_retries = 5
     retries = 0
@@ -219,4 +240,5 @@ class TestCase < MiniTest::Unit::TestCase
   rescue Errno::EADDRINUSE
     true
   end
+
 end

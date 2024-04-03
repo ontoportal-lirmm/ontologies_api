@@ -100,6 +100,7 @@ build_docker_run_cmd() {
   eval "$docker_run_cmd"
 }
 
+
 # Function to handle the "dev" and "test" options
 run_command() {
   local custom_command="$1"
