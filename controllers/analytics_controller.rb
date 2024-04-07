@@ -1,13 +1,13 @@
 require 'csv'
 
-class OntologyAnalyticsController < ApplicationController
+class AnalyticsController < ApplicationController
 
   ##
   # get all ontology analytics for a given year/month combination
   # TODO use a namespace analytics after migration the old OntologyAnalyticsController
   namespace "/data/analytics" do
 
-    get 'ontologies' do
+    get '/ontologies' do
       expires 86400, :public
       year = year_param(params)
       error 400, "The year you supplied is invalid. Valid years start with 2 and contain 4 digits." if params["year"] && !year
@@ -20,7 +20,7 @@ class OntologyAnalyticsController < ApplicationController
     end
 
 
-    get 'users' do
+    get '/users' do
       expires 86400, :public
       year = year_param(params)
       error 400, "The year you supplied is invalid. Valid years start with 2 and contain 4 digits." if params["year"] && !year
@@ -30,7 +30,7 @@ class OntologyAnalyticsController < ApplicationController
       reply analytics['all_users']
     end
 
-    get 'page_visits' do
+    get '/page_visits' do
       expires 86400, :public
       year = year_param(params)
       error 400, "The year you supplied is invalid. Valid years start with 2 and contain 4 digits." if params["year"] && !year
