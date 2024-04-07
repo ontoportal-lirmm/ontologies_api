@@ -1,5 +1,3 @@
-require_relative '../test/test_case'
-
 use Rack::ContentNegotiation
 
 class DereferenceResourceController < ApplicationController
