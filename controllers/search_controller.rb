@@ -107,9 +107,25 @@ class SearchController < ApplicationController
       get '/content' do
         query = params[:query] || params[:q]
         page, page_size = page_params
+
         ontologies = params.fetch("ontologies", "").split(',')
+
+        unless current_user&.admin?
+          restricted_acronyms = restricted_ontologies_to_acronyms(params)
+          ontologies = ontologies.empty? ? restricted_acronyms : ontologies & restricted_acronyms
+        end
+
+
         types = params.fetch("types", "").split(',')
         qf = params.fetch("qf", "")
+
+        qf = [
+          "ontology_t^100 resource_id^10",
+          "http___www.w3.org_2004_02_skos_core_prefLabel_txt^30",
+          "http___www.w3.org_2004_02_skos_core_prefLabel_t^30",
+          "http___www.w3.org_2000_01_rdf-schema_label_txt^30",
+          "http___www.w3.org_2000_01_rdf-schema_label_t^30",
+        ].join(' ') if qf.blank?
 
         fq = []
 
@@ -125,7 +141,7 @@ class SearchController < ApplicationController
         docs = resp["response"]["docs"]
 
 
-        reply 200,page_object(docs, total_found)
+        reply 200, page_object(docs, total_found)
       end
     end
 
@@ -182,6 +198,11 @@ class SearchController < ApplicationController
         stopwords: stopwords,
         lowercaseOperators: lowercaseOperators,
       }
+    end
+
+
+    def search_ontologies
+
     end
 
     def process_search(params = nil)
