@@ -55,6 +55,77 @@ class TestSearchModelsController < TestCase
     assert_equal 2,  res['response']['numFound']
   end
 
+  def test_search_security
+    count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                                                process_submission: true,
+                                                                                                process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                acronym: "BROSEARCHTEST",
+                                                                                                name: "BRO Search Test",
+                                                                                                file_path: "./test/data/ontology_files/BRO_v3.2.owl",
+                                                                                                ont_count: 1,
+                                                                                                submission_count: 1,
+                                                                                                ontology_type: "VALUE_SET_COLLECTION"
+                                                                                              })
+
+    count, acronyms, mccl = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                                                 process_submission: true,
+                                                                                                 process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                 acronym: "MCCLSEARCHTEST",
+                                                                                                 name: "MCCL Search Test",
+                                                                                                 file_path: "./test/data/ontology_files/CellLine_OWL_BioPortal_v1.0.owl",
+                                                                                                 ont_count: 1,
+                                                                                                 submission_count: 1
+                                                                                               })
+
+
+    subs = LinkedData::Models::OntologySubmission.all
+    subs.each do |s|
+      s.bring_remaining
+      s.index_all_data(Logger.new($stdout))
+    end
+
+
+    allowed_user = User.new({
+                              username: "allowed",
+                              email: "test1@example.org",
+                              password: "12345"
+                            })
+    allowed_user.save
+
+    blocked_user = User.new({
+                              username: "blocked",
+                              email: "test2@example.org",
+                              password: "12345"
+                            })
+    blocked_user.save
+
+    bro =  bro.first
+    bro.bring_remaining
+    bro.acl = [allowed_user]
+    bro.viewingRestriction = "private"
+    bro.save
+
+    self.class.enable_security
+    get "/search/ontologies?query=#{bro.acronym}&apikey=#{blocked_user.apikey}"
+    response = MultiJson.load(last_response.body)["collection"]
+    assert_empty response.select{|x| x["ontology_acronym_text"].eql?(bro.acronym)}
+
+    get "/search/ontologies/content?q=*Research_Lab_Management*&apikey=#{blocked_user.apikey}"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal 0, res['totalCount']
+
+    get "/search/ontologies?query=#{bro.acronym}&apikey=#{allowed_user.apikey}"
+    response = MultiJson.load(last_response.body)["collection"]
+    refute_empty response.select{|x| x["ontology_acronym_text"].eql?(bro.acronym)}
+
+    get "/search/ontologies/content?q=*Research_Lab_Management*&apikey=#{allowed_user.apikey}"
+    assert last_response.ok?
+    res = MultiJson.load(last_response.body)
+    assert_equal 1, res['totalCount']
+
+    self.class.reset_security(false)
+  end
 
   def test_ontology_metadata_search
     count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({

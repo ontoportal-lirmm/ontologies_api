@@ -200,11 +200,6 @@ class SearchController < ApplicationController
       }
     end
 
-
-    def search_ontologies
-
-    end
-
     def process_search(params = nil)
       params ||= @params
       text = params["q"]
