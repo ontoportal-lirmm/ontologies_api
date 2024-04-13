@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up solr configsets
-        run: ./test/solr/generate_ncbo_configsets.sh
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get -y install raptor2-utils
       - name: Set up JDK 11

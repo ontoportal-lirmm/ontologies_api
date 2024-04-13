@@ -33,16 +33,15 @@ services:
       GOO_PATH_QUERY: /sparql/
       GOO_PATH_DATA: /data/
       GOO_PATH_UPDATE: /update/
-
-    ports:
-      - "9393:9393"
     profiles:
-      - fs
+      - 4store
     depends_on:
       - solr-ut
       - redis-ut
       - mgrep-ut
       - 4store-ut
+    ports:
+      - "9393:9393"
 
   mgrep-ut:
     image: ontoportal/mgrep-ncbo:0.1
@@ -62,26 +61,24 @@ services:
 
   4store-ut:
     image: bde2020/4store
+    volumes:
+      - 4store:/var/lib/4store
     command: >
-      bash -c "4s-backend-setup --segments 4 ontoportal_kb
-      && 4s-backend ontoportal_kb
-      && 4s-httpd -D -s-1 -p 9000 ontoportal_kb"
+      bash -c "if [ ! -d '/var/lib/4store/ontoportal_kb' ]; then 4s-backend-setup --segments 4 ontoportal_kb; fi ; 4s-backend ontoportal_kb ; 4s-httpd -D -s-1 -p 9000 ontoportal_kb"
+
     ports:
       - "9000:9000"
     profiles:
       - fs
+      - 4store
 
   solr-ut:
     image: solr:8
     ports:
-      - "8983:8983"
+      - 8983:8983
     command: bin/solr start -cloud -f
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/term_search_core1/admin/ping?wt=json | grep -iq '\"status\":\"OK\"}' || exit 1" ]
-      start_period: 5s
-      interval: 10s
-      timeout: 5s
-      retries: 5
+   # volumes:
+      #- solr_data:/var/solr/data
 
   agraph-ut:
     image: franzinc/agraph:v8.1.0
@@ -147,3 +144,6 @@ services:
 
 volumes:
   bundle:
+  agdata:
+  4store:
+  #solr_data:

@@ -3,6 +3,11 @@ require_relative '../test_case'
 class TestSearchController < TestCase
 
   def self.before_suite
+    LinkedData::Models::Ontology.indexClear
+    LinkedData::Models::Agent.indexClear
+    LinkedData::Models::Class.indexClear
+    LinkedData::Models::OntologyProperty.indexClear
+
      count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
       process_submission: true,
       acronym: "BROSEARCHTEST",
@@ -60,7 +65,9 @@ class TestSearchController < TestCase
     LinkedData::SampleData::Ontology.delete_ontologies_and_submissions
     @@test_user.delete
     LinkedData::Models::Ontology.indexClear
-    LinkedData::Models::Ontology.indexCommit
+    LinkedData::Models::Agent.indexClear
+    LinkedData::Models::Class.indexClear
+    LinkedData::Models::OntologyProperty.indexClear
   end
 
   def test_search
@@ -221,9 +228,9 @@ class TestSearchController < TestCase
     doc = res["collection"].select{|doc| doc["@id"].to_s.eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
     refute_nil doc
 
-    #res = LinkedData::Models::Class.search("prefLabel_none:Activity", {:fq => "submissionAcronym:BROSEARCHTEST-0", :start => 0, :rows => 80}, :main)
-    #refute_equal 0, res["response"]["numFound"]
-    #refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    res = LinkedData::Models::Class.search("prefLabel_none:Activity", {:fq => "submissionAcronym:BROSEARCHTEST-0", :start => 0, :rows => 80})
+    refute_equal 0, res["response"]["numFound"]
+    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
 
     get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr"
     res =  MultiJson.load(last_response.body)
@@ -256,5 +263,6 @@ class TestSearchController < TestCase
 
 
   end
+
 
 end

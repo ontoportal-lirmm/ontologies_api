@@ -155,6 +155,27 @@ class TestCase < MiniTest::Unit::TestCase
     LinkedData::SampleData::Ontology.create_ontologies_and_submissions(options)
   end
 
+
+  def agent_data(type: 'organization')
+    schema_agencies = LinkedData::Models::AgentIdentifier::IDENTIFIER_SCHEMES.keys
+    users = LinkedData::Models::User.all
+    users = [LinkedData::Models::User.new(username: "tim", email: "tim@example.org", password: "password").save] if users.empty?
+    test_identifiers = 5.times.map { |i| { notation: rand.to_s[2..11], schemaAgency: schema_agencies.sample.to_s } }
+    user = users.sample.id.to_s
+
+    i = rand.to_s[2..11]
+    return {
+      agentType: type,
+      name: "name #{i}",
+      homepage: "home page #{i}",
+      acronym: "acronym #{i}",
+      email: "email_#{i}@test.com",
+      identifiers: test_identifiers.sample(2).map { |x| x.merge({ creator: user }) },
+      affiliations: [],
+      creator: user
+    }
+  end
+
   ##
   # Delete all ontologies and their submissions
   def delete_ontologies_and_submissions
@@ -200,6 +221,27 @@ class TestCase < MiniTest::Unit::TestCase
     return errors.strip
   end
 
+  def self.enable_security
+    LinkedData.settings.enable_security = true
+  end
+
+  def self.reset_security(old_security =  @@old_security_setting)
+    LinkedData.settings.enable_security = old_security
+  end
+
+
+  def self.make_admin(user)
+    user.bring_remaining
+    user.role = [LinkedData::Models::Users::Role.find(LinkedData::Models::Users::Role::ADMIN).first]
+    user.save
+  end
+
+  def self.reset_to_not_admin(user)
+    user.bring_remaining
+    user.role = [LinkedData::Models::Users::Role.find(LinkedData::Models::Users::Role::DEFAULT).first]
+    user.save
+  end
+
   def unused_port
     max_retries = 5
     retries = 0
@@ -219,4 +261,5 @@ class TestCase < MiniTest::Unit::TestCase
   rescue Errno::EADDRINUSE
     true
   end
+
 end
