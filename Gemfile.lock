@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 026c9c46baf6c0d638568528c2adcb7bcb1c2796
+  revision: 135b0df0d6394f69162f496674c5b2f2a3dcba4c
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -109,7 +109,7 @@ GEM
       multi_json (~> 1.0)
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
-    airbrussh (1.5.1)
+    airbrussh (1.5.2)
       sshkit (>= 1.6.1, != 1.7.0)
     backports (3.25.0)
     base64 (0.2.0)
@@ -245,7 +245,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    method_source (1.0.0)
+    method_source (1.1.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2024.0305)
@@ -273,7 +273,7 @@ GEM
       net-protocol
     net-ssh (7.2.3)
     netrc (0.11.0)
-    newrelic_rpm (9.8.0)
+    newrelic_rpm (9.9.0)
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
@@ -405,7 +405,6 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -464,4 +463,4 @@ DEPENDENCIES
   webmock (~> 3.19.1)
 
 BUNDLED WITH
-   2.4.22
+   2.3.15
