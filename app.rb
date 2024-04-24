@@ -185,3 +185,16 @@ if settings.environment == :console
   Pry.start binding, :quiet => true
   exit
 end
+
+
+require_relative 'lib/websockets/websockets_server'
+
+configure do
+  set :websocket_server, WebSocketServer.new(lambda { |env|
+    [200, { 'Content-Type' => 'text/plain' }, ['Hello World']]
+  })
+end
+
+Faye::WebSocket.load_adapter('puma')
+
+

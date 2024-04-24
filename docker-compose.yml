@@ -1,8 +1,6 @@
 x-app: &app
   image: agroportal/ontologies_api:development
   environment: &env
-    # default bundle config resolves to /usr/local/bundle/config inside of the container
-    # we are setting it to local app directory if we need to use 'bundle config local'
     BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
     BUNDLE_PATH: /srv/ontoportal/bundle
     COVERAGE: 'true' # enable simplecov code coverage
@@ -13,16 +11,11 @@ x-app: &app
   stdin_open: true
   tty: true
   command: /bin/bash
-  volumes:
-    # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
+  volumes: # <-- This seems to be incorrectly indented in your original YAML
     - bundle:/srv/ontoportal/bundle
     - .:/srv/ontoportal/ontologies_api
-    # mount directory containing development version of the gems if you need to use 'bundle config local'
-    #- /Users/alexskr/ontoportal:/Users/alexskr/ontoportal
   depends_on: &depends_on
-    solr-prop-ut:
-      condition: service_healthy
-    solr-term-ut:
+    solr-ut:
       condition: service_healthy
     redis-ut:
       condition: service_healthy
@@ -86,6 +79,7 @@ services:
     command: bin/solr start -cloud -f
    # volumes:
       #- solr_data:/var/solr/data
+
   agraph-ut:
     image: franzinc/agraph:v8.1.0
     platform: linux/amd64
@@ -96,9 +90,6 @@ services:
     ports:
       #      - 10035:10035
       - 10000-10035:10000-10035
-    volumes:
-      - agdata:/agraph/data
-      #      - ./agraph/etc:/agraph/etc
     command: >
       bash -c "/agraph/bin/agraph-control --config /agraph/etc/agraph.cfg start
       ; agtool repos create ontoportal_test --supersede

@@ -178,7 +178,8 @@ run_command() {
 dev() {
   echo "Starting OntoPortal API development server..."
 
-  local custom_command="bundle exec shotgun --host 0.0.0.0  --env=development --port 9393"
+  local custom_command="ENVIRONMENT=development bundle exec puma -C config/puma.rb"
+  #local custom_command="ENVIRONMENT=development bundle exec rackup -p 9393 --host 0.0.0.0"
   run_command "$custom_command" "$@"
 }
 

@@ -439,6 +439,10 @@ module Sinatra
         end
         return nil, nil
       end
+
+      def websockets
+        settings.websocket_server
+      end
       private
 
       def naive_expiring_cache_write(key, object, timeout = 60)
