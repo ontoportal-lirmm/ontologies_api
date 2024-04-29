@@ -30,9 +30,8 @@ gem 'rack-timeout'
 gem 'redis-rack-cache', '~> 2.0'
 
 # Data access (caching)
-gem 'redis', '~> 4.8.1'
-gem 'redis-activesupport'
-gem 'redis-store', '1.9.1'
+gem 'redis'
+gem 'redis-store', '~>1.10'
 
 # Monitoring
 gem 'cube-ruby', require: 'cube'
