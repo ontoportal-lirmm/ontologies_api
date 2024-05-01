@@ -99,14 +99,14 @@ class UsersController < ApplicationController
     private
 
 
-    def create_user
+    def create_user(send_notifications: true)
       params ||= @params
       user = User.find(params["username"]).first
       error 409, "User with username `#{params["username"]}` already exists" unless user.nil?
       params.delete("role") unless current_user.admin?
       user = instance_from_params(User, params)
       if user.valid?
-        user.save(send_notifications: false)
+        user.save(send_notifications: send_notifications)
       else
         error 422, user.errors
       end
