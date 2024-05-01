@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 0e554fce49713ce4d5a742a06c2fb59a547caf47
+  revision: b2a635fb1e8206e6e3010be4dbe033b47eb58481
   branch: development
   specs:
     goo (0.0.2)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 026c9c46baf6c0d638568528c2adcb7bcb1c2796
+  revision: 1278507e6ae8224edca746c7c150775ec2210195
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -77,13 +77,12 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: 180c818f7715baac64b2699bb452ef5c756f62c5
-  branch: master
+  revision: 82302db1bfaec6593f3ea26917d7f2bb2dd485ce
+  branch: development
   specs:
-    sparql-client (1.0.1)
-      json_pure (>= 1.4)
-      net-http-persistent (= 2.9.4)
-      rdf (>= 1.0)
+    sparql-client (3.2.2)
+      net-http-persistent (~> 4.0, >= 4.0.2)
+      rdf (~> 3.2, >= 3.2.11)
 
 GIT
   remote: https://github.com/palexander/rack-post-body-to-params.git
@@ -109,7 +108,7 @@ GEM
       multi_json (~> 1.0)
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
-    airbrussh (1.5.1)
+    airbrussh (1.5.2)
       sshkit (>= 1.6.1, != 1.7.0)
     backports (3.25.0)
     base64 (0.2.0)
@@ -131,6 +130,7 @@ GEM
       sshkit (~> 1.3)
     coderay (1.1.3)
     concurrent-ruby (1.2.3)
+    connection_pool (2.4.1)
     crack (1.0.0)
       bigdecimal
       rexml
@@ -235,7 +235,6 @@ GEM
       rdf (>= 2.2.8, < 4.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_pure (2.7.2)
     jwt (2.8.1)
       base64
     kgio (2.11.4)
@@ -249,7 +248,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    method_source (1.0.0)
+    method_source (1.1.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2024.0305)
@@ -261,7 +260,8 @@ GEM
     multi_json (1.15.0)
     multipart-post (2.4.0)
     mutex_m (0.2.0)
-    net-http-persistent (2.9.4)
+    net-http-persistent (4.0.2)
+      connection_pool (~> 2.2)
     net-imap (0.4.10)
       date
       net-protocol
@@ -277,7 +277,7 @@ GEM
       net-protocol
     net-ssh (7.2.3)
     netrc (0.11.0)
-    newrelic_rpm (9.8.0)
+    newrelic_rpm (9.9.0)
     oj (2.18.5)
     omni_logger (0.1.4)
       logger
@@ -324,15 +324,15 @@ GEM
       rdf (~> 3.2)
       rexml (~> 3.2)
     redcarpet (3.6.0)
-    redis (4.8.1)
-    redis-activesupport (5.3.0)
-      activesupport (>= 3, < 8)
-      redis-store (>= 1.3, < 2)
+    redis (5.2.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.22.1)
+      connection_pool
     redis-rack-cache (2.2.1)
       rack-cache (>= 1.10, < 2)
       redis-store (>= 1.6, < 2)
-    redis-store (1.9.1)
-      redis (>= 4, < 5)
+    redis-store (1.10.0)
+      redis (>= 4, < 6)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -381,7 +381,7 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
-    sshkit (1.22.1)
+    sshkit (1.22.2)
       base64
       mutex_m
       net-scp (>= 1.1.2)
@@ -451,10 +451,9 @@ DEPENDENCIES
   rack-timeout
   rake (~> 10.0)
   redcarpet
-  redis (~> 4.8.1)
-  redis-activesupport
+  redis
   redis-rack-cache (~> 2.0)
-  redis-store (= 1.9.1)
+  redis-store (~> 1.10)
   request_store
   shotgun!
   simplecov

@@ -30,9 +30,8 @@ gem 'rack-timeout'
 gem 'redis-rack-cache', '~> 2.0'
 
 # Data access (caching)
-gem 'redis', '~> 4.8.1'
-gem 'redis-activesupport'
-gem 'redis-store', '1.9.1'
+gem 'redis'
+gem 'redis-store', '~>1.10'
 
 # Monitoring
 gem 'cube-ruby', require: 'cube'
@@ -50,8 +49,8 @@ gem 'redcarpet'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
-gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'master'
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
 
 group :development do
