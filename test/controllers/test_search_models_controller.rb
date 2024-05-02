@@ -18,7 +18,8 @@ class TestSearchModelsController < TestCase
     get '/admin/search/collections'
     assert last_response.ok?
     res = MultiJson.load(last_response.body)
-    assert_equal res["collections"].sort, Goo.search_connections.keys.map(&:to_s).sort
+    array = %w[agents_metadata ontology_data ontology_metadata prop_search_core1 term_search_core1]
+    assert_equal res["collections"].sort , array.sort
   end
 
   def test_collection_schema
@@ -81,7 +82,7 @@ class TestSearchModelsController < TestCase
     subs = LinkedData::Models::OntologySubmission.all
     subs.each do |s|
       s.bring_remaining
-      s.index_all_data(Logger.new($stdout))
+      s.index_all(Logger.new($stdout))
     end
 
 
@@ -416,7 +417,7 @@ class TestSearchModelsController < TestCase
   def test_search_data
     count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
                                                                                                 process_submission: true,
-                                                                                                process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                process_options: { process_rdf: true, extract_metadata: false,  index_all_data: true, generate_missing_labels: false},
                                                                                                 acronym: "BROSEARCHTEST",
                                                                                                 name: "BRO Search Test",
                                                                                                 file_path: "./test/data/ontology_files/BRO_v3.2.owl",
@@ -427,7 +428,7 @@ class TestSearchModelsController < TestCase
 
     count, acronyms, mccl = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
                                                                                                  process_submission: true,
-                                                                                                 process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
+                                                                                                 process_options: { process_rdf: true, extract_metadata: false, index_all_data: true, generate_missing_labels: false},
                                                                                                  acronym: "MCCLSEARCHTEST",
                                                                                                  name: "MCCL Search Test",
                                                                                                  file_path: "./test/data/ontology_files/CellLine_OWL_BioPortal_v1.0.owl",
@@ -439,8 +440,6 @@ class TestSearchModelsController < TestCase
     subs = LinkedData::Models::OntologySubmission.all
     count = []
     subs.each do |s|
-      s.bring_remaining
-      s.index_all_data(Logger.new($stdout))
       count << Goo.sparql_query_client.query("SELECT  (COUNT( DISTINCT ?id) as ?c)  FROM <#{s.id}> WHERE {?id ?p ?v}")
                  .first[:c]
                  .to_i
