@@ -88,6 +88,7 @@ class TestMappingsController < TestCase
     commun_created_mappings_test(created, mapping_term_a, mapping_term_b, relations)
   end
 
+
   private
 
   def commun_created_mappings_test(created, mapping_term_a, mapping_term_b, relations)
@@ -423,4 +424,6 @@ class TestMappingsController < TestCase
     end
     [mappings, mapping_ont_a, mapping_ont_b, mapping_term_a, mapping_term_b, relations]
   end
+
+  
 end
