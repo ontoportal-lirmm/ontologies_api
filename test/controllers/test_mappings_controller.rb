@@ -88,11 +88,6 @@ class TestMappingsController < TestCase
     commun_created_mappings_test(created, mapping_term_a, mapping_term_b, relations)
   end
 
-  def test_mappings_slices
-    get "/mappings/statistics/ontologies/"
-    
-    
-  end
 
   private
 
