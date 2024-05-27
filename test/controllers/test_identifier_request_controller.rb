@@ -21,7 +21,7 @@ class TestIdentifierRequestController < TestCase
                                           hasOntologyLanguage: LinkedData::Models::OntologyFormat.find('OWL').first,
                                           contact: [LinkedData::Models::Contact.new(email: 'test@test.com', name: 'test').save],
                                            released: DateTime.now, uploadFilePath: '',
-                                           URI: 'https://test.com/test',
+                                           URI: RDF::URI.new('https://test.com/test'),
                                            status: 'production',
                                            description: 'ontology description' ).save
     end

@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 0b551acdd7460914b2e4ebfc25017e04db4abaa7
+  revision: 17edfcb470848152dec8939fc6f68f5ed00f83db
   branch: master
   specs:
     ontologies_linked_data (0.0.1)
@@ -165,7 +165,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.16.3)
+    ffi (1.15.5)
     gapic-common (0.21.1)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
@@ -426,7 +426,7 @@ DEPENDENCIES
   cube-ruby
   ed25519 (>= 1.2, < 2.0)
   faraday (~> 1.9)
-  ffi
+  ffi (~> 1.15.5)
   goo!
   haml (~> 5.2.2)
   json-ld

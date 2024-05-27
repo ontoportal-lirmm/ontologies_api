@@ -19,7 +19,7 @@ gem 'json-ld'
 
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.15.5'
 gem 'rack-accept', '~> 0.4'
 gem 'rack-attack', '~> 6.6.1', require: 'rack/attack'
 gem 'rack-cache', '~> 1.13.0'

@@ -496,8 +496,6 @@ class TestOntologySubmissionsController < TestCase
     sub.to_hash.keys - %w[@id @type id]
   end
 
-  private
-
   def _test_eco_portal_exporter(format: 'ecoportal_metadata_json')
 
     num_onts_created, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: false)
