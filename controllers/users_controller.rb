@@ -23,17 +23,13 @@ class UsersController < ApplicationController
     post "/create_reset_password_token" do
       email    = params["email"]
       username = params["username"]
-      user = LinkedData::Models::User.where(email: email, username: username).include(LinkedData::Models::User.attributes).first
-      error 404, "User not found" unless user
-      reset_token = token(36)
-      user.resetToken = reset_token
+      user = send_reset_token(email, username)
+
       if user.valid?
-        user.save(override_security: true)
-        LinkedData::Utils::Notifications.reset_password(user, reset_token)
+        halt 204
       else
         error 422, user.errors
       end
-      halt 204
     end
 
     ##
@@ -45,11 +41,11 @@ class UsersController < ApplicationController
       email             = params["email"] || ""
       username          = params["username"] || ""
       token             = params["token"] || ""
+
       params["display"] = User.attributes.join(",") # used to serialize everything via the serializer
-      user = LinkedData::Models::User.where(email: email, username: username).include(User.goo_attrs_to_load(includes_param)).first
-      error 404, "User not found" unless user
-      if token.eql?(user.resetToken)
-        user.show_apikey = true
+
+      user, token_accepted = reset_password(email, username, token)
+      if token_accepted
         reply user
       else
         error 403, "Password reset not authorized with this token"
@@ -84,6 +80,7 @@ class UsersController < ApplicationController
     # Update an existing submission of an user
     patch '/:username' do
       user = User.find(params[:username]).include(User.attributes).first
+      params.delete("role") unless current_user.admin?
       populate_from_params(user, params)
       if user.valid?
         user.save
@@ -150,10 +147,11 @@ class UsersController < ApplicationController
       token
     end
 
-    def create_user
+    def create_user(send_notifications: true)
       params ||= @params
       user = User.find(params["username"]).first
       error 409, "User with username `#{params["username"]}` already exists" unless user.nil?
+      params.delete("role") unless current_user.admin?
       user = instance_from_params(User, params)
       save_user(user)
       reply 201, user
@@ -161,14 +159,7 @@ class UsersController < ApplicationController
 
     def save_user(user)
       if user.valid?
-        user.save
-        # Send an email to the administrator to warn him about the newly created user
-        begin
-          if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
-            LinkedData::Utils::Notifications.new_user(user)
-          end
-        rescue Exception => e
-        end
+        user.save(send_notifications: send_notifications)
       else
         error 422, user.errors
       end
