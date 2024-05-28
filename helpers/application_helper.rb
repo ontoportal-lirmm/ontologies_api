@@ -31,6 +31,7 @@ module Sinatra
           # Deal with empty strings for String and URI
           empty_string = value.is_a?(String) && value.empty?
           old_string_value_exists = obj.respond_to?(attribute) && (obj.send(attribute).is_a?(String) || obj.send(attribute).is_a?(RDF::URI))
+          old_string_value_exists = old_string_value_exists || (obj.respond_to?(attribute) && obj.send(attribute).is_a?(LinkedData::Models::Base))
           if old_string_value_exists && empty_string
             value = nil
           elsif empty_string
@@ -51,6 +52,10 @@ module Sinatra
             value = is_arr ? value : [value]
             new_value = []
             value.each do |cls|
+              if uri_as_needed(cls["ontology"]).nil?
+                new_value << cls
+                next
+              end
               sub = LinkedData::Models::Ontology.find(uri_as_needed(cls["ontology"])).first.latest_submission
               new_value << LinkedData::Models::Class.find(cls["class"]).in(sub).first
             end
@@ -59,7 +64,7 @@ module Sinatra
             # Replace the initial value with the object, handling Arrays as appropriate
             if value.is_a?(Array)
               value = value.map {|e| attr_cls.find(uri_as_needed(e)).include(attr_cls.attributes).first}
-            else
+            elsif !value.nil?
               value = attr_cls.find(uri_as_needed(value)).include(attr_cls.attributes).first
             end
           elsif attr_cls
@@ -83,7 +88,10 @@ module Sinatra
             value = retrieved_values
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:date_time)
             # TODO: Remove this awful hack when obj.class.model_settings[:range][attribute] contains DateTime class
-            value = DateTime.parse(value)
+            is_array = value.is_a?(Array)
+            value = Array(value).map{ |v| DateTime.parse(v) }
+            value = value.first unless is_array
+            value
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:uri) && attribute_settings[:enforce].include?(:list)
             # in case its a list of URI, convert all value to IRI
             value = value.map { |v| RDF::IRI.new(v) }
@@ -268,7 +276,7 @@ module Sinatra
         if params["month"]
           month = params["month"].strip
           if %r{(?<month>^(0[1-9]|[1-9]|1[0-2])$)}x === month
-            month.to_i
+            month.to_i.to_s
           end
         end
       end
@@ -279,7 +287,7 @@ module Sinatra
         if params["year"]
           year = params["year"].strip
           if %r{(?<year>^([1-2]\d{3})$)}x === year
-            year.to_i
+            year.to_i.to_s
           end
         end
       end
@@ -359,8 +367,6 @@ module Sinatra
 
         latest_submissions = page? ? submissions : {} # latest_submission doest not work with pagination
         submissions.each do |sub|
-          # To retrieve all metadata, but slow when a lot of ontologies
-          sub.bring_remaining   if includes_param.first == :all
           unless page?
             next if include_ready?(options) && !sub.ready?
             next if sub.ontology.nil?

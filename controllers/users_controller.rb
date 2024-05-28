@@ -1,17 +1,17 @@
-require 'jwt'
-
 class UsersController < ApplicationController
   namespace "/users" do
     post "/authenticate" do
+
       # Modify params to show all user attributes
       params["display"] = User.attributes.join(",")
-      if $SSO_ENABLED
-        user = sso_auth
-      else
-        user = password_auth
-      end
 
-      user.show_apikey = true
+      if params["access_token"]
+        user = oauth_authenticate(params)
+        user.bring(*User.goo_attrs_to_load(includes_param))
+      else
+        user = login_password_authenticate(params)
+      end
+      user.show_apikey = true unless user.nil?
       reply user
     end
 
@@ -23,17 +23,13 @@ class UsersController < ApplicationController
     post "/create_reset_password_token" do
       email    = params["email"]
       username = params["username"]
-      user = LinkedData::Models::User.where(email: email, username: username).include(LinkedData::Models::User.attributes).first
-      error 404, "User not found" unless user
-      reset_token = token(36)
-      user.resetToken = reset_token
+      user = send_reset_token(email, username)
+
       if user.valid?
-        user.save(override_security: true)
-        LinkedData::Utils::Notifications.reset_password(user, reset_token)
+        halt 204
       else
         error 422, user.errors
       end
-      halt 204
     end
 
     ##
@@ -45,11 +41,11 @@ class UsersController < ApplicationController
       email             = params["email"] || ""
       username          = params["username"] || ""
       token             = params["token"] || ""
+
       params["display"] = User.attributes.join(",") # used to serialize everything via the serializer
-      user = LinkedData::Models::User.where(email: email, username: username).include(User.goo_attrs_to_load(includes_param)).first
-      error 404, "User not found" unless user
-      if token.eql?(user.resetToken)
-        user.show_apikey = true
+
+      user, token_accepted = reset_password(email, username, token)
+      if token_accepted
         reply user
       else
         error 403, "Password reset not authorized with this token"
@@ -84,6 +80,7 @@ class UsersController < ApplicationController
     # Update an existing submission of an user
     patch '/:username' do
       user = User.find(params[:username]).include(User.attributes).first
+      params.delete("role") unless current_user.admin?
       populate_from_params(user, params)
       if user.valid?
         user.save
@@ -101,77 +98,19 @@ class UsersController < ApplicationController
 
     private
 
-    def password_auth
-      user_id = params["user"]
-      user_password = params["password"]
-      user = User.find(user_id).include(User.goo_attrs_to_load(includes_param) + [:passwordHash]).first
-      authenticated = user.authenticate(user_password) unless user.nil?
-      error 401, "Username/password combination invalid" unless authenticated
-      user
-    end
 
-    def sso_auth
-      bearer_token = params["token"]
-      error 401, "No bearer token provided" unless bearer_token
-
-      begin
-        decoded_token = LinkedData::Security::Authorization.decodeJWT(bearer_token)
-      rescue JWT::DecodeError => e
-        error 401, "Failed to decode JWT token: " + e.message
-      end
-      token_payload = decoded_token[0]
-
-      user_id = token_payload[LinkedData.settings.oauth2_username_claim]
-      given_name = token_payload[LinkedData.settings.oauth2_given_name_claim]
-      family_name = token_payload[LinkedData.settings.oauth2_family_name_claim]
-      email = token_payload[LinkedData.settings.oauth2_email_claim]
-
-      user = User.find(user_id).include(User.goo_attrs_to_load(includes_param)).first
-
-      if user.nil? # first-time access, register new user
-        user_creation_params = {
-          username: user_id,
-          firstName: given_name,
-          lastName: family_name,
-          email: email,
-          password: SecureRandom.hex(16)
-        }
-
-        user = instance_from_params(User, user_creation_params)
-        save_user(user)
-      end
-      user
-    end
-
-    def token(len)
-      chars = ("a".."z").to_a + ("A".."Z").to_a + ("1".."9").to_a
-      token = ""
-      1.upto(len) { |i| token << chars[rand(chars.size-1)] }
-      token
-    end
-
-    def create_user
+    def create_user(send_notifications: true)
       params ||= @params
       user = User.find(params["username"]).first
       error 409, "User with username `#{params["username"]}` already exists" unless user.nil?
+      params.delete("role") unless current_user.admin?
       user = instance_from_params(User, params)
-      save_user(user)
-      reply 201, user
-    end
-
-    def save_user(user)
       if user.valid?
-        user.save
-        # Send an email to the administrator to warn him about the newly created user
-        begin
-          if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
-            LinkedData::Utils::Notifications.new_user(user)
-          end
-        rescue Exception => e
-        end
+        user.save(send_notifications: send_notifications)
       else
         error 422, user.errors
       end
+      reply 201, user
     end
   end
 end

@@ -29,22 +29,21 @@ class OntologiesController < ApplicationController
     ##
     # Ontology latest submission
     get "/:acronym/latest_submission" do
-      latest = find_latest_submission
-      # When asking to display all metadata, we are using bring_remaining which is more performant than including all metadata (remove this when the query to get metadata will be fixed)
-      if latest
-        if includes_param.first == :all
-          # Bring what we need to display all attr of the submission
-          latest.bring_remaining
-          latest.bring(*submission_attributes_all)
-        else
-          includes = OntologySubmission.goo_attrs_to_load(includes_param)
-
-          includes << {:contact=>[:name, :email]} if includes.find{|v| v.is_a?(Hash) && v.keys.first.eql?(:contact)}
-
-          latest.bring(*includes)
-        end
+      ont = Ontology.find(params["acronym"]).first
+      error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
+      include_status = params["include_status"]
+      ont.bring(:acronym, :submissions)
+      if include_status
+        latest = ont.latest_submission(status: include_status.to_sym)
+      else
+        latest = ont.latest_submission(status: :any)
       end
-      #remove the whole previous if block and replace by it: latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
+
+      if latest
+        check_last_modified(latest)
+        latest.bring(*submission_include_params)
+      end
+
       reply(latest || {})
     end
 
