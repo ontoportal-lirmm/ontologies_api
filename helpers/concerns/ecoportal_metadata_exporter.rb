@@ -34,6 +34,41 @@ module Sinatra
         }
         hash
       end
+
+      def old_eco_portal_adapter(params, ont)
+        params["publication"] = Array(params["publication"])
+
+        params["alternative"] = params["titles"].map{ |x| x['title'] } if params["titles"].present?
+
+        params.delete("publicationYear")
+        params.delete("resourceTypeGeneral")
+
+        params["hasFormalityLevel"] = "http://w3id.org/nkos/nkostype##{params["resourceType"].gsub(' ','_').downcase}" if params["resourceType"].present?
+
+        if params["creators"].present?
+          params["hasCreator"] = Array(params["creators"]).map do |creator|
+            name = creator['creatorName']
+            next nil if name.blank?
+
+            agent = LinkedData::Models::Agent.where(agentType: 'person', name: name).first
+            agent ||= LinkedData::Models::Agent.new(name: name, agentType: 'person', creator: current_user).save
+            agent.id.to_s
+          end
+        end
+
+        if params["publisher"].present?
+          name = params["publisher"]
+          agent = LinkedData::Models::Agent.where(name: name).first
+          agent ||= LinkedData::Models::Agent.new(name: name, agentType: 'organization', creator: current_user).save
+          params["publisher"] = [agent.id.to_s]
+        end
+
+
+        unless params["URI"].present?
+          params["URI"] = ont.id
+        end
+        params
+      end
     end
   end
 end

@@ -41,8 +41,7 @@ class TestOntologySubmissionsController < TestCase
 
   def setup
     delete_ontologies_and_submissions
-    ont = Ontology.new(acronym: @@acronym, name: @@name, administeredBy: [@@user])
-    ont.save
+    self.class.before_suite
   end
 
   def test_submissions_for_given_ontology
@@ -216,6 +215,85 @@ class TestOntologySubmissionsController < TestCase
     assert_equal sub.contact.map{|c|  {"name" => c.name, "email" => c.email}}, hash["contact"]
     assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["identifier"]
     assert_equal 'DOI', hash["identifierType"]
+  end
+
+  def test_upload_eco_portal_metadata
+    # This is the metadata that is send by the VocBench OntoPortal deployer
+    example_of_input = {
+      # good
+      "file" => Rack::Test::UploadedFile.new(@@test_file, ""),
+      # good
+      "acronym" => "SYPHAX_TEST_VOC",
+      # good
+      "description" => "test new description",
+      # good
+      "version" => "2.0.0",
+      # good
+      "hasOntologyLanguage" => "OWL",
+      # good
+      "status" => "alpha",
+      # good
+      "released" => "2001-02-12",
+      # good
+      "contact" =>
+        [{ "name" => "syphax", "email" => "bouazounisyphax@gmail.com" }, { "name" => "syphax2", "email" => "gs_bouazouni@esi.dz" }],
+      # good
+      "homepage" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # good
+      "documentation" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # not good, need to be a list
+      "publication" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # not good, replaced with hasCreator, and need to search, find or create.
+      "creators" => [{ "creatorName" => "syphax bouazzouni" }],
+
+      # not good, replaced with alternative, and remove "lang" and "titleType"
+      "titles" =>
+        [{ "title" => "Test syphax for vocbench", "lang" => "en", "titleType" => "AlternativeTitle" },
+         { "title" => "Syphax test for vocbench", "lang" => "en", "titleType" => "AlternativeTitle" }],
+
+      # not good, need to be a list
+      "publisher" => "lifewatch",
+
+      # not good, removed, reduced from "released"
+      "publicationYear" => "2022",
+
+      # not good, replaced with isOfType and need to be a URI
+      "resourceType" => "Ontology",
+
+      # not good, removed, as always equal "Dataset"
+      "resourceTypeGeneral" => "Dataset",
+    }
+    user = User.all.first
+    user.bring :apikey
+
+    2.times.each do |i|
+      header 'Authorization', "apikey token=#{user.apikey}"
+      post "/ontologies/#{@@acronym}/submissions", example_of_input, "CONTENT_TYPE" => "application/json"
+      assert_equal 201, last_response.status
+
+      ont = Ontology.find(@@acronym).first
+
+      subs = ont.bring(:submissions).submissions
+
+      assert_equal i+1, subs.size
+
+      latest = ont.latest_submission(status: :any).bring_remaining
+
+      assert_equal latest.alternative.sort, example_of_input["titles"].map{|x| x["title"]}.sort
+      assert_equal latest.description, example_of_input["description"]
+      assert_equal latest.contact.map{|x| { "name" => x.bring(:name).name, "email" => x.bring(:email).email} }.sort_by{|x| x["name"]} ,
+                   example_of_input["contact"].sort_by{|x| x["name"]}
+      assert_equal latest.documentation, example_of_input["documentation"]
+      assert_equal latest.homepage, example_of_input["homepage"]
+      assert_equal latest.hasCreator.map{|x| x.bring_remaining.name}.sort, example_of_input["creators"].map{|x| x['creatorName']}.sort
+      assert_equal latest.publisher.first.bring_remaining.name, example_of_input["publisher"]
+      assert_equal latest.publication.first, example_of_input["publication"]
+      assert_equal latest.released.to_date.to_s, example_of_input["released"]
+    end
+
   end
 
   def test_submissions_pagination

@@ -1,18 +1,20 @@
 require 'sinatra/base'
 require 'json'
+require_relative 'concerns/ecoportal_metadata_exporter'
 
 module Sinatra
   module Helpers
     module OntologyHelper
-
-      #ISO_LANGUAGE_LIST = ::JSON.parse(IO.read("public/language_iso-639-1.json"))
+      include Sinatra::Concerns::EcoPortalMetadataExporter
 
       ##
       # Create a new OntologySubmission object based on the request data
       def create_submission(ont)
         params = @params
-
         submission_id = ont.next_submission_id
+
+        # VocBench adapter
+        params = old_eco_portal_adapter(params, ont)
 
         # Create OntologySubmission
         ont_submission = instance_from_params(OntologySubmission, params)
@@ -28,16 +30,6 @@ module Sinatra
           ont_submission.hasOntologyLanguage = OntologyFormat.find(params["hasOntologyLanguage"]).first
         end
 
-        # Check if the naturalLanguage provided is a valid ISO-639-1 code (not used anymore, we let lexvo URI)
-=begin
-        if !ont_submission.naturalLanguage.nil?
-          if ISO_LANGUAGE_LIST.has_key?(ont_submission.naturalLanguage.downcase)
-            ont_submission.naturalLanguage = ont_submission.naturalLanguage.downcase
-          else
-            error 422, "You must specify a valid 2 digits language code (ISO-639-1) for naturalLanguage"
-          end
-        end
-=end
 
         if ont_submission.valid?
           ont_submission.save
