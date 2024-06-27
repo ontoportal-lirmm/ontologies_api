@@ -40,8 +40,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 310ae5fef858d13917ff9fa6e59859998220c9b5
-  branch: development
+  revision: 6bb53a13f514a60513afe25e37c5c69475140452
+  branch: master
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -114,6 +114,7 @@ GEM
     base64 (0.2.0)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
+    bcrypt_pbkdf (1.1.1-x86_64-darwin)
     bigdecimal (1.4.2)
     builder (3.3.0)
     capistrano (3.19.0)
@@ -197,6 +198,8 @@ GEM
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.4.0)
+    google-protobuf (3.25.3)
+    google-protobuf (3.25.3-x86_64-darwin)
     google-protobuf (3.25.3-x86_64-linux)
     googleapis-common-protos (1.6.0)
       google-protobuf (>= 3.18, < 5.a)
@@ -211,6 +214,12 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    grpc (1.64.0)
+      google-protobuf (~> 3.25)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.64.0-x86_64-darwin)
+      google-protobuf (~> 3.25)
+      googleapis-common-protos-types (~> 1.0)
     grpc (1.64.0-x86_64-linux)
       google-protobuf (~> 3.25)
       googleapis-common-protos-types (~> 1.0)
@@ -273,7 +282,7 @@ GEM
     net-ssh (7.2.3)
     netrc (0.11.0)
     newrelic_rpm (9.11.0)
-    oj (2.18.5)
+    oj (3.16.1)
     omni_logger (0.1.4)
       logger
     os (1.1.4)
@@ -405,6 +414,8 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
+  ruby
+  x86_64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
@@ -430,7 +441,7 @@ DEPENDENCIES
   ncbo_cron!
   ncbo_ontology_recommender!
   newrelic_rpm
-  oj (~> 2.0)
+  oj
   ontologies_linked_data!
   parallel
   parseconfig
@@ -462,4 +473,4 @@ DEPENDENCIES
   webmock (~> 3.19.1)
 
 BUNDLED WITH
-   2.3.15
+   2.4.22
