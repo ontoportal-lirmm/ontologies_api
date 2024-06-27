@@ -258,7 +258,7 @@ module Sinatra
       end
 
       def request_languages?
-        !(params['lang'] || params['languages']).blank?
+        !(params['lang'] || params['language']).blank?
       end
 
       def request_all_languages?
@@ -272,6 +272,10 @@ module Sinatra
         else
           "#{attr}#{rank}"
         end
+      end
+
+      def pref_label_by_language(doc)
+        Array(doc["prefLabel_#{request_languages.first}".to_sym]).first || Array(doc["prefLabel_none".to_sym]).first || Array(doc[:prefLabel]).first
       end
 
       def filter_attrs_by_language(doc)
@@ -297,7 +301,7 @@ module Sinatra
             doc[k] = lang_vals.map { |l, v| l.eql?('none') ? nil : v }.compact.flatten + Array(lang_vals['none'])
           end
 
-          doc[:prefLabel] = Array(doc["prefLabel_#{request_languages.first}".to_sym]).first || Array(doc[:prefLabel]).first
+          doc[:prefLabel] =  pref_label_by_language(doc)
         end
 
         doc
@@ -431,7 +435,7 @@ module Sinatra
           doc[:submission] = old_class.submission
           doc[:properties] = MultiJson.load(doc.delete(:propertyRaw)) if include_param_contains?(:properties)
           instance = LinkedData::Models::Class.read_only(doc)
-          instance.prefLabel =  instance.prefLabel.first if instance.prefLabel.is_a?(Array)
+          instance.prefLabel = pref_label_by_language(doc)
           classes_hash[ont_uri_class_uri] = instance
         end
 
