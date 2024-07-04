@@ -99,13 +99,13 @@ class OntologiesController < ApplicationController
     ##
     # Create an ontology
     post do
-      create_ontology
+      create_ontology_with_params
     end
 
     ##
     # Create an ontology with constructed URL
     put '/:acronym' do
-      create_ontology
+      create_ontology_with_params
     end
 
     ##
@@ -185,45 +185,13 @@ class OntologiesController < ApplicationController
       latest
     end
 
-    def create_ontology
-      params ||= @params
-
-      # acronym must be well formed
-      params['acronym'] = params['acronym'].upcase # coerce new ontologies to upper case
-
-      # ontology acronym must be unique
-      ont = Ontology.find(params['acronym']).first
-      if ont.nil?
-        ont = instance_from_params(Ontology, params)
-      else
-        error_msg = <<-ERR
-        Ontology already exists, see #{ont.id}
-        To add a new submission, POST to: /ontologies/#{params['acronym']}/submission.
-        To modify the resource, use PATCH.
-        ERR
-        error 409, error_msg
-      end
-
-      # ontology name must be unique
-      ont_names = Ontology.where.include(:name).to_a.map { |o| o.name }
-      if ont_names.include?(ont.name)
-        error 409, "Ontology name is already in use by another ontology."
-      end
-
+    def create_ontology_with_params
+      ont = create_ontology
       if ont.valid?
-        ont.save
-        # Send an email to the administrator to warn him about the newly created ontology
-        begin
-          if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
-            LinkedData::Utils::Notifications.new_ontology(ont)
-          end
-        rescue Exception => e
-        end
+        reply 201, ont
       else
         error 422, ont.errors
       end
-
-      reply 201, ont
     end
   end
 

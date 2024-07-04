@@ -271,10 +271,16 @@ class TestOntologySubmissionsController < TestCase
 
     2.times.each do |i|
       header 'Authorization', "apikey token=#{user.apikey}"
-      post "/ontologies/#{@@acronym}/submissions", example_of_input, "CONTENT_TYPE" => "application/json"
+      post "/ontologies/SYPHAX_TEST_VOC/submissions", example_of_input, "CONTENT_TYPE" => "application/json"
       assert_equal 201, last_response.status
 
-      ont = Ontology.find(@@acronym).first
+      ont = Ontology.find('SYPHAX_TEST_VOC').first
+
+      refute_nil ont
+
+      ont.bring_remaining
+
+      assert_equal ont.name, example_of_input["titles"].first["title"]
 
       subs = ont.bring(:submissions).submissions
 

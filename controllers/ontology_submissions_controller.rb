@@ -43,7 +43,16 @@ class OntologySubmissionsController < ApplicationController
     # Create a new submission for an existing ontology
     post do
       ont = Ontology.find(params["acronym"]).include(Ontology.attributes).first
-      error 422, "You must provide a valid `acronym` to create a new submission" if ont.nil?
+      params["name"] ||= params["titles"]&.first&.dig('title')
+
+      if params["name"] && params["acronym"] && ont.nil?
+        params["hasOntologyLanguage"] = "SKOS"
+        params["administeredBy"] = [ current_user.username ]
+        ont = create_ontology
+      elsif ont.nil?
+        error 422, "You must provide a valid `acronym` to create a new submission"
+      end
+
       reply 201, create_submission(ont)
     end
 
