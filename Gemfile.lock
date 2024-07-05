@@ -1,41 +1,4 @@
 GIT
-  remote: https://github.com/lifewatch-eric/ncbo_cron.git
-  revision: 2ff764e536e049220208e3cd6c0ee9f03366df17
-  branch: master
-  specs:
-    ncbo_cron (0.0.1)
-      dante
-      goo
-      google-analytics-data
-      google-apis-analytics_v3
-      mlanett-redis-lock
-      multi_json
-      ncbo_annotator
-      ontologies_linked_data
-      redis
-      rufus-scheduler (~> 2.0.24)
-
-GIT
-  remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
-  revision: 17edfcb470848152dec8939fc6f68f5ed00f83db
-  branch: master
-  specs:
-    ontologies_linked_data (0.0.1)
-      activesupport
-      bcrypt
-      goo
-      json
-      libxml-ruby
-      multi_json
-      oj
-      omni_logger
-      pony
-      rack
-      rack-test
-      rsolr
-      rubyzip
-
-GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
   revision: 013abea4af3b10910ec661dbb358a4b6cae198a4
   branch: master
@@ -48,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: b2a635fb1e8206e6e3010be4dbe033b47eb58481
+  revision: a95245b8c964431505ca6315907440996c59a00d
   branch: development
   specs:
     goo (0.0.2)
@@ -77,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 6bb53a13f514a60513afe25e37c5c69475140452
+  revision: fabd04ef4fa37989d526fc6a7aa1e98830008dae
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -94,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: a5b56a68e6dc8ecfc9db708d44350342dac38ce6
+  revision: 4cd56da111c2037bf0b606574e6b325bfa74a2f1
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -154,7 +117,7 @@ GEM
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
     bigdecimal (1.4.2)
     builder (3.3.0)
-    capistrano (3.19.0)
+    capistrano (3.19.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -293,7 +256,7 @@ GEM
     method_source (1.1.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0604)
+    mime-types-data (3.2024.0702)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -431,7 +394,7 @@ GEM
     strscan (3.1.0)
     systemu (2.6.5)
     temple (0.10.3)
-    tilt (2.3.0)
+    tilt (2.4.0)
     timeout (0.4.1)
     trailblazer-option (0.1.2)
     tzinfo (2.0.6)
