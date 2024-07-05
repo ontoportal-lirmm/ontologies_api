@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: b2a635fb1e8206e6e3010be4dbe033b47eb58481
+  revision: a95245b8c964431505ca6315907440996c59a00d
   branch: development
   specs:
     goo (0.0.2)
@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 6bb53a13f514a60513afe25e37c5c69475140452
+  revision: fabd04ef4fa37989d526fc6a7aa1e98830008dae
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: a5b56a68e6dc8ecfc9db708d44350342dac38ce6
+  revision: 4cd56da111c2037bf0b606574e6b325bfa74a2f1
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -117,7 +117,7 @@ GEM
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
     bigdecimal (1.4.2)
     builder (3.3.0)
-    capistrano (3.19.0)
+    capistrano (3.19.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -165,7 +165,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.16.3)
+    ffi (1.15.5)
     gapic-common (0.21.1)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
@@ -256,7 +256,7 @@ GEM
     method_source (1.1.0)
     mime-types (3.5.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0604)
+    mime-types-data (3.2024.0702)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -394,7 +394,7 @@ GEM
     strscan (3.1.0)
     systemu (2.6.5)
     temple (0.10.3)
-    tilt (2.3.0)
+    tilt (2.4.0)
     timeout (0.4.1)
     trailblazer-option (0.1.2)
     tzinfo (2.0.6)
@@ -429,7 +429,7 @@ DEPENDENCIES
   cube-ruby
   ed25519 (>= 1.2, < 2.0)
   faraday (~> 1.9)
-  ffi
+  ffi (~> 1.15.5)
   goo!
   haml (~> 5.2.2)
   json-ld
