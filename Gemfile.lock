@@ -1,4 +1,41 @@
 GIT
+  remote: https://github.com/lifewatch-eric/ncbo_cron.git
+  revision: 2ff764e536e049220208e3cd6c0ee9f03366df17
+  branch: master
+  specs:
+    ncbo_cron (0.0.1)
+      dante
+      goo
+      google-analytics-data
+      google-apis-analytics_v3
+      mlanett-redis-lock
+      multi_json
+      ncbo_annotator
+      ontologies_linked_data
+      redis
+      rufus-scheduler (~> 2.0.24)
+
+GIT
+  remote: https://github.com/lifewatch-eric/ontologies_linked_data.git
+  revision: 17edfcb470848152dec8939fc6f68f5ed00f83db
+  branch: master
+  specs:
+    ontologies_linked_data (0.0.1)
+      activesupport
+      bcrypt
+      goo
+      json
+      libxml-ruby
+      multi_json
+      oj
+      omni_logger
+      pony
+      rack
+      rack-test
+      rsolr
+      rubyzip
+
+GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
   revision: 013abea4af3b10910ec661dbb358a4b6cae198a4
   branch: master
@@ -165,7 +202,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.16.3)
+    ffi (1.15.5)
     gapic-common (0.21.1)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
@@ -429,7 +466,7 @@ DEPENDENCIES
   cube-ruby
   ed25519 (>= 1.2, < 2.0)
   faraday (~> 1.9)
-  ffi
+  ffi (~> 1.15.5)
   goo!
   haml (~> 5.2.2)
   json-ld
