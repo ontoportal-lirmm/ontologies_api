@@ -2,8 +2,8 @@ class OntologySubmissionsController < ApplicationController
   get "/submissions" do
     check_last_modified_collection(LinkedData::Models::OntologySubmission)
     options = {
-               also_include_views: params["also_include_views"],
-               status: (params["include_status"] || "ANY")
+      also_include_views: params["also_include_views"],
+      status: (params["include_status"] || "ANY")
     }
     subs = retrieve_latest_submissions(options)
     subs = subs.values unless page?
@@ -43,7 +43,16 @@ class OntologySubmissionsController < ApplicationController
     # Create a new submission for an existing ontology
     post do
       ont = Ontology.find(params["acronym"]).include(Ontology.attributes).first
-      error 422, "You must provide a valid `acronym` to create a new submission" if ont.nil?
+      params["name"] ||= params["titles"]&.first&.dig('title')
+
+      if params["name"] && params["acronym"] && ont.nil?
+        params["hasOntologyLanguage"] = "SKOS"
+        params["administeredBy"] = [ current_user.username ]
+        ont = create_ontology
+      elsif ont.nil?
+        error 422, "You must provide a valid `acronym` to create a new submission"
+      end
+
       reply 201, create_submission(ont)
     end
 
@@ -57,6 +66,18 @@ class OntologySubmissionsController < ApplicationController
       error 404, "`submissionId` not found" if ont_submission.nil?
       ont_submission.bring(*submission_include_params)
       reply ont_submission
+    end
+
+    # Ontology a submission datacite metadata as Json
+    get "/:ontology_submission_id/datacite_metadata_json" do
+      params["display"] = 'all'
+      ont = Ontology.find(params["acronym"]).include(:acronym).first
+      check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
+      ont_submission = ont.submission(params["ontology_submission_id"])
+      error 404, "`submissionId` not found" if ont_submission.nil?
+      # ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+      ont_submission.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+      to_data_cite_facet(ont_submission)
     end
 
     ##
@@ -169,6 +190,5 @@ class OntologySubmissionsController < ApplicationController
     end
 
   end
-
 
 end

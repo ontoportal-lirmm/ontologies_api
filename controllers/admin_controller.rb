@@ -9,18 +9,26 @@ class AdminController < ApplicationController
       end
     }
 
-    # TODO: remove this endpoint. It's termporary to test the update check functionality
-    # get "/latestversion" do
-    #   iid = params["iid"]
-    #   ver = params["version"]
-    #
-    #   latest_ver_info = {
-    #       update_version: "2.5RC3", #"2.6RC1",
-    #       update_available: true,
-    #       notes: "blah blah and more"
-    #   }
-    #   reply MultiJson.dump latest_ver_info
-    # end
+
+    get "/scheduled_jobs" do
+      reply MultiJson.dump scheduled_jobs_map
+    end
+
+    get "/scheduled_jobs/log" do
+      log_path = cron_daemon_options[:log_path]
+      stream_file(log_path)
+    end
+
+    get "/scheduled_jobs/:job/log" do
+      scheduled_jobs = scheduled_jobs_map
+      job_name = params["job"]
+      error 404, "You must provide a valid `job` to retrieve its log" unless scheduled_jobs.has_key?(job_name.to_sym)
+
+      log_dir_name = File.dirname(cron_daemon_options[:log_path])
+      log_file_name = "#{log_dir_name.chomp '/'}/scheduler-#{job_name.gsub '_', '-'}.log"
+
+      stream_file(log_file_name)
+    end
 
     get "/update_info" do
       um = NcboCron::Models::UpdateManager.new
@@ -125,6 +133,22 @@ class AdminController < ApplicationController
     post "/clear_http_cache" do
       redis_http.flushdb
       halt 204
+    end
+
+    get "/doi_requests_list" do
+      reply find_all_identifier_requests
+    end
+
+    #Searches and returns the request with the id passed as parameter
+    get "/doi_request/:id" do
+      error 400, "You must provide the id of the request" if params[:id].nil?
+
+      all_identifier_requests = find_all_identifier_requests
+
+      error 500, "request not found" if all_identifier_requests.nil? || all_identifier_requests.length == 0
+      error 500, "More than one request was found" if all_identifier_requests.length > 1
+
+      reply all_identifier_requests[0]
     end
 
     namespace "/search" do

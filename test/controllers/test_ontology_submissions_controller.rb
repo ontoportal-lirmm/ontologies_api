@@ -41,8 +41,7 @@ class TestOntologySubmissionsController < TestCase
 
   def setup
     delete_ontologies_and_submissions
-    ont = Ontology.new(acronym: @@acronym, name: @@name, administeredBy: [@@user])
-    ont.save
+    self.class.before_suite
   end
 
   def test_submissions_for_given_ontology
@@ -199,6 +198,108 @@ class TestOntologySubmissionsController < TestCase
       del = User.find("blocked").first
       del.delete if del
     end
+  end
+
+  def test_export_datacite_metadata
+    hash, sub = _test_eco_portal_exporter(format: 'datacite_metadata_json')
+    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["doi"]
+  end
+  def test_export_ecoportal_metadata
+    hash, sub = _test_eco_portal_exporter
+
+    sub.hasOntologyLanguage.bring :acronym
+    sub.contact.each{|c| c.bring_remaining }
+
+    assert_equal sub.status, hash["status"]
+    assert_equal sub.hasOntologyLanguage.acronym, hash["format"]["acronym"]
+    assert_equal sub.contact.map{|c|  {"name" => c.name, "email" => c.email}}, hash["contact"]
+    assert_equal sub.identifier.select{|x| x['doi.org']}.first.to_s, hash["identifier"]
+    assert_equal 'DOI', hash["identifierType"]
+  end
+
+  def test_upload_eco_portal_metadata
+    # This is the metadata that is send by the VocBench OntoPortal deployer
+    example_of_input = {
+      # good
+      "file" => Rack::Test::UploadedFile.new(@@test_file, ""),
+      # good
+      "acronym" => "SYPHAX_TEST_VOC",
+      # good
+      "description" => "test new description",
+      # good
+      "version" => "2.0.0",
+      # good
+      "hasOntologyLanguage" => "OWL",
+      # good
+      "status" => "alpha",
+      # good
+      "released" => "2001-02-12",
+      # good
+      "contact" =>
+        [{ "name" => "syphax", "email" => "bouazounisyphax@gmail.com" }, { "name" => "syphax2", "email" => "gs_bouazouni@esi.dz" }],
+      # good
+      "homepage" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # good
+      "documentation" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # not good, need to be a list
+      "publication" => "https://ecoportal.lifewatchdev.eu/ontologies/SYPHAX_TEST_VOC",
+
+      # not good, replaced with hasCreator, and need to search, find or create.
+      "creators" => [{ "creatorName" => "syphax bouazzouni" }],
+
+      # not good, replaced with alternative, and remove "lang" and "titleType"
+      "titles" =>
+        [{ "title" => "Test syphax for vocbench", "lang" => "en", "titleType" => "AlternativeTitle" },
+         { "title" => "Syphax test for vocbench", "lang" => "en", "titleType" => "AlternativeTitle" }],
+
+      # not good, need to be a list
+      "publisher" => "lifewatch",
+
+      # not good, removed, reduced from "released"
+      "publicationYear" => "2022",
+
+      # not good, replaced with isOfType and need to be a URI
+      "resourceType" => "Ontology",
+
+      # not good, removed, as always equal "Dataset"
+      "resourceTypeGeneral" => "Dataset",
+    }
+    user = User.all.first
+    user.bring :apikey
+
+    2.times.each do |i|
+      header 'Authorization', "apikey token=#{user.apikey}"
+      post "/ontologies/SYPHAX_TEST_VOC/submissions", example_of_input, "CONTENT_TYPE" => "application/json"
+      assert_equal 201, last_response.status
+
+      ont = Ontology.find('SYPHAX_TEST_VOC').first
+
+      refute_nil ont
+
+      ont.bring_remaining
+
+      assert_equal ont.name, example_of_input["titles"].first["title"]
+
+      subs = ont.bring(:submissions).submissions
+
+      assert_equal i+1, subs.size
+
+      latest = ont.latest_submission(status: :any).bring_remaining
+
+      assert_equal latest.alternative.sort, example_of_input["titles"].map{|x| x["title"]}.sort
+      assert_equal latest.description, example_of_input["description"]
+      assert_equal latest.contact.map{|x| { "name" => x.bring(:name).name, "email" => x.bring(:email).email} }.sort_by{|x| x["name"]} ,
+                   example_of_input["contact"].sort_by{|x| x["name"]}
+      assert_equal latest.documentation, example_of_input["documentation"]
+      assert_equal latest.homepage, example_of_input["homepage"]
+      assert_equal latest.hasCreator.map{|x| x.bring_remaining.name}.sort, example_of_input["creators"].map{|x| x['creatorName']}.sort
+      assert_equal latest.publisher.first.bring_remaining.name, example_of_input["publisher"]
+      assert_equal latest.publication.first, example_of_input["publication"]
+      assert_equal latest.released.to_date.to_s, example_of_input["released"]
+    end
+
   end
 
   def test_submissions_pagination
@@ -478,4 +579,128 @@ class TestOntologySubmissionsController < TestCase
   def submission_keys(sub)
     sub.to_hash.keys - %w[@id @type id]
   end
+
+  def _test_eco_portal_exporter(format: 'ecoportal_metadata_json')
+
+    num_onts_created, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: false)
+    ontology = created_ont_acronyms.first
+    onts.first.bring :submissions
+    sub = onts.first.submissions.first
+
+    sub.bring_remaining
+
+    sub.released = DateTime.now
+    sub.version = '2.4.1'
+    sub.publication = [RDF::URI.new('https://test.com')]
+    sub.description = "Test description"
+    sub.alternative = ["alternative title 1", "alternative title 2", "alternative title 3"]
+    sub.isOfType = RDF::URI.new('https://test.com/Ontology')
+    sub.identifier = ['http://orcid.org/ontology/TEST', 'http://ror.org/ontology/TEST', 'http://doi.org/ontology/TEST'].map{|i| RDF::URI.new(i)}
+
+
+    created_agents = [LinkedData::Models::Agent.new(name: 'publisher test', agentType: 'person', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'publisher test 2', agentType: 'person', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test', agentType: 'organization', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 2 test', agentType: 'person', creator: @@user).save,
+                      LinkedData::Models::Agent.new(name: 'creator 1 affiliation 1 test', agentType: 'organization', creator: @@user).save]
+
+
+    identifiers = [
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR' + rand.to_s[1..11], schemaAgency: 'ROR',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testORCID' +rand.to_s[1..11], schemaAgency: 'ORCID',creator: @@user).save,
+      LinkedData::Models::AgentIdentifier.new(notation: 'testROR2' +rand.to_s[1..11], schemaAgency: 'ROR', creator: @@user).save
+    ]
+    sub.publisher = [created_agents[0], created_agents[1]]
+
+    created_agents << LinkedData::Models::Agent.new(name: 'creator 1 affiliation 2 test',
+                                                    agentType: 'organization',
+                                                    creator: @@user,
+                                                    identifiers: [
+                                                      identifiers[0]
+                                                    ],
+                                                    affiliations: [
+                                                      created_agents[2]
+                                                    ]).save
+
+    created_agents << LinkedData::Models::Agent.new(name: 'creator 1 test',
+                                                    agentType: 'person',
+                                                    creator: @@user,
+                                                    identifiers: [
+                                                      identifiers[1], identifiers[2]
+                                                    ],
+                                                    affiliations: [
+                                                      created_agents[4],
+                                                      created_agents[5]
+                                                    ]).save
+    sub.hasCreator = [created_agents[6], created_agents[3]]
+
+
+    sub.save
+
+    get "/ontologies/#{ontology}/latest_submission/#{format}"
+    assert last_response.ok?
+    hash = MultiJson.load(last_response.body)
+
+
+    ["description", "version"].each do |key|
+      assert_equal sub.send(key), hash[key]
+    end
+
+    assert_equal sub.publication.first.to_s, hash["url"]
+
+    if hash['ontology']
+      titles = sub.alternative.sort
+    else
+      titles = [sub.ontology.bring(:name).name] + sub.alternative.sort
+    end
+    assert_equal titles, hash["titles"].map{|x| x["title"]}.sort
+    assert_equal ['AlternativeTitle'], hash["titles"].map{|x| x["titleType"]}.reject(&:empty?).uniq
+
+
+
+    assert_equal sub.isOfType.to_s.split('/').last, hash["types"]["resourceType"]
+    assert_equal 'Dataset', hash["types"]["resourceTypeGeneral"]
+
+    assert_equal sub.released.year, hash["publicationYear"]
+
+
+    assert_equal sub.publisher.map{|x| x.name}.sort, hash["publisher"].split(', ').sort
+
+    assert_equal sub.hasCreator.size, hash["creators"].size
+    hash["creators"].each do |c|
+      creator = sub.hasCreator.select {|creator| creator.name.eql?(c["creatorName"])}.first
+
+      assert_equal creator.agentType.eql?('person') ? 'Personal' : 'Organizational', c["nameType"]
+      assert_equal creator.name.split(' ').first, c["givenName"]
+      assert_equal creator.name.split(' ').drop(1).join(' '), c["familyName"]
+      assert_equal creator.name, c["creatorName"]
+
+      assert (creator.affiliations && c["affiliations"]) || (creator.affiliations.nil? && c["affiliations"].empty?)
+      assert_equal creator.affiliations.size, c["affiliations"].size if creator.affiliations && c["affiliations"]
+      c["affiliations"].each do |aff|
+        affiliation = creator.affiliations.select{|affiliation| affiliation.name.eql?(aff["affiliation"])}.first
+        identifier = affiliation.identifiers&.first
+        next if identifier.nil?
+
+        assert_equal identifier&.schemaAgency, aff["affiliationIdentifierScheme"]
+        assert_equal "#{identifier&.schemeURI}#{identifier&.notation}", aff["affiliationIdentifier"]
+        assert_equal affiliation.name, aff["affiliation"]
+      end
+
+      assert (creator.identifiers && c["nameIdentifiers"]) || (creator.identifiers.nil? && c["nameIdentifiers"].empty?)
+      assert_equal creator.identifiers.size, c["nameIdentifiers"].size if creator.identifiers && c["nameIdentifiers"]
+      c["nameIdentifiers"].each do |nameId|
+
+        identifier = creator.identifiers.select{|identifier| identifier.notation.eql?(nameId["nameIdentifier"])}.first
+        assert_equal identifier.schemaAgency, nameId["nameIdentifierScheme"]
+        assert_equal identifier.schemeURI, nameId["schemeURI"]
+        assert_equal identifier.notation, nameId["nameIdentifier"]
+      end
+    end
+
+    created_agents.each{|x| x.delete}
+    identifiers.each { |x| x.delete }
+    [hash, sub]
+  end
+
 end

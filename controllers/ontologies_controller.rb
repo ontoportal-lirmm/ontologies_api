@@ -47,6 +47,29 @@ class OntologiesController < ApplicationController
       reply(latest || {})
     end
 
+    # Ontology latest submission datacite metadata as Json
+    get "/:acronym/latest_submission/datacite_metadata_json" do
+      params["display"] = 'all'
+      latest = find_latest_submission
+      latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
+      if latest
+        to_data_cite_facet(latest).to_json
+      else
+        reply {}
+      end
+    end
+
+    get "/:acronym/latest_submission/ecoportal_metadata_json" do
+      params["display"] = 'all'
+      latest = find_latest_submission
+      latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param)) if latest
+      if latest
+        to_eco_portal_facet(latest).to_json
+      else
+        reply {}
+      end
+    end
+
     ##
     # Update latest submission of an ontology
     REQUIRES_REPROCESS = ["prefLabelProperty", "definitionProperty", "synonymProperty", "authorProperty", "classType", "hierarchyProperty", "obsoleteProperty", "obsoleteParent"]
@@ -64,7 +87,7 @@ class OntologiesController < ApplicationController
         submission.save
         if (params.keys & REQUIRES_REPROCESS).length > 0 || request_has_file?
           cron = NcboCron::Models::OntologySubmissionParser.new
-          cron.queue_submission(submission, {all: true})
+          cron.queue_submission(submission, { all: true })
         end
       else
         error 422, submission.errors
@@ -76,13 +99,13 @@ class OntologiesController < ApplicationController
     ##
     # Create an ontology
     post do
-      create_ontology
+      create_ontology_with_params
     end
 
     ##
     # Create an ontology with constructed URL
     put '/:acronym' do
-      create_ontology
+      create_ontology_with_params
     end
 
     ##
@@ -123,7 +146,7 @@ class OntologiesController < ApplicationController
       restricted_download = LinkedData::OntologiesAPI.settings.restrict_download.include?(acronym)
       error 403, "License restrictions on download for #{acronym}" if restricted_download && !current_user.admin?
       error 403, "Ontology #{acronym} is not accessible to your user" if ont.restricted? && !ont.accessible?(current_user)
-      latest_submission = ont.latest_submission(status: :rdf)  # Should resolve to latest successfully loaded submission
+      latest_submission = ont.latest_submission(status: :rdf) # Should resolve to latest successfully loaded submission
       error 404, "There is no latest submission loaded for download" if latest_submission.nil?
       latest_submission.bring(:uploadFilePath)
 
@@ -148,46 +171,27 @@ class OntologiesController < ApplicationController
     end
 
     private
-
-    def create_ontology
-      params ||= @params
-
-      # acronym must be well formed
-      params['acronym'] = params['acronym'].upcase # coerce new ontologies to upper case
-
-      # ontology acronym must be unique
-      ont = Ontology.find(params['acronym']).first
-      if ont.nil?
-        ont = instance_from_params(Ontology, params)
+    def find_latest_submission
+      ont = Ontology.find(params["acronym"]).first
+      error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
+      include_status = params["include_status"]
+      ont.bring(:acronym, :submissions)
+      if include_status
+        latest = ont.latest_submission(status: include_status.to_sym)
       else
-        error_msg = <<-ERR
-        Ontology already exists, see #{ont.id}
-        To add a new submission, POST to: /ontologies/#{params['acronym']}/submission.
-        To modify the resource, use PATCH.
-        ERR
-        error 409, error_msg
+        latest = ont.latest_submission(status: :any)
       end
+      check_last_modified(latest) if latest
+      latest
+    end
 
-      # ontology name must be unique
-      ont_names = Ontology.where.include(:name).to_a.map {|o| o.name }
-      if ont_names.include?(ont.name)
-        error 409, "Ontology name is already in use by another ontology."
-      end
-
+    def create_ontology_with_params
+      ont = create_ontology
       if ont.valid?
-        ont.save
-        # Send an email to the administrator to warn him about the newly created ontology
-        begin
-          if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
-            LinkedData::Utils::Notifications.new_ontology(ont)
-          end
-        rescue Exception => e
-        end
+        reply 201, ont
       else
         error 422, ont.errors
       end
-
-      reply 201, ont
     end
   end
 
@@ -204,7 +208,7 @@ class OntologiesController < ApplicationController
       else
         onts = Ontology.where.filter(Goo::Filter.new(:viewOf).unbound).include(Ontology.goo_attrs_to_load(includes_param)).to_a
       end
-      options = {also_include_views: allow_views, status: (params["include_status"] || "ANY")}
+      options = { also_include_views: allow_views, status: (params["include_status"] || "ANY") }
       subs = retrieve_latest_submissions(options)
       metrics_include = LinkedData::Models::Metric.goo_attrs_to_load(includes_param)
       LinkedData::Models::OntologySubmission.where.models(subs.values).include(metrics: metrics_include).all
@@ -220,7 +224,7 @@ class OntologiesController < ApplicationController
           metrics = nil
         end
 
-        resp << {ontology: ont, latest_submission: subs[ont.acronym], metrics: metrics}
+        resp << { ontology: ont, latest_submission: subs[ont.acronym], metrics: metrics }
       end
 
       reply resp

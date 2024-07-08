@@ -1,18 +1,61 @@
 require 'sinatra/base'
 require 'json'
+require_relative 'concerns/ecoportal_metadata_exporter'
 
 module Sinatra
   module Helpers
     module OntologyHelper
+      include Sinatra::Concerns::EcoPortalMetadataExporter
 
-      #ISO_LANGUAGE_LIST = ::JSON.parse(IO.read("public/language_iso-639-1.json"))
+      def create_ontology
+        params ||= @params
+
+        # acronym must be well formed
+        params['acronym'] = params['acronym'].upcase # coerce new ontologies to upper case
+
+        # ontology acronym must be unique
+        ont = Ontology.find(params['acronym']).first
+        if ont.nil?
+          ont = instance_from_params(Ontology, params)
+        else
+          error_msg = <<-ERR
+        Ontology already exists, see #{ont.id}
+        To add a new submission, POST to: /ontologies/#{params['acronym']}/submission.
+        To modify the resource, use PATCH.
+        ERR
+          error 409, error_msg
+        end
+
+        # ontology name must be unique
+        ont_names = Ontology.where.include(:name).to_a.map { |o| o.name }
+        if ont_names.include?(ont.name)
+          error 409, "Ontology name is already in use by another ontology."
+        end
+
+        if ont.valid?
+          ont = ont.save
+          # Send an email to the administrator to warn him about the newly created ontology
+          begin
+            if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
+              LinkedData::Utils::Notifications.new_ontology(ont)
+            end
+          rescue Exception => e
+            error 409, error_msg
+          end
+        else
+          error 422, ont.errors
+        end
+        ont
+      end
 
       ##
       # Create a new OntologySubmission object based on the request data
       def create_submission(ont)
         params = @params
-
         submission_id = ont.next_submission_id
+
+        # VocBench adapter
+        params = old_eco_portal_adapter(params, ont)
 
         # Create OntologySubmission
         ont_submission = instance_from_params(OntologySubmission, params)
@@ -28,16 +71,6 @@ module Sinatra
           ont_submission.hasOntologyLanguage = OntologyFormat.find(params["hasOntologyLanguage"]).first
         end
 
-        # Check if the naturalLanguage provided is a valid ISO-639-1 code (not used anymore, we let lexvo URI)
-=begin
-        if !ont_submission.naturalLanguage.nil?
-          if ISO_LANGUAGE_LIST.has_key?(ont_submission.naturalLanguage.downcase)
-            ont_submission.naturalLanguage = ont_submission.naturalLanguage.downcase
-          else
-            error 422, "You must specify a valid 2 digits language code (ISO-639-1) for naturalLanguage"
-          end
-        end
-=end
 
         if ont_submission.valid?
           ont_submission.save
