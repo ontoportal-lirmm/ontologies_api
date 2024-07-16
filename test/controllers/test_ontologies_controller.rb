@@ -282,6 +282,15 @@ class TestOntologiesController < TestCase
     assert_equal onto["viewOf"], ont.id.to_s
   end
 
+  def test_ontology_agents
+    get '/ontologies/TEST-ONT-1/latest_submission?display=all'
+    submission = MultiJson.load(last_response.body)
+    agent = agent_data(type: 'person')
+    submission["hasCreator"] = agent
+    get '/ontologies/TEST-ONT-1/agents'
+    binding.pry
+  end
+
   private
 
   def check400(response)
