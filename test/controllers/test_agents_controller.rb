@@ -45,6 +45,30 @@ class TestAgentsController < TestCase
     end
   end
 
+  def test_search_agents
+    agent_1 = _create_agent(name: 'testagent1234', type: 'person', acronym: 'ta1234', identifier_type: 'ORCID', identifier_notation: '123456')
+    agent_2 = _create_agent(name: 'testagent5678', type: 'organization', acronym: 'ta5678', identifier_type: 'ROR', identifier_notation: '78910')
+    # Search agent by name: testagent1234
+    get '/agents?query=testagent1234'
+    response = MultiJson.load(last_response.body)
+    assert_equal agent_1.name, response.first["name"]
+
+    # Search agent by acronym: ta1234
+    get '/agents?query=ta1234'
+    response = MultiJson.load(last_response.body)
+    assert_equal agent_1.acronym, response.first["acronym"]
+
+    # Search agent by orcid: 123456
+    get '/agents?query=123456'
+    response = MultiJson.load(last_response.body)
+    assert_equal agent_1.identifiers.first.notation, response.first["identifiers"].first["notation"]
+
+    # Search agent by ROR: 78910
+    get '/agents?query=78910'
+    response = MultiJson.load(last_response.body)
+    assert_equal agent_2.identifiers.first.notation, response.first["identifiers"].first["notation"]
+  end
+
   def test_single_agent
     @agents.each do |agent|
       agent_obj = _find_agent(agent['name'])
@@ -206,5 +230,27 @@ class TestAgentsController < TestCase
     assert_equal agent[:affiliations].size, created_agent["affiliations"].size
     assert_equal agent[:affiliations].map { |x| x["name"] }.sort, created_agent["affiliations"].map { |x| x['name'] }.sort
     created_agent
+  end
+
+  def _create_agent(name: 'name', type: 'person', acronym: 'acronym', identifier_type: 'ORCID', identifier_notation: '123456')
+    agent = LinkedData::Models::Agent.new({
+      agentType: type,
+      name: name,
+      creator: User.find('tim').first,
+      acronym: acronym,
+      identifiers: [_create_identifier(notation: identifier_notation, schemaAgency: identifier_type)]
+    })
+    agent.save
+    agent
+  end
+
+  def _create_identifier(notation: '123456', schemaAgency: 'ORCID')
+    identifier = LinkedData::Models::AgentIdentifier.new({
+      notation: notation,
+      schemaAgency: schemaAgency,
+      creator: User.find('tim').first,
+    })
+    identifier.save
+    identifier
   end
 end
