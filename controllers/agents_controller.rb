@@ -15,6 +15,14 @@ class AgentsController < ApplicationController
           agents = query.to_a
         end
 
+        if params[:query]
+          agents = agents.select do |agent|
+            params[:query].downcase.include?(agent.name&.downcase) ||
+            params[:query].downcase.include?(agent.acronym&.downcase) ||
+            agent.identifiers.any? { |identifier| params[:query].include?(identifier.notation) }
+          end
+        end
+
         if includes_param.include?(:all) || includes_param.include?(:usages)
           LinkedData::Models::Agent.load_agents_usages(agents)
         end
