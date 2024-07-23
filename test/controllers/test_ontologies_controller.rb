@@ -283,82 +283,43 @@ class TestOntologiesController < TestCase
   end
 
   def test_ontology_agents
-    ontologies_and_submissions = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: true)
-    submission = ontologies_and_submissions[2].first.submissions.last
-    ontology_acronym = ontologies_and_submissions[1].first
-    submission.bring(*OntologySubmission.agents_attrs)
-    submission.publisher = [_create_agent(name: 'Bilel', type: 'person'), _create_agent(name: 'Syphax', type: 'person')]
-    submission.hasContributor = [_create_agent(name: 'Clement', type: 'person'), _create_agent(name: 'Syphax', type: 'person')]
-    submission.save
-    get "/ontologies/#{ontology_acronym}/agents"
+    ontologies_and_submissions = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: true)
+    submission1 = ontologies_and_submissions[2].first.submissions.last
+    submission2 = ontologies_and_submissions[2].last.submissions.last
 
-    expected_result = [{"agentType"=>"person",
-                      "name"=>"Bilel",
-                      "creator"=>"http://data.bioontology.org/users/tim",
-                      "id"=>"http://data.bioontology.org/Agents/35e85b80-25ae-013d-fc07-2cde48001122",
-                      "homepage"=>nil,
-                      "acronym"=>nil,
-                      "email"=>nil,
-                      "identifiers"=>[],
-                      "affiliations"=>[],
-                      "@id"=>"http://data.bioontology.org/Agents/35e85b80-25ae-013d-fc07-2cde48001122",
-                      "@type"=>"http://xmlns.com/foaf/0.1/Agent",
-                      "@context"=>
-                      {"@vocab"=>"http://data.bioontology.org/metadata/",
-                        "agentType"=>"http://data.bioontology.org/metadata/agentType",
-                        "name"=>"http://xmlns.com/foaf/0.1/name",
-                        "homepage"=>"http://xmlns.com/foaf/0.1/homepage",
-                        "acronym"=>"http://www.w3.org/2004/02/skos/core#altLabel",
-                        "email"=>"http://xmlns.com/foaf/0.1/mbox",
-                        "identifiers"=>"http://www.w3.org/ns/adms#identifier",
-                        "affiliations"=>"http://www.w3.org/ns/org#memberOf",
-                        "creator"=>{"@id"=>"http://data.bioontology.org/metadata/User", "@type"=>"@id"},
-                        "@language"=>"en"}},
-                    {"agentType"=>"person",
-                      "name"=>"Syphax",
-                      "creator"=>"http://data.bioontology.org/users/tim",
-                      "id"=>"http://data.bioontology.org/Agents/35fbe2b0-25ae-013d-fc07-2cde48001122",
-                      "homepage"=>nil,
-                      "acronym"=>nil,
-                      "email"=>nil,
-                      "identifiers"=>[],
-                      "affiliations"=>[],
-                      "@id"=>"http://data.bioontology.org/Agents/35fbe2b0-25ae-013d-fc07-2cde48001122",
-                      "@type"=>"http://xmlns.com/foaf/0.1/Agent",
-                      "@context"=>
-                      {"@vocab"=>"http://data.bioontology.org/metadata/",
-                        "agentType"=>"http://data.bioontology.org/metadata/agentType",
-                        "name"=>"http://xmlns.com/foaf/0.1/name",
-                        "homepage"=>"http://xmlns.com/foaf/0.1/homepage",
-                        "acronym"=>"http://www.w3.org/2004/02/skos/core#altLabel",
-                        "email"=>"http://xmlns.com/foaf/0.1/mbox",
-                        "identifiers"=>"http://www.w3.org/ns/adms#identifier",
-                        "affiliations"=>"http://www.w3.org/ns/org#memberOf",
-                        "creator"=>{"@id"=>"http://data.bioontology.org/metadata/User", "@type"=>"@id"},
-                        "@language"=>"en"}},
-                    {"agentType"=>"person",
-                      "name"=>"Clement",
-                      "creator"=>"http://data.bioontology.org/users/tim",
-                      "id"=>"http://data.bioontology.org/Agents/360ed240-25ae-013d-fc07-2cde48001122",
-                      "homepage"=>nil,
-                      "acronym"=>nil,
-                      "email"=>nil,
-                      "identifiers"=>[],
-                      "affiliations"=>[],
-                      "@id"=>"http://data.bioontology.org/Agents/360ed240-25ae-013d-fc07-2cde48001122",
-                      "@type"=>"http://xmlns.com/foaf/0.1/Agent",
-                      "@context"=>
-                      {"@vocab"=>"http://data.bioontology.org/metadata/",
-                        "agentType"=>"http://data.bioontology.org/metadata/agentType",
-                        "name"=>"http://xmlns.com/foaf/0.1/name",
-                        "homepage"=>"http://xmlns.com/foaf/0.1/homepage",
-                        "acronym"=>"http://www.w3.org/2004/02/skos/core#altLabel",
-                        "email"=>"http://xmlns.com/foaf/0.1/mbox",
-                        "identifiers"=>"http://www.w3.org/ns/adms#identifier",
-                        "affiliations"=>"http://www.w3.org/ns/org#memberOf",
-                        "creator"=>{"@id"=>"http://data.bioontology.org/metadata/User", "@type"=>"@id"},
-                        "@language"=>"en"}}]
-    assert expected_result, MultiJson.load(last_response.body)
+    ontology_acronym1 = ontologies_and_submissions[1].first
+    ontology_acronym2 = ontologies_and_submissions[1].last
+
+    submission1.bring(*OntologySubmission.agents_attrs)
+    submission2.bring(*OntologySubmission.agents_attrs)
+
+    # To insure that we don't have duplicated agents in the response
+    agent_syphax = _create_agent(name: 'Syphax', type: 'person')
+
+    submission1.publisher = [_create_agent(name: 'Bilel', type: 'person'), agent_syphax]
+    submission1.hasContributor = [_create_agent(name: 'Clement', type: 'person'), agent_syphax]
+
+    submission2.publisher = [_create_agent(name: 'Imad', type: 'person'), _create_agent(name: 'Serine', type: 'person')]
+
+    submission1.save
+    submission2.save
+
+
+    get "/ontologies/#{ontology_acronym1}/agents"
+
+    response = MultiJson.load(last_response.body)
+    assert_equal response.length, 3
+    response.each do |r|
+      assert_includes ['Bilel', 'Syphax', 'Clement'], r["name"]
+    end
+
+    get "/ontologies/#{ontology_acronym2}/agents"
+
+    response = MultiJson.load(last_response.body)
+    assert_equal response.length, 2
+    response.each do |r|
+      assert_includes ['Imad', 'Serine'], r["name"]
+    end
   end
 
   private
