@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: fd78d689dac4a7393e20a36ac930c6c9d191a619
+  revision: 8123ae61988a265daab1664deaed515718827c48
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -159,7 +159,7 @@ GEM
     faraday-httpclient (1.0.1)
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (1.0.1)
+    faraday-net_http (1.0.2)
     faraday-net_http_persistent (1.2.0)
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
