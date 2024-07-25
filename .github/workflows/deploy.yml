@@ -1,18 +1,18 @@
-# Workflow to deploy OntoPortal UI to stage/prod systems
+# Workflow to deploy OntoPortal API to stage/prod systems
 #
 # Required github secrets:
 #
-# CONFIG_REPO - github repo containing config and customizations for UI. Format 'author/private_config_repo'
+# CONFIG_REPO - github repo containing config and customizations for API. Format 'author/private_config_repo'
 # it is used for getting capistrano deployment configuration for stages on the github actions runner and
-# PRIVATE_CONFIG_REPO env var is constructed from it which is used by capistrano on the UI hosts for pulling configs.
+# PRIVATE_CONFIG_REPO env var is constructed from it which is used by capistrano on the API hosts for pulling configs.
 #
 # GH_PAT - github Personal Access Token for accessing private config repo
 #
-# SSH_JUMPHOST - ssh jump/proxy host though which deployments have to though if UI nodes live on private network.
+# SSH_JUMPHOST - ssh jump/proxy host though which deployments have to though if API nodes live on private network.
 # SSH_JUMPHOST_USER - username  to use to connect to the ssh jump/proxy.
 #
 # DEPLOY_ENC_KEY - key for decrypting deploymnet ssh key residing in config/
-# this SSH key is used for accessing jump host, UI nodes, and private github repo.
+# this SSH key is used for accessing jump host, API nodes, and private github repo.
 
 name: Capistrano Deployment
 # Controls when the action will run.
