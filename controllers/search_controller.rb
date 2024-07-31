@@ -63,7 +63,7 @@ class SearchController < ApplicationController
           page_size: page_size,
           sort: sort
         })
-        
+
         total_found = page_data.aggregate
         ontology_rank = LinkedData::Models::Ontology.rank
         docs = {}
@@ -154,7 +154,6 @@ class SearchController < ApplicationController
         fq = "agentType_t:#{type}" if type
 
         qf = [
-          "acronymSuggestEdge^25  nameSuggestEdge^15 emailSuggestEdge^15 identifiersSuggestEdge^10 ", # start of the word first
           "identifiers_texts^20 acronym_text^15  name_text^10 email_text^10 ", # full word match
           "acronymSuggestNgram^2 nameSuggestNgram^1.5 email_text^1" # substring match last
         ].join(' ')
