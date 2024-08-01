@@ -153,7 +153,17 @@ class SearchController < ApplicationController
 
         fq = "agentType_t:#{type}" if type
 
-        qf = "identifiers_texts^20 acronym_text^15  name_text^10 email_text^10" # full word match
+        if params[:qf]
+          qf = params[:qf]
+        else
+          qf = [
+            "acronymSuggestEdge^25  nameSuggestEdge^15 emailSuggestEdge^15 identifiersSuggestEdge^10 ", # start of the word first
+            "identifiers_texts^20 acronym_text^15  name_text^10 email_text^10 ", # full word match
+            "acronymSuggestNgram^2 nameSuggestNgram^1.5 email_text^1" # substring match last
+          ].join(' ')
+        end
+
+
 
         if params[:sort]
           sort = "#{params[:sort]} asc, score desc"
