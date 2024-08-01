@@ -16,6 +16,8 @@ gem 'sinatra-contrib', '~> 1.0'
 gem 'request_store'
 gem 'parallel'
 gem 'json-ld'
+gem 'google-apis-core', '0.15.0'
+gem 'google-protobuf', '3.25.3'
 
 
 # Rack middleware
