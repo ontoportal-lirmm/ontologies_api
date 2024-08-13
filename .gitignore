@@ -37,7 +37,6 @@ config/environments/*
 !config/environments/biodiv-denbi-config.rb.sample
 
 #ignore capistrano deployment
-config/deploy/*
 config/*.p12
 
 # Ignore generated test data
@@ -77,3 +76,5 @@ ontologies_api.iml
 .rubocop.yml
 .solargraph.yml
 .vscode
+
+.env
