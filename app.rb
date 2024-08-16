@@ -11,8 +11,6 @@ require 'sinatra/multi_route'
 require 'oj'
 require 'multi_json'
 require 'cgi'
-require 'google/apis/analytics_v3'
-require 'google/api_client/auth/key_utils'
 
 # NCBO dependencies
 require 'ontologies_linked_data'
@@ -29,12 +27,15 @@ require_relative 'lib/rack/slow_requests'
 require_relative 'lib/rack/cube_reporter'
 require_relative 'lib/rack/param_translator'
 require_relative 'lib/rack/slice_detection'
+require_relative 'lib/rack/request_lang'
 
 # Logging setup
 require_relative "config/logging"
 
 # Inflector setup
 require_relative "config/inflections"
+
+require 'request_store'
 
 # Protection settings
 set :protection, :except => :path_traversal
@@ -142,6 +143,9 @@ use Rack::SliceDetection
 use Rack::Accept
 use Rack::PostBodyToParams
 use Rack::ParamTranslator
+
+use RequestStore::Middleware
+use Rack::RequestLang
 
 use LinkedData::Security::Authorization
 use LinkedData::Security::AccessDenied

@@ -13,11 +13,15 @@ class HomeController < ApplicationController
       expires 3600, :public
       last_modified @@root_last_modified ||= Time.now.httpdate
       routes = routes_list
+
       #TODO: delete when ccv will be on production
       routes.delete("/ccv")
       if LinkedData.settings.enable_resource_index == false
         routes.delete("/resource_index")
       end
+
+      routes.delete('/Agents')
+
       routes_hash = {}
       context = {}
       routes.each do |route|
@@ -121,7 +125,7 @@ class HomeController < ApplicationController
               unique: cls.unique?(attribute) || "&nbsp;",
               required: cls.required?(attribute) || "&nbsp;",
               list: cls.list?(attribute) || "&nbsp;",
-              cardinality: cls.cardinality(attribute) || "&nbsp;"
+              cardinality: (cls.cardinality(attribute) rescue nil) || "&nbsp;"
             }
           else
             attributes_info[attribute] = {
