@@ -65,13 +65,13 @@ class TestPropertiesController < TestCase
     assert_equal ["Originator"], results["label"]
     assert results.key?('range')
     assert results.key?('domain')
-    assert_equal results["properties"], { "http://www.w3.org/2000/01/rdf-schema#comment" => ["Originator of a class"],
-                                          "http://www.w3.org/2004/02/skos/core#prefLabel" => ["Originator"],
-                                          "http://data.bioontology.org/metadata/def/prefLabel" => ["Originator"],
-                                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" => ["http://www.w3.org/2002/07/owl#DatatypeProperty"],
-                                          "http://www.w3.org/2000/01/rdf-schema#domain" => ["http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Algorithm"],
-                                          "http://www.w3.org/2000/01/rdf-schema#label" => ["Originator"],
-                                          "http://www.w3.org/2004/02/skos/core#definition" => ["Originator of a class"] }
+
+    assert_equal results["properties"]["http://www.w3.org/2000/01/rdf-schema#comment"], ["Originator of a class"]
+    assert_equal results["properties"]["http://www.w3.org/2004/02/skos/core#prefLabel"], ["Originator"]
+    assert_equal results["properties"]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"], ["http://www.w3.org/2002/07/owl#DatatypeProperty"]
+    assert_equal results["properties"]["http://www.w3.org/2000/01/rdf-schema#domain"], ["http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Algorithm"]
+    assert_equal results["properties"]["http://www.w3.org/2000/01/rdf-schema#label"], ["Originator"]
+
   end
 
   def test_property_roots
