@@ -19,7 +19,7 @@ gem 'json-ld'
 
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.16.3'
 gem 'rack-accept', '~> 0.4'
 gem 'rack-attack', '~> 6.6.1', require: 'rack/attack'
 gem 'rack-cache', '~> 1.13.0'
@@ -51,7 +51,7 @@ gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branc
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
-gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
+gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'feature/add-portal-config-model'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
