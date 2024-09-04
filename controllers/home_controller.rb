@@ -36,7 +36,7 @@ class HomeController < ApplicationController
       federated_portals = config.federated_portals
       federated_portals. transform_values! { |v| v.delete(:apikey) ; v }
       config.init_federated_portals_settings(federated_portals)
-
+      config.id = RDF::URI.new(LinkedData.settings.id_url_prefix)
       config.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
 
       reply config
