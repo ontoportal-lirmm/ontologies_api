@@ -198,7 +198,8 @@ GEM
     google-cloud-env (2.1.1)
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.4.0)
-    google-protobuf (3.25.4)
+    google-protobuf (3.25.3-x86_64-darwin)
+    google-protobuf (3.25.3-x86_64-linux)
     googleapis-common-protos (1.6.0)
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.7)
@@ -424,6 +425,7 @@ DEPENDENCIES
   faraday (~> 1.9)
   ffi (~> 1.16.3)
   goo!
+  google-protobuf (= 3.25.3)
   haml (~> 5.2.2)
   json-ld
   json-schema (~> 2.0)
