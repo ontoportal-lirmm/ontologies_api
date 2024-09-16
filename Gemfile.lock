@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 651d2f4226004c2311120e900a936101ee509865
-  branch: development
+  revision: d69ede0a0b3e3c5dee64fa75cb09cc6e16e0f4b5
+  branch: feature/parse-diff-files
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -202,7 +202,7 @@ GEM
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.7)
       grpc (~> 1.41)
-    googleapis-common-protos-types (1.15.0)
+    googleapis-common-protos-types (1.16.0)
       google-protobuf (>= 3.18, < 5.a)
     googleauth (1.11.0)
       faraday (>= 1.0, < 3.a)
@@ -231,7 +231,7 @@ GEM
       rdf (>= 2.2.8, < 4.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    jwt (2.8.2)
+    jwt (2.9.0)
       base64
     kgio (2.11.4)
     libxml-ruby (5.0.3)
