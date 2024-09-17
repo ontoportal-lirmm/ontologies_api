@@ -19,7 +19,6 @@ gem 'json-ld'
 gem 'google-apis-core', '0.15.0'
 gem 'google-protobuf', '3.25.3'
 
-
 # Rack middleware
 gem 'ffi'
 gem 'rack-accept', '~> 0.4'
@@ -53,7 +52,7 @@ gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branc
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
-gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
+gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'feature/parse-diff-files'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
