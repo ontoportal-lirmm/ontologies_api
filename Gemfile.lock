@@ -164,7 +164,7 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
-    ffi (1.17.0)
+    ffi (1.16.3)
     gapic-common (0.21.1)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
@@ -419,7 +419,7 @@ DEPENDENCIES
   cube-ruby
   ed25519 (>= 1.2, < 2.0)
   faraday (~> 1.9)
-  ffi
+  ffi (~> 1.16.3)
   goo!
   google-protobuf (= 3.25.3)
   haml (~> 5.2.2)
