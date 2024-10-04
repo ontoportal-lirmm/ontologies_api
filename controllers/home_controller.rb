@@ -4,7 +4,7 @@ require 'redcarpet'
 class HomeController < ApplicationController
 
   CLASS_MAP = {
-      Property: "LinkedData::Models::ObjectProperty"
+    Property: "LinkedData::Models::ObjectProperty"
   }
 
   namespace "/" do
@@ -28,14 +28,22 @@ class HomeController < ApplicationController
         next if route.length < 3 || route.split("/").length > 2
         route_no_slash = route.gsub("/", "")
         context[route_no_slash] = route_to_class_map[route].type_uri.to_s if route_to_class_map[route] && route_to_class_map[route].respond_to?(:type_uri)
-        routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix+route_no_slash
+        routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
       end
-      routes_hash["@context"] = context
-      reply ({links: routes_hash})
+
+      config = LinkedData::Models::PortalConfig.current_portal_config
+
+      federated_portals = config.federated_portals
+      federated_portals. transform_values! { |v| v.delete(:apikey) ; v }
+      config.init_federated_portals_settings(federated_portals)
+      config.id = RDF::URI.new(LinkedData.settings.id_url_prefix)
+      config.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
+
+      reply config
     end
 
     get "documentation" do
-      @metadata_all = metadata_all.sort {|a,b| a[0].name <=> b[0].name}
+      @metadata_all = metadata_all.sort { |a, b| a[0].name <=> b[0].name }
       haml "documentation/documentation".to_sym, :layout => "documentation/layout".to_sym
     end
 
