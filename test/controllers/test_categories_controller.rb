@@ -135,9 +135,9 @@ class TestCategoriesController < TestCase
       acronym: "CAT123",
       name: "Sample Category",
       description: "This is a sample category.",
-      parentCategories: [parent_category1, parent_category2]
+      parentCategory: [parent_category1, parent_category2]
     )
-    assert_equal category_instance.parentCategories.first , parent_category1
-    assert_equal category_instance.parentCategories.last , parent_category2
+    assert_equal category_instance.parentCategory.first , parent_category1
+    assert_equal category_instance.parentCategory.last , parent_category2
   end
 end
