@@ -117,4 +117,27 @@ class TestCategoriesController < TestCase
     get "/categories/#{acronym}"
     assert last_response.status == 404
   end
+
+  def test_parent_category
+    parent_category1 = LinkedData::Models::Category.new(
+      acronym: "PARENT1",
+      name: "Parent Category 1",
+      description: "Description for Parent Category 1."
+    )
+
+    parent_category2 = LinkedData::Models::Category.new(
+      acronym: "PARENT2",
+      name: "Parent Category 2",
+      description: "Description for Parent Category 2."
+    )
+
+    category_instance = LinkedData::Models::Category.new(
+      acronym: "CAT123",
+      name: "Sample Category",
+      description: "This is a sample category.",
+      parentCategories: [parent_category1, parent_category2]
+    )
+    assert_equal category_instance.parentCategories.first , parent_category1
+    assert_equal category_instance.parentCategories.last , parent_category2
+  end
 end
