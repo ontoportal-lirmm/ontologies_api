@@ -148,6 +148,18 @@ class TestUsersController < TestCase
     end
   end
 
+  def test_hide_sensitive_data
+    user = @@users[0]
+    reset_token = "reset_password_token"
+    user.resetToken = reset_token
+    user.save
+    username = user.username
+    get "/users/#{username}?display=resetToken,passwordHash"
+    assert last_response.ok?
+    refute_includes MultiJson.load(last_response.body), 'resetToken', "resetToken should NOT be included in the response"
+    refute_includes MultiJson.load(last_response.body), 'passwordHash', "passwordHash should NOT be included in the response"
+  end
+
   private
   def _create_admin_user(apikey: nil)
     user = {email: "#{@@username}@example.org", password: "pass_the_word", role: ['ADMINISTRATOR']}
