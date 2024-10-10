@@ -19,7 +19,7 @@ gem 'json-ld'
 gem 'google-protobuf', '3.25.3'
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.16.3'
 gem 'rack-accept', '~> 0.4'
 gem 'rack-attack', '~> 6.6.1', require: 'rack/attack'
 gem 'rack-cache', '~> 1.13.0'
