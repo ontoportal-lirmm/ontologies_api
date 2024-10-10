@@ -124,12 +124,14 @@ class TestCategoriesController < TestCase
       name: "Parent Category 1",
       description: "Description for Parent Category 1."
     )
+    parent_category1.save
 
     parent_category2 = LinkedData::Models::Category.new(
       acronym: "PARENT2",
       name: "Parent Category 2",
       description: "Description for Parent Category 2."
     )
+    parent_category2.save
 
     category_instance = LinkedData::Models::Category.new(
       acronym: "CAT123",
@@ -137,7 +139,12 @@ class TestCategoriesController < TestCase
       description: "This is a sample category.",
       parentCategory: [parent_category1, parent_category2]
     )
-    assert_equal category_instance.parentCategory.first , parent_category1
-    assert_equal category_instance.parentCategory.last , parent_category2
+    category_instance.save
+
+    get '/categories/CAT123'
+    fetched_category = MultiJson.load(last_response.body)
+
+    assert_equal fetched_category["parentCategory"].first , parent_category1.id.to_s
+    assert_equal fetched_category["parentCategory"].last , parent_category2.id.to_s
   end
 end
