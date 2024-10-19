@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ncbo/ncbo_ontology_recommender.git
-  revision: 013abea4af3b10910ec661dbb358a4b6cae198a4
+  revision: 9dbd4f179e42c52095129d353a5ac584e9bd47f3
   branch: master
   specs:
     ncbo_ontology_recommender (0.0.1)
@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: a95245b8c964431505ca6315907440996c59a00d
+  revision: 6018b33373467b778744432ec78a6d814159d129
   branch: development
   specs:
     goo (0.0.2)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 651d2f4226004c2311120e900a936101ee509865
+  revision: 0a456557bc0ae2a7d016000de9b57d3f9eca99a5
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -141,7 +141,7 @@ GEM
     docile (1.4.1)
     domain_name (0.6.20240107)
     ed25519 (1.3.0)
-    faraday (1.10.3)
+    faraday (1.10.4)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
       faraday-excon (~> 1.1)
@@ -202,9 +202,9 @@ GEM
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.7)
       grpc (~> 1.41)
-    googleapis-common-protos-types (1.15.0)
+    googleapis-common-protos-types (1.16.0)
       google-protobuf (>= 3.18, < 5.a)
-    googleauth (1.11.0)
+    googleauth (1.11.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
@@ -231,7 +231,7 @@ GEM
       rdf (>= 2.2.8, < 4.0)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    jwt (2.8.2)
+    jwt (2.9.3)
       base64
     kgio (2.11.4)
     libxml-ruby (5.0.3)
@@ -245,9 +245,10 @@ GEM
       net-pop
       net-smtp
     method_source (1.1.0)
-    mime-types (3.5.2)
+    mime-types (3.6.0)
+      logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.0903)
+    mime-types-data (3.2024.1001)
     mini_mime (1.1.5)
     minitest (4.7.5)
     minitest-stub_any_instance (1.0.3)
@@ -258,7 +259,7 @@ GEM
     mutex_m (0.2.0)
     net-http-persistent (4.0.4)
       connection_pool (~> 2.2)
-    net-imap (0.4.16)
+    net-imap (0.4.17)
       date
       net-protocol
     net-pop (0.1.2)
@@ -271,9 +272,9 @@ GEM
       net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.0)
       net-protocol
-    net-ssh (7.2.3)
+    net-ssh (7.3.0)
     netrc (0.11.0)
-    newrelic_rpm (9.13.0)
+    newrelic_rpm (9.14.0)
     oj (3.16.1)
     omni_logger (0.1.4)
       logger
@@ -342,7 +343,7 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     retriable (3.1.2)
-    rexml (3.3.7)
+    rexml (3.3.8)
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
@@ -378,7 +379,7 @@ GEM
       rack-test
       sinatra (~> 1.4.0)
       tilt (>= 1.3, < 3)
-    sshkit (1.23.1)
+    sshkit (1.23.2)
       base64
       net-scp (>= 1.1.2)
       net-sftp (>= 2.1.2)
