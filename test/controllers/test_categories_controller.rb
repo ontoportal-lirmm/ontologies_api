@@ -117,4 +117,34 @@ class TestCategoriesController < TestCase
     get "/categories/#{acronym}"
     assert last_response.status == 404
   end
+
+  def test_parent_category
+    parent_category1 = LinkedData::Models::Category.new(
+      acronym: "PARENT1",
+      name: "Parent Category 1",
+      description: "Description for Parent Category 1."
+    )
+    parent_category1.save
+
+    parent_category2 = LinkedData::Models::Category.new(
+      acronym: "PARENT2",
+      name: "Parent Category 2",
+      description: "Description for Parent Category 2."
+    )
+    parent_category2.save
+
+    category_instance = LinkedData::Models::Category.new(
+      acronym: "CAT123",
+      name: "Sample Category",
+      description: "This is a sample category.",
+      parentCategory: [parent_category1, parent_category2]
+    )
+    category_instance.save
+
+    get '/categories/CAT123'
+    fetched_category = MultiJson.load(last_response.body)
+
+    assert_equal fetched_category["parentCategory"].first , parent_category1.id.to_s
+    assert_equal fetched_category["parentCategory"].last , parent_category2.id.to_s
+  end
 end
