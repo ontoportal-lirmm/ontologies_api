@@ -474,6 +474,16 @@ class TestOntologySubmissionsController < TestCase
     test_submissions_custom_includes
   end
 
+  def test_submission_diff
+    num_onts_created, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 1, submission_count: 2,
+                                                                                     process_submission: true,
+                                                                                     process_options: { process_rdf: true, extract_metadata: false, diff: true} )
+
+    ont = onts.first
+    sub = ont.latest_submission(status: :any)
+
+    get "/ontologies/#{ont.acronym}/submissions/#{sub.submissionId}/diff"
+  end
   private
   def submission_keys(sub)
     sub.to_hash.keys - %w[@id @type id]

@@ -40,7 +40,9 @@ module Sinatra
         user = LinkedData::Models::User.where(email: email, username: username).include(User.goo_attrs_to_load(includes_param)).first
 
         error 404, "User not found" unless user
-
+        
+        user.bring(:resetToken)
+        user.bring(:passwordHash)
         user.show_apikey = true
 
         [user, token.eql?(user.resetToken)]
