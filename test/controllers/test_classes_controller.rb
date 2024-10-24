@@ -183,13 +183,8 @@ class TestClassesController < TestCase
         assert_instance_of(Array, cls["synonym"])
         assert(cls["@id"] == cls_id)
 
-        if submission_id.nil? || submission_id == 2
-          assert(cls["prefLabel"]["In version 3.2"])
-          assert(cls["definition"][0]["In version 3.2"])
-        else
-          assert(!cls["prefLabel"]["In version 3.2"])
-          assert(!cls["definition"][0]["In version 3.2"])
-        end
+        assert(cls["prefLabel"]["In version 3.2"])
+        assert(cls["definition"][0]["In version 3.2"])
 
         if cls["prefLabel"].include? "Electron"
           assert_equal(1, cls["synonym"].length)

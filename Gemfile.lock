@@ -45,8 +45,6 @@ GIT
   specs:
     ncbo_cron (0.0.1)
       dante
-      faraday (~> 2)
-      faraday-follow_redirects (~> 0)
       goo
       google-analytics-data
       google-apis-analytics_v3
@@ -59,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 0a456557bc0ae2a7d016000de9b57d3f9eca99a5
+  revision: 793c4fde592e6db91d8d103c15afe993c3472aae
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -206,7 +204,7 @@ GEM
       grpc (~> 1.41)
     googleapis-common-protos-types (1.16.0)
       google-protobuf (>= 3.18, < 5.a)
-    googleauth (1.11.1)
+    googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
@@ -227,7 +225,7 @@ GEM
     httpclient (2.8.3)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    json (2.7.2)
+    json (2.7.3)
     json-ld (3.0.2)
       multi_json (~> 1.12)
       rdf (>= 2.2.8, < 4.0)
@@ -345,7 +343,7 @@ GEM
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
     retriable (3.1.2)
-    rexml (3.3.8)
+    rexml (3.3.9)
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
