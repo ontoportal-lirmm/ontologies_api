@@ -11,7 +11,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6018b33373467b778744432ec78a6d814159d129
+  revision: f8ac7b00e8d8b46d1eea04de014175525c1cdd83
   branch: development
   specs:
     goo (0.0.2)
@@ -45,6 +45,8 @@ GIT
   specs:
     ncbo_cron (0.0.1)
       dante
+      faraday (~> 2)
+      faraday-follow_redirects (~> 0)
       goo
       google-analytics-data
       google-apis-analytics_v3
