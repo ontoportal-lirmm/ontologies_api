@@ -119,6 +119,10 @@ class AppUnit < Minitest::Test
   def _run_suite(suite, type)
     begin
       backend_4s_delete
+      LinkedData::Models::Ontology.indexClear
+      LinkedData::Models::Agent.indexClear
+      LinkedData::Models::Class.indexClear
+      LinkedData::Models::OntologyProperty.indexClear
       suite.before_suite if suite.respond_to?(:before_suite)
       super(suite, type)
     rescue Exception => e

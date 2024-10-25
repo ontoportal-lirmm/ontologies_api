@@ -3,11 +3,11 @@ require_relative '../test_case'
 class TestSearchController < TestCase
 
   def before_suite
-     self.backend_4s_delete
     LinkedData::Models::Ontology.indexClear
     LinkedData::Models::Agent.indexClear
     LinkedData::Models::Class.indexClear
     LinkedData::Models::OntologyProperty.indexClear
+
      count, acronyms, bro = LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
       process_submission: true,
       acronym: "BROSEARCHTEST",
@@ -92,10 +92,7 @@ class TestSearchController < TestCase
     assert last_response.ok?
     results = MultiJson.load(last_response.body)
     doc = results["collection"][0]
-
-    pref_label = doc["prefLabel"].kind_of?(Array) ? doc["prefLabel"].first : doc["prefLabel"]
-    assert_equal "cell line", pref_label
-
+    assert_equal "cell line", doc["prefLabel"]
     assert doc["links"]["ontology"].include? acronym
     results["collection"].each do |doc|
       acr = doc["links"]["ontology"].split('/')[-1]
@@ -156,9 +153,7 @@ class TestSearchController < TestCase
                                                                                .join(' ')
                                                                                .include?("Funding Resource")
     end
-
-    label0 = results["collection"][0]["prefLabel"].kind_of?(Array) ? results["collection"][0]["prefLabel"].first : results["collection"][0]["prefLabel"]
-    assert_equal "Funding Resource", label0
+    assert_equal "Funding Resource", results["collection"][0]["prefLabel"]
     assert_equal "T028", results["collection"][0]["semanticType"][0]
     assert_equal "X123456", results["collection"][0]["cui"][0]
 
@@ -213,8 +208,7 @@ class TestSearchController < TestCase
     assert_includes [10, 6], results["collection"].length # depending if owlapi import SKOS concepts
     provisional = results["collection"].select {|res| assert_equal ontology_type, res["ontologyType"]; res["provisional"]}
     assert_equal 1, provisional.length
-    prov_label = provisional[0]["prefLabel"].kind_of?(Array) ? provisional[0]["prefLabel"].first : provisional[0]["prefLabel"]
-    assert_equal @@test_pc_root.label, prov_label
+    assert_equal @@test_pc_root.label, provisional[0]["prefLabel"]
 
     # subtree root with provisional class test
     get "search?ontology=#{acronym}&subtree_root_id=#{CGI::escape(@@cls_uri.to_s)}&also_search_provisional=true"
@@ -223,9 +217,79 @@ class TestSearchController < TestCase
 
     provisional = results["collection"].select {|res| res["provisional"]}
     assert_equal 1, provisional.length
+    assert_equal @@test_pc_child.label, provisional[0]["prefLabel"]
+  end
 
-    prov_label = provisional[0]["prefLabel"].kind_of?(Array) ? provisional[0]["prefLabel"].first : provisional[0]["prefLabel"]
-    assert_equal @@test_pc_child.label, prov_label
+  def test_multilingual_search
+    get "/search?q=Activity&ontologies=BROSEARCHTEST-0"
+    res = MultiJson.load(last_response.body)
+
+    refute_equal 0, res["totalCount"]
+
+    doc = res["collection"].select{|doc| doc["@id"].to_s.eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    refute_nil doc
+    assert_equal "ActivityEnglish", doc["prefLabel"]
+
+    res = LinkedData::Models::Class.search("prefLabel_none:Activity", {:fq => "submissionAcronym:BROSEARCHTEST-0", :start => 0, :rows => 80})
+    refute_equal 0, res["response"]["numFound"]
+    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+
+
+    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr"
+    res =  MultiJson.load(last_response.body)
+    refute_equal 0, res["totalCount"]
+    doc = res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    refute_nil doc
+    assert_equal "Activité", doc["prefLabel"]
+
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en"
+    res =  MultiJson.load(last_response.body)
+    refute_equal 0, res["totalCount"]
+    doc = res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    refute_nil doc
+    assert_equal "ActivityEnglish", doc["prefLabel"]
+
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=fr,es"
+    res =  MultiJson.load(last_response.body)
+    assert_equal 0, res["totalCount"]
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en,es"
+    res =  MultiJson.load(last_response.body)
+    refute_equal 0, res["totalCount"]
+    doc = res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    refute_nil doc
+    expected_pref_label = {"none"=>["Activity"], "en"=>["ActivityEnglish"]}
+    assert_equal expected_pref_label, doc["prefLabel"]
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=all"
+    res =  MultiJson.load(last_response.body)
+    refute_equal 0, res["totalCount"]
+    doc = res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+    refute_nil doc
+    expected_pref_label = {"none"=>["Activity"], "en"=>["ActivityEnglish"], "fr"=>["Activité"]}
+    assert_equal expected_pref_label, doc["prefLabel"]
+
+
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=fr&require_exact_match=true"
+    res =  MultiJson.load(last_response.body)
+    assert_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en&require_exact_match=true"
+    res =  MultiJson.load(last_response.body)
+    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+
+    get "/search?q=Activity&ontologies=BROSEARCHTEST-0&lang=en&require_exact_match=true"
+    res =  MultiJson.load(last_response.body)
+    assert_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+
+    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr&require_exact_match=true"
+    res =  MultiJson.load(last_response.body)
+    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
+
+
   end
 
   def test_search_obo_id
@@ -237,38 +301,38 @@ class TestSearchController < TestCase
 
     begin
       LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-        process_submission: true,
-        acronym: ncit_acronym,
-        acronym_suffix: '',
-        name: "NCIT Search Test",
-        pref_label_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P108",
-        synonym_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P90",
-        definition_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P97",
-        file_path: "./test/data/ontology_files/ncit_test.owl",
-        ontology_format: 'OWL',
-        ont_count: 1,
-        submission_count: 1
-      })
+                                                                           process_submission: true,
+                                                                           acronym: ncit_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "NCIT Search Test",
+                                                                           pref_label_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P108",
+                                                                           synonym_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P90",
+                                                                           definition_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P97",
+                                                                           file_path: "./test/data/ontology_files/ncit_test.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
       LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-        process_submission: true,
-        acronym: ogms_acronym,
-        acronym_suffix: '',
-        name: "OGMS Search Test",
-        file_path: "./test/data/ontology_files/ogms_test.owl",
-        ontology_format: 'OWL',
-        ont_count: 1,
-        submission_count: 1
-      })
+                                                                           process_submission: true,
+                                                                           acronym: ogms_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "OGMS Search Test",
+                                                                           file_path: "./test/data/ontology_files/ogms_test.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
       LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-        process_submission: true,
-        acronym: cno_acronym,
-        acronym_suffix: '',
-        name: "CNO Search Test",
-        file_path: "./test/data/ontology_files/CNO_05.owl",
-        ontology_format: 'OWL',
-        ont_count: 1,
-        submission_count: 1
-      })
+                                                                           process_submission: true,
+                                                                           acronym: cno_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "CNO Search Test",
+                                                                           file_path: "./test/data/ontology_files/CNO_05.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
 
       # mdorf, 3/2/2024, when the : is followed by a LETTER, as in NCIT:C20480,
       # then Solr does not split the query on the tokens,
@@ -375,15 +439,15 @@ class TestSearchController < TestCase
 
     begin
       LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
-        process_submission: true,
-        acronym: vario_acronym,
-        acronym_suffix: "",
-        name: "VARIO OBO Search Test",
-        file_path: "./test/data/ontology_files/vario_test.obo",
-        ontology_format: 'OBO',
-        ont_count: 1,
-        submission_count: 1
-      })
+                                                                           process_submission: true,
+                                                                           acronym: vario_acronym,
+                                                                           acronym_suffix: "",
+                                                                           name: "VARIO OBO Search Test",
+                                                                           file_path: "./test/data/ontology_files/vario_test.obo",
+                                                                           ontology_format: 'OBO',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
       get "/search?q=VariO:0012&ontologies=#{vario_acronym}"
       assert last_response.ok?
       results = MultiJson.load(last_response.body)
@@ -452,45 +516,5 @@ class TestSearchController < TestCase
     assert doc["definition"].kind_of?(Hash)
     assert_equal 2, doc["definition"].size
   end
-
-  def test_multilingual_search
-    get "/search?q=Activity&ontologies=BROSEARCHTEST-0"
-    res =  MultiJson.load(last_response.body)
-    refute_equal 0, res["totalCount"]
-
-    doc = res["collection"].select{|doc| doc["@id"].to_s.eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-    refute_nil doc
-
-    res = LinkedData::Models::Class.search("prefLabel_none:Activity", {:fq => "submissionAcronym:BROSEARCHTEST-0", :start => 0, :rows => 80})
-    refute_equal 0, res["response"]["numFound"]
-    refute_nil res["response"]["docs"].select{|doc| doc["resource_id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr"
-    res =  MultiJson.load(last_response.body)
-    refute_equal 0, res["totalCount"]
-    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en"
-    res =  MultiJson.load(last_response.body)
-    refute_equal 0, res["totalCount"]
-    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=fr&require_exact_match=true"
-    res =  MultiJson.load(last_response.body)
-    assert_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en&require_exact_match=true"
-    res =  MultiJson.load(last_response.body)
-    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=Activity&ontologies=BROSEARCHTEST-0&lang=en&require_exact_match=true"
-    res =  MultiJson.load(last_response.body)
-    assert_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-
-    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr&require_exact_match=true"
-    res =  MultiJson.load(last_response.body)
-    refute_nil res["collection"].select{|doc| doc["@id"].eql?('http://bioontology.org/ontologies/Activity.owl#Activity')}.first
-  end
-
 
 end
