@@ -276,7 +276,7 @@ module Sinatra
         if params["month"]
           month = params["month"].strip
           if %r{(?<month>^(0[1-9]|[1-9]|1[0-2])$)}x === month
-            month.to_i.to_s
+            return month.to_i.to_s
           end
         end
         nil
@@ -288,7 +288,7 @@ module Sinatra
         if params["year"]
           year = params["year"].strip
           if %r{(?<year>^([1-2]\d{3})$)}x === year
-            year.to_i.to_s
+            return year.to_i.to_s
           end
         end
         nil
@@ -400,11 +400,6 @@ module Sinatra
         error 404, "Ontology #{@params["ontology"]} submission not found." if submission.nil?
         if !submission.ready?(status: [:RDF])
           error 404, "Ontology #{@params["ontology"]} submission #{submission.submissionId} has not been parsed."
-        end
-        if submission.nil?
-          if submission.nil?
-            error 404, "Ontology #{@params["acronym"]} does not have any submissions"
-          end
         end
 
         save_submission_language(submission)

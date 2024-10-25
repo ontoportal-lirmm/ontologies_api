@@ -2,7 +2,7 @@ require_relative '../test_case'
 
 class TestSearchModelsController < TestCase
 
-  def self.after_suite
+  def after_suite
     LinkedData::SampleData::Ontology.delete_ontologies_and_submissions
     LinkedData::Models::Ontology.indexClear
     LinkedData::Models::Agent.indexClear
@@ -12,7 +12,7 @@ class TestSearchModelsController < TestCase
   end
 
   def setup
-    self.class.after_suite
+    after_suite
   end
 
   def test_show_all_collection

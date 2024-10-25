@@ -217,7 +217,7 @@ class TestOntologySubmissionsController < TestCase
       allowed_user.save
       blocked_user = User.new({
                                 username: "blocked",
-                                email: "test@example.org",
+                                email: "test1254@example.org",
                                 password: "12345"
                               })
       blocked_user.save
@@ -374,7 +374,7 @@ class TestOntologySubmissionsController < TestCase
     assert last_response.ok?
     submissions = MultiJson.load(last_response.body)
     refute_empty submissions["collection"]
-    assert_equal ontologies.map{|x| x.latest_submission(status: :any).bring(:creationDate).creationDate}.sort.map(&:to_s), submissions["collection"].map{|x| x["creationDate"]}.reverse
+    assert_equal ontologies.map{|x| x.latest_submission(status: :any).bring(:creationDate).creationDate}.sort, submissions["collection"].map{|x| DateTime.parse(x["creationDate"])}.reverse
 
     # test search with format
     get "/submissions?page=1&pagesize=100&acronym=tes&name=tes&hasOntologyLanguage=SKOS"
