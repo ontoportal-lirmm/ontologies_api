@@ -139,10 +139,10 @@ module Sinatra
         check_access(obj) if LinkedData.settings.enable_security
 
         # Slice or set check
-        filter_for_slice(obj) if LinkedData.settings.enable_slices
+        obj = filter_for_slice(obj) if LinkedData.settings.enable_slices
 
         # Check for custom ontologies set by user
-        filter_for_user_onts(obj)
+        obj = filter_for_user_onts(obj)
 
         LinkedData::Serializer.build_response(@env, status: status, ld_object: obj)
       end
@@ -225,8 +225,8 @@ module Sinatra
 
           found_onts = onts.length > 0
 
-          filter_for_slice(onts)
-          filter_for_user_onts(onts)
+          onts = filter_for_slice(onts)
+          onts = filter_for_user_onts(onts)
         end
         onts = filter_access(onts)
 
@@ -279,6 +279,7 @@ module Sinatra
             month.to_i.to_s
           end
         end
+        nil
       end
 
       # validates year for starting with 1 or 2 and containing 4 digits
@@ -290,6 +291,7 @@ module Sinatra
             year.to_i.to_s
           end
         end
+        nil
       end
 
       ##
@@ -395,13 +397,9 @@ module Sinatra
         else
           submission = ont.latest_submission(status: [:RDF])
         end
-        if submission.nil?
-          error 404,  "Ontology #{@params["ontology"]} submission not found."
-        end
+        error 404, "Ontology #{@params["ontology"]} submission not found." if submission.nil?
         if !submission.ready?(status: [:RDF])
-          error(404,
-                "Ontology #{@params["ontology"]} submission i"+
-                "#{submission.submissionId} has not been parsed.")
+          error 404, "Ontology #{@params["ontology"]} submission #{submission.submissionId} has not been parsed."
         end
         if submission.nil?
           if submission.nil?

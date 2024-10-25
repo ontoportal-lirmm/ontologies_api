@@ -2,10 +2,11 @@ require_relative '../test_case'
 
 class TestOntologySubmissionsController < TestCase
 
-  def self.before_suite
-    _set_vars
-    _create_user
-    _create_onts
+  def before_suite
+    self.backend_4s_delete
+    self.class._set_vars
+    self.class._create_user
+    self.class._create_onts
   end
 
   def self._set_vars
@@ -201,6 +202,49 @@ class TestOntologySubmissionsController < TestCase
     end
   end
 
+  def test_ontology_submissions_access_controller
+    count, created_ont_acronyms, onts = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: false)
+    # case first submission is private
+    acronym = created_ont_acronyms.first
+    ont = onts.first.bring_remaining
+
+    begin
+      allowed_user = User.new({
+                                username: "allowed",
+                                email: "test@example.org",
+                                password: "12345"
+                              })
+      allowed_user.save
+      blocked_user = User.new({
+                                username: "blocked",
+                                email: "test@example.org",
+                                password: "12345"
+                              })
+      blocked_user.save
+
+      ont.acl = [allowed_user]
+      ont.viewingRestriction = "private"
+      ont.save
+
+      LinkedData.settings.enable_security = true
+
+      get "/submissions?apikey=#{allowed_user.apikey}"
+      assert_equal 200, last_response.status
+      submissions = MultiJson.load(last_response.body)
+      assert_equal 2, submissions.size
+
+      get "/submissions?apikey=#{blocked_user.apikey}"
+      assert_equal 200, last_response.status
+      submissions = MultiJson.load(last_response.body)
+      assert_equal 1, submissions.size
+    ensure
+      LinkedData.settings.enable_security = false
+      del = User.find("allowed").first
+      del.delete if del
+      del = User.find("blocked").first
+      del.delete if del
+    end
+  end
   def test_submissions_pagination
     num_onts_created, created_ont_acronyms, ontologies = create_ontologies_and_submissions(ont_count: 2, submission_count: 2)
 
