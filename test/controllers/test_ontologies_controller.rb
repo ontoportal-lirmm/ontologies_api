@@ -1,11 +1,12 @@
+require 'webrick'
 require_relative '../test_case'
 
 class TestOntologiesController < TestCase
-  def self.before_suite
-    _set_vars
-    _delete
-    _create_user
-    _create_onts
+  def before_suite
+    self.class._set_vars
+    self.class._delete
+    self.class._create_user
+    self.class._create_onts
   end
 
   def teardown
@@ -29,6 +30,8 @@ class TestOntologiesController < TestCase
         hasOntologyLanguage: "OWL",
         administeredBy: ["tom"]
     }
+    @@server_thread = nil
+    @@server_url = nil
   end
 
   def self._create_user
@@ -255,6 +258,71 @@ class TestOntologiesController < TestCase
     end
   end
 
+  def test_on_demand_ontology_pull
+    ont = create_ontologies_and_submissions(ont_count: 1, submission_count: 1, process_submission: true)[2].first
+    ont.bring_remaining
+    acronym = ont.acronym
+    sub = ont.submissions.first
+    sub.bring(:pullLocation) if sub.bring?(:pullLocation)
+    assert_nil sub.pullLocation, msg = "Pull location should be nil at this point in the test"
+
+    allowed_user = ont.administeredBy.first
+    allowed_user.bring(:apikey) if allowed_user.bring?(:apikey)
+
+    post "/ontologies/#{acronym}/pull?apikey=#{allowed_user.apikey}"
+    assert_equal(404, last_response.status, msg="This ontology is NOT configured to be remotely pulled at this point in the test. It should return status 404")
+
+    begin
+      start_server
+      sub.pullLocation = RDF::IRI.new(@@server_url)
+      sub.save
+      LinkedData.settings.enable_security = true
+      post "/ontologies/#{acronym}/pull?apikey=#{allowed_user.apikey}"
+      assert_equal(204, last_response.status, msg="The ontology admin was unable to execute the on-demand pull")
+
+      blocked_user = User.new({
+        username: "blocked",
+        email: "test@example.org",
+        password: "12345"
+      })
+      blocked_user.save
+      post "/ontologies/#{acronym}/pull?apikey=#{blocked_user.apikey}"
+      assert_equal(403, last_response.status, msg="An unauthorized user was able to execute the on-demand pull")
+    ensure
+      del = User.find("blocked").first
+      del.delete if del
+      stop_server
+      LinkedData.settings.enable_security = false
+      del = User.find("blocked").first
+      del.delete if del
+    end
+  end
+
+  def test_detach_a_view
+    view = Ontology.find(@@view_acronym).include(:viewOf).first
+    ont =  view.viewOf
+    refute_nil view
+    refute_nil ont
+
+    remove_view_of = {viewOf: ''}
+    patch "/ontologies/#{@@view_acronym}", MultiJson.dump(remove_view_of), "CONTENT_TYPE" => "application/json"
+
+    assert last_response.status == 204
+
+    get "/ontologies/#{@@view_acronym}"
+    onto = MultiJson.load(last_response.body)
+    assert_nil onto["viewOf"]
+
+
+    add_view_of = {viewOf: @@acronym}
+    patch "/ontologies/#{@@view_acronym}", MultiJson.dump(add_view_of), "CONTENT_TYPE" => "application/json"
+
+    assert last_response.status == 204
+
+    get "/ontologies/#{@@view_acronym}?include=all"
+    onto = MultiJson.load(last_response.body)
+    assert_equal onto["viewOf"], ont.id.to_s
+  end
 
   def test_detach_a_view
     view = Ontology.find(@@view_acronym).include(:viewOf).first
@@ -282,11 +350,85 @@ class TestOntologiesController < TestCase
     assert_equal onto["viewOf"], ont.id.to_s
   end
 
+  def test_ontology_agents
+    ontologies_and_submissions = create_ontologies_and_submissions(ont_count: 2, submission_count: 1, process_submission: true)
+    submission1 = ontologies_and_submissions[2].first.submissions.last
+    submission2 = ontologies_and_submissions[2].last.submissions.last
+
+    ontology_acronym1 = ontologies_and_submissions[1].first
+    ontology_acronym2 = ontologies_and_submissions[1].last
+
+    submission1.bring(*OntologySubmission.agents_attrs)
+    submission2.bring(*OntologySubmission.agents_attrs)
+
+    # To insure that we don't have duplicated agents in the response
+    agent_syphax = _create_agent(name: 'Syphax', type: 'person')
+
+    submission1.publisher = [_create_agent(name: 'Bilel', type: 'person'), agent_syphax]
+    submission1.hasContributor = [_create_agent(name: 'Clement', type: 'person'), agent_syphax]
+
+    submission2.publisher = [_create_agent(name: 'Imad', type: 'person'), _create_agent(name: 'Serine', type: 'person')]
+
+    submission1.save
+    submission2.save
+
+
+    get "/ontologies/#{ontology_acronym1}/agents"
+
+    response = MultiJson.load(last_response.body)
+    assert_equal response.length, 3
+    response.each do |r|
+      assert_includes ['Bilel', 'Syphax', 'Clement'], r["name"]
+    end
+
+    get "/ontologies/#{ontology_acronym2}/agents"
+
+    response = MultiJson.load(last_response.body)
+    assert_equal response.length, 2
+    response.each do |r|
+      assert_includes ['Imad', 'Serine'], r["name"]
+    end
+  end
+
   private
+
+  def start_server
+    ont_path = File.expand_path("../../data/ontology_files/BRO_v3.2.owl", __FILE__)
+    file = File.new(ont_path)
+    port = Random.rand(55000..65535) # http://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Dynamic.2C_private_or_ephemeral_ports
+    @@server_url = "http://localhost:#{port}/"
+    @@server_thread = Thread.new do
+      server = WEBrick::HTTPServer.new(Port: port)
+      server.mount_proc '/' do |req, res|
+        contents = file.read
+        file.rewind
+        res.body = contents
+      end
+      begin
+        server.start
+      ensure
+        server.shutdown
+      end
+    end
+  end
+
+  def stop_server
+    Thread.kill(@@server_thread) if @@server_thread
+  end
 
   def check400(response)
     assert response.status >= 400
     assert MultiJson.load(response.body)["errors"]
+  end
+
+  def _create_agent(name: 'name', type: 'person')
+    agent = LinkedData::Models::Agent.new({
+      agentType: type,
+      name: name,
+      creator: User.find('tim').first
+    })
+    agent.save
+    agent
   end
 
 end
