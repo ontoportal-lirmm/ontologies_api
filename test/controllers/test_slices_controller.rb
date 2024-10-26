@@ -2,12 +2,11 @@ require_relative '../test_case'
 
 class TestSlicesController < TestCase
 
-  def self.before_suite
+  def before_suite
     ont_count, ont_acronyms, @@onts = LinkedData::SampleData::Ontology.create_ontologies_and_submissions(ont_count: 1, submission_count: 0)
-
     @@slice_acronyms = ["tst-a", "tst-b"].sort
-    _create_slice(@@slice_acronyms[0], "Test Slice A", @@onts)
-    _create_slice(@@slice_acronyms[1], "Test Slice B", @@onts)
+    self.class._create_slice(@@slice_acronyms[0], "Test Slice A", @@onts)
+    self.class._create_slice(@@slice_acronyms[1], "Test Slice B", @@onts)
 
     @@user = User.new({
                         username: "test-slice",
@@ -15,17 +14,17 @@ class TestSlicesController < TestCase
                         password: "12345"
                       }).save
     @@new_slice_data = { acronym: 'tst-c', name: "Test Slice C", ontologies: ont_acronyms}
-    @@old_security_setting = LinkedData.settings.enable_security
+    self.class.enable_security
   end
 
-  def self.after_suite
+  def after_suite
     LinkedData::Models::Slice.all.each(&:delete)
     @@user.delete
-    reset_security(@@old_security_setting)
+    self.class.reset_security
   end
 
   def setup
-    self.class.reset_security(@@old_security_setting)
+    self.class.reset_security
     self.class.reset_to_not_admin(@@user)
     LinkedData::Models::Slice.find(@@new_slice_data[:acronym]).first&.delete
   end

@@ -2,7 +2,7 @@ require_relative '../test_case'
 
 class TestAnnotatorController < TestCase
 
-  def self.before_suite
+  def before_suite
     @@redis = Redis.new(:host => Annotator.settings.annotator_redis_host, :port => Annotator.settings.annotator_redis_port)
     db_size = @@redis.dbsize
     if db_size > MAX_TEST_REDIS_SIZE
@@ -25,7 +25,7 @@ class TestAnnotatorController < TestCase
     annotator = Annotator::Models::NcboAnnotator.new
     annotator.init_redis_for_tests()
     annotator.create_term_cache_from_ontologies(@@ontologies, false)
-    mapping_test_set
+    self.class.mapping_test_set
   end
 
   def test_annotate
@@ -265,7 +265,7 @@ eos
     assert last_response.ok?
     annotations = MultiJson.load(last_response.body)
     assert_equal 9, annotations.length
-    annotations.sort! { |a,b| a["annotatedClass"]["prefLabel"].downcase <=> b["annotatedClass"]["prefLabel"].downcase }
+    annotations.sort! { |a,b| a["annotatedClass"]["prefLabel"].first.downcase <=> b["annotatedClass"]["prefLabel"].first.downcase }
     assert_equal "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Aggregate_Human_Data", annotations.first["annotatedClass"]["@id"]
     assert_equal "Aggregate Human Data", annotations.first["annotatedClass"]["prefLabel"]
 
@@ -354,7 +354,6 @@ eos
         class_id = terms_a[i]
         ont_acr = onts_a[i]
         sub = LinkedData::Models::Ontology.find(ont_acr).first.latest_submission(status: :any)
-
         sub.bring(ontology: [:acronym])
         c = LinkedData::Models::Class.find(RDF::URI.new(class_id))
                                     .in(sub)

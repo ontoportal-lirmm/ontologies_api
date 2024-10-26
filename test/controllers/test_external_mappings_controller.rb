@@ -2,7 +2,7 @@ require_relative '../test_case'
 
 class TestExternalMappingsController < TestCase
 
-  def self.before_suite
+  def before_suite
     ["BRO-TEST-MAP-0", "CNO-TEST-MAP-0", "FAKE-TEST-MAP-0"].each do |acr|
       LinkedData::Models::OntologySubmission.where(ontology: [acronym: acr]).to_a.each do |s|
         s.delete
@@ -147,4 +147,3 @@ class TestExternalMappingsController < TestCase
   end
 
 end
-
