@@ -51,6 +51,8 @@ module Sinatra
           submissions_query = submissions_query.where({ submissionStatus: [code: status] })
         end
 
+        submissions_query = submissions_query.order_by(order_by) unless order_by.nil?
+
         submissions_query = apply_submission_filters(submissions_query)
         submissions_query = submissions_query.filter(Goo::Filter.new(ontology: [:viewOf]).unbound) unless include_views
         submissions_query = submissions_query.filter(filter) if filter?

@@ -3,7 +3,7 @@ require 'rexml/document'
 
 class TestDereferenceResourceController < TestCase
 
-  def self.before_suite
+  def before_suite
     LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
                                                                          process_submission: true,
                                                                          process_options: { process_rdf: true, extract_metadata: false, generate_missing_labels: false},
