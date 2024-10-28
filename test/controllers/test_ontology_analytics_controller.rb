@@ -196,7 +196,7 @@ class TestOntologyAnalyticsController < TestCase
     }
   }
 
-  def self.before_suite
+  def before_suite
     @@redis = Redis.new(:host => Annotator.settings.annotator_redis_host, :port => Annotator.settings.annotator_redis_port)
     db_size = @@redis.dbsize
     if db_size > MAX_TEST_REDIS_SIZE
@@ -220,32 +220,32 @@ class TestOntologyAnalyticsController < TestCase
   end
 
   def teardown
-    self.class._delete_onts
-    self.class._create_onts
+    self._delete_onts
+    self._create_onts
   end
 
-  def self._create_user
+  def _create_user
     username = "tim"
     test_user = LinkedData::Models::User.new(username: username, email: "#{username}@example.org", password: "password")
     test_user.save if test_user.valid?
     @@user = test_user.valid? ? test_user : LinkedData::Models::User.find(username).first
   end
 
-  def self._create_onts
+  def _create_onts
     @@onts.each do |acronym, name|
       ont = LinkedData::Models::Ontology.new(acronym: acronym, name: name, administeredBy: [@@user])
       ont.save
     end
   end
 
-  def self._delete_onts
+  def _delete_onts
     @@onts.each do |acronym, _|
       ont = LinkedData::Models::Ontology.find(acronym).first
       ont.delete unless ont.nil?
     end
   end
 
-  def self._delete
+  def _delete
     _delete_onts
     test_user = LinkedData::Models::User.find("tim").first
     test_user.delete unless test_user.nil?

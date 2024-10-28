@@ -2,7 +2,7 @@ require_relative '../test_case'
 
 class TestSearchController < TestCase
 
-  def self.before_suite
+  def before_suite
     LinkedData::Models::Ontology.indexClear
     LinkedData::Models::Agent.indexClear
     LinkedData::Models::Class.indexClear
@@ -59,7 +59,7 @@ class TestSearchController < TestCase
     @@test_pc_child.save
   end
 
-  def self.after_suite
+  def after_suite
     @@test_pc_root.delete
     @@test_pc_child.delete
     LinkedData::SampleData::Ontology.delete_ontologies_and_submissions
@@ -292,5 +292,229 @@ class TestSearchController < TestCase
 
   end
 
+  def test_search_obo_id
+    skip 'need to be fixed in the futur to be aligned with bioportal'
+
+    ncit_acronym = 'NCIT'
+    ogms_acronym = 'OGMS'
+    cno_acronym = 'CNO'
+
+    begin
+      LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                           process_submission: true,
+                                                                           acronym: ncit_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "NCIT Search Test",
+                                                                           pref_label_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P108",
+                                                                           synonym_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P90",
+                                                                           definition_property: "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#P97",
+                                                                           file_path: "./test/data/ontology_files/ncit_test.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
+      LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                           process_submission: true,
+                                                                           acronym: ogms_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "OGMS Search Test",
+                                                                           file_path: "./test/data/ontology_files/ogms_test.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
+      LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                           process_submission: true,
+                                                                           acronym: cno_acronym,
+                                                                           acronym_suffix: '',
+                                                                           name: "CNO Search Test",
+                                                                           file_path: "./test/data/ontology_files/CNO_05.owl",
+                                                                           ontology_format: 'OWL',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
+
+      # mdorf, 3/2/2024, when the : is followed by a LETTER, as in NCIT:C20480,
+      # then Solr does not split the query on the tokens,
+      # but when the : is followed by a number, as in OGMS:0000071,
+      # then Solr does split this on tokens and shows the other resuluts
+      get "/search?q=OGMS:0000071"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 6, docs.size
+      assert_equal ogms_acronym, LinkedData::Utils::Triples.last_iri_fragment(docs[0]["links"]["ontology"])
+      assert_equal cno_acronym, LinkedData::Utils::Triples.last_iri_fragment(docs[1]["links"]["ontology"])
+      assert_equal ncit_acronym, LinkedData::Utils::Triples.last_iri_fragment(docs[2]["links"]["ontology"])
+
+      label1 = docs[1]["prefLabel"].kind_of?(Array) ? docs[1]["prefLabel"].first : docs[1]["prefLabel"]
+      label2 = docs[2]["prefLabel"].kind_of?(Array) ? docs[2]["prefLabel"].first : docs[2]["prefLabel"]
+      label3 = docs[3]["prefLabel"].kind_of?(Array) ? docs[3]["prefLabel"].first : docs[3]["prefLabel"]
+      label4 = docs[4]["prefLabel"].kind_of?(Array) ? docs[4]["prefLabel"].first : docs[4]["prefLabel"]
+      label5 = docs[5]["prefLabel"].kind_of?(Array) ? docs[5]["prefLabel"].first : docs[5]["prefLabel"]
+
+      assert_equal 'realization', label1
+      assert_equal 'realization', label2
+      assert label3.upcase.include?('OGMS ')
+      assert label4.upcase.include?('OGMS ')
+      assert label5.upcase.include?('OGMS ')
+
+      get "/search?q=CNO:0000002"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 7, docs.size
+      assert_equal cno_acronym, LinkedData::Utils::Triples.last_iri_fragment(docs[0]["links"]["ontology"])
+      acr_1 = LinkedData::Utils::Triples.last_iri_fragment(docs[1]["links"]["ontology"])
+      assert_includes [ncit_acronym, ogms_acronym], acr_1
+      acr_2= LinkedData::Utils::Triples.last_iri_fragment(docs[2]["links"]["ontology"])
+
+      assert acr_2 === ncit_acronym || acr_2 === ogms_acronym
+
+      label3 = docs[3]["prefLabel"].kind_of?(Array) ? docs[3]["prefLabel"].first : docs[3]["prefLabel"]
+      label4 = docs[4]["prefLabel"].kind_of?(Array) ? docs[4]["prefLabel"].first : docs[4]["prefLabel"]
+      label5 = docs[5]["prefLabel"].kind_of?(Array) ? docs[5]["prefLabel"].first : docs[5]["prefLabel"]
+      label6 = docs[6]["prefLabel"].kind_of?(Array) ? docs[6]["prefLabel"].first : docs[6]["prefLabel"]
+
+      assert label3.upcase.include?('CNO ')
+      assert label4.upcase.include?('CNO ')
+      assert label5.upcase.include?('CNO ')
+      assert label6.upcase.include?('CNO ')
+
+      # mdorf, 3/2/2024, when the : is followed by a LETTER, as in NCIT:C20480,
+      # then Solr does not split the query on the tokens,
+      # but when the : is followed by a number, as in OGMS:0000071,
+      # then Solr does split this on tokens and shows the other resuluts
+      get "/search?q=Thesaurus:C20480"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 1, docs.size
+
+      label0 = docs[0]["prefLabel"].kind_of?(Array) ? docs[0]["prefLabel"].first : docs[0]["prefLabel"]
+      assert_equal 'Cellular Process', label0
+
+      get "/search?q=NCIT:C20480"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 1, docs.size
+
+      label0 = docs[0]["prefLabel"].kind_of?(Array) ? docs[0]["prefLabel"].first : docs[0]["prefLabel"]
+      assert_equal 'Cellular Process', label0
+
+      get "/search?q=Leukocyte Apoptotic Process&ontologies=#{ncit_acronym}"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+
+      label0 = docs[0]["prefLabel"].kind_of?(Array) ? docs[0]["prefLabel"].first : docs[0]["prefLabel"]
+      label1 = docs[1]["prefLabel"].kind_of?(Array) ? docs[1]["prefLabel"].first : docs[1]["prefLabel"]
+      label2 = docs[2]["prefLabel"].kind_of?(Array) ? docs[2]["prefLabel"].first : docs[2]["prefLabel"]
+
+      assert_equal 'Leukocyte Apoptotic Process', label0
+      assert_equal 'Leukocyte Apoptotic Test Class', label1
+      assert_equal 'Lymphocyte Apoptotic Process', label2
+    ensure
+      ont = LinkedData::Models::Ontology.find(ncit_acronym).first
+      ont.delete if ont
+      ont = LinkedData::Models::Ontology.find(ncit_acronym).first
+      assert_nil ont
+
+      ont = LinkedData::Models::Ontology.find(ogms_acronym).first
+      ont.delete if ont
+      ont = LinkedData::Models::Ontology.find(ogms_acronym).first
+      assert_nil ont
+
+      ont = LinkedData::Models::Ontology.find(cno_acronym).first
+      ont.delete if ont
+      ont = LinkedData::Models::Ontology.find(cno_acronym).first
+      assert_nil ont
+    end
+  end
+
+  def test_search_short_id
+    skip 'need to be fixed in the futur to be aligned with bioportal'
+    vario_acronym = 'VARIO'
+
+    begin
+      LinkedData::SampleData::Ontology.create_ontologies_and_submissions({
+                                                                           process_submission: true,
+                                                                           acronym: vario_acronym,
+                                                                           acronym_suffix: "",
+                                                                           name: "VARIO OBO Search Test",
+                                                                           file_path: "./test/data/ontology_files/vario_test.obo",
+                                                                           ontology_format: 'OBO',
+                                                                           ont_count: 1,
+                                                                           submission_count: 1
+                                                                         })
+      get "/search?q=VariO:0012&ontologies=#{vario_acronym}"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 1, docs.size
+
+      get "/search?q=Blah:0012&ontologies=#{vario_acronym}"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 0, docs.size
+
+      get "/search?q=Vario:12345&ontologies=#{vario_acronym}"
+      assert last_response.ok?
+      results = MultiJson.load(last_response.body)
+      docs = results["collection"]
+      assert_equal 0, docs.size
+    ensure
+      ont = LinkedData::Models::Ontology.find(vario_acronym).first
+      ont.delete if ont
+      ont = LinkedData::Models::Ontology.find(vario_acronym).first
+      assert ont.nil?
+    end
+  end
+
+  def test_language_attribute_filter
+    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=fr"
+    results =  MultiJson.load(last_response.body)
+    assert last_response.ok?
+    assert_equal 1, results["collection"].size
+    doc = results["collection"][0]
+    pref_label = doc["prefLabel"].kind_of?(Array) ? doc["prefLabel"].first : doc["prefLabel"]
+    assert_equal "Activité", pref_label
+    assert_equal 1, doc["definition"].size
+    assert 1, doc["definition"][0].include?("d’intérêt pouvant")
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0&lang=en"
+    results =  MultiJson.load(last_response.body)
+    assert last_response.ok?
+    assert_equal 1, results["collection"].size
+    doc = results["collection"][0]
+    pref_label = doc["prefLabel"].kind_of?(Array) ? doc["prefLabel"].first : doc["prefLabel"]
+    assert_equal "ActivityEnglish", pref_label
+    assert_equal 1, doc["definition"].size
+    assert 1, doc["definition"][0].include?("Activity of interest that may be related to")
+
+    get "/search?q=ActivityEnglish&ontologies=BROSEARCHTEST-0"
+    results =  MultiJson.load(last_response.body)
+    assert last_response.ok?
+    assert_equal 1, results["collection"].size
+    doc = results["collection"][0]
+    pref_label = doc["prefLabel"].kind_of?(Array) ? doc["prefLabel"].first : doc["prefLabel"]
+    assert_equal "ActivityEnglish", pref_label
+    assert_equal 1, doc["definition"].size
+    assert 1, doc["definition"][0].include?("Activity of interest that may be related to")
+
+    get "/search?q=Activit%C3%A9&ontologies=BROSEARCHTEST-0&lang=all"
+    results =  MultiJson.load(last_response.body)
+    assert last_response.ok?
+    assert_equal 1, results["collection"].size
+    doc = results["collection"][0]
+    assert doc["prefLabel"].kind_of?(Hash)
+    assert_equal 3, doc["prefLabel"].size
+    assert doc["synonym"].kind_of?(Hash)
+    assert_equal 1, doc["synonym"].size
+    assert doc["definition"].kind_of?(Hash)
+    assert_equal 2, doc["definition"].size
+  end
 
 end

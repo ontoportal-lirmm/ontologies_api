@@ -16,7 +16,7 @@ class UsersController < ApplicationController
     end
 
     ##
-    # This endpoint will create a token and store it on the user
+    # This endpoint will create a token and store it on the use-
     # An email is generated with this token, which allows the user
     # to click and login to the UI. The token can then be provided to
     # the /reset_password endpoint to actually reset the password.
@@ -48,7 +48,7 @@ class UsersController < ApplicationController
       if token_accepted
         reply user
       else
-        error 403, "Password reset not authorized with this token"
+        error 401, "Password reset not authorized with this token"
       end
     end
 
@@ -92,6 +92,7 @@ class UsersController < ApplicationController
 
     # Delete a user
     delete '/:username' do
+      error 403, "Access denied" unless current_user.admin?
       User.find(params[:username]).first.delete
       halt 204
     end

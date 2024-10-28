@@ -12,7 +12,7 @@ module Sinatra
         user = env["REMOTE_USER"]
 
         if obj.first.is_a?(LinkedData::Models::Ontology)
-          obj.delete_if {|o| !user.custom_ontology_id_set.include?(o.id.to_s)}
+          obj = obj.select {|o| user.custom_ontology_id_set.include?(o.id.to_s)}
         end
 
         obj
@@ -23,7 +23,8 @@ module Sinatra
         error 404, "User not found" unless user
         reset_token = token(36)
         user.resetToken = reset_token
-        
+        user.resetTokenExpireTime = Time.now.to_i + 1.hours.to_i
+
         user.save(override_security: true)
         LinkedData::Utils::Notifications.reset_password(user, reset_token)
         user
@@ -41,9 +42,20 @@ module Sinatra
 
         error 404, "User not found" unless user
 
+        user.bring(:resetToken)
+        user.bring(:passwordHash)
         user.show_apikey = true
+        token_accepted = token.eql?(user.resetToken)
+        if token_accepted
+          error 401, "Invalid password reset token" if user.resetTokenExpireTime.nil?
+          error 401, "The password reset token expired" if user.resetTokenExpireTime < Time.now.to_i
+          user.resetToken = nil
+          user.resetTokenExpireTime = nil
+          user.save(override_security: true) if user.valid?
+          user.show_apikey = true
+        end
 
-        [user, token.eql?(user.resetToken)]
+        [user, token_accepted]
       end
 
       def oauth_authenticate(params)
