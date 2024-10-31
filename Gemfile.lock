@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: c0f8697529ebfca2c3fe90d46d9482ac72f13362
+  revision: 312ef426eeaa461e88fa23124ea5fd531f4276ba
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -211,7 +211,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    json (2.7.3)
+    json (2.7.5)
     json-ld (3.0.2)
       multi_json (~> 1.12)
       rdf (>= 2.2.8, < 4.0)
@@ -353,7 +353,7 @@ GEM
       rubocop-ast (>= 1.32.2, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.32.3)
+    rubocop-ast (1.33.0)
       parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
