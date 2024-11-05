@@ -148,6 +148,7 @@ class SearchController < ApplicationController
     namespace "/agents" do
       get do
         query = params[:query] || params[:q]
+        query = "#{query}*"
         page, page_size = page_params
         type = params[:agentType].blank? ? nil : params[:agentType]
 
