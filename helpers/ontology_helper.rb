@@ -20,8 +20,13 @@ module Sinatra
         ont_submission.submissionId = submission_id
 
         # Get file info
-        add_file_to_submission(ont, ont_submission)
-
+        filename, tmpfile = add_file_to_submission(ont, ont_submission)
+        # if no actual file was uploaded, we remove the file parameters
+        if filename.nil? && tmpfile.nil?
+          params.delete("uploadFilePath")
+          params.delete("diffFilePath")
+        end
+        
         # Add new format if it doesn't exist
         if ont_submission.hasOntologyLanguage.nil?
           error 422, "You must specify the ontology format using the `hasOntologyLanguage` parameter" if params["hasOntologyLanguage"].nil? || params["hasOntologyLanguage"].empty?
