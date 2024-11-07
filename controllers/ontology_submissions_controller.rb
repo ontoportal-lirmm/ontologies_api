@@ -51,6 +51,7 @@ class OntologySubmissionsController < ApplicationController
     # Display a submission
     get '/:ontology_submission_id' do
       ont = Ontology.find(params["acronym"]).include(:acronym).first
+      error 422, "Ontology #{params["acronym"]} does not exist" unless ont
       check_last_modified_segment(LinkedData::Models::OntologySubmission, [ont.acronym])
       ont.bring(:submissions)
       ont_submission = ont.submission(params["ontology_submission_id"])
@@ -137,6 +138,25 @@ class OntologySubmissionsController < ApplicationController
         send_file file_path, :filename => File.basename(file_path)
       else
         error 500, "Cannot read submission upload file: #{file_path}"
+      end
+    end
+
+    get '/:ontology_submission_id/diff' do
+      acronym = params["acronym"]
+      submission_attributes = [:submissionId, :submissionStatus, :diffFilePath]
+      ont = Ontology.find(acronym).include(:submissions => submission_attributes).first
+      error 422, "You must provide an existing `acronym` to download" if ont.nil?
+      ont.bring(:viewingRestriction)
+      check_access(ont)
+      ont_restrict_downloads = LinkedData::OntologiesAPI.settings.restrict_download
+      error 403, "License restrictions on download for #{acronym}" if ont_restrict_downloads.include? acronym
+      submission = ont.submission(params['ontology_submission_id'].to_i)
+      error 404, "There is no such submission for download" if submission.nil?
+      file_path = submission.diffFilePath
+      if File.readable? file_path
+        reply submission.parse_diff_report
+      else
+        error 500, "Cannot read submission diff file: #{file_path}"
       end
     end
 
