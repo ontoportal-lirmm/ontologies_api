@@ -131,14 +131,13 @@ class ClassesController < ApplicationController
       display_attrs += LinkedData::Models::Class.concept_is_in_attributes if submission.skos?
       request_display(display_attrs.join(','))
       extra_include = [:hasChildren, :isInActiveScheme, :isInActiveScheme]
+
       if sort
         roots = submission.roots_sorted(extra_include, concept_schemes: concept_schemes, concept_collections: concept_collections)
         root_tree = cls.tree_sorted(concept_schemes: concept_schemes, concept_collections: concept_collections, roots: roots)
-        # add the other roots to the response
       else
         roots = submission.roots(extra_include, concept_schemes: concept_schemes, concept_collections: concept_collections)
         root_tree = cls.tree(concept_schemes: concept_schemes, concept_collections: concept_collections, roots: roots)
-        # add the other roots to the response
       end
 
       # if this path' root does not get returned by the submission.roots call, manually add it
