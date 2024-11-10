@@ -44,6 +44,7 @@ module Sinatra
 
         user.bring(:resetToken)
         user.bring(:passwordHash)
+        user.bring(:resetTokenExpireTime)
         user.show_apikey = true
         token_accepted = token.eql?(user.resetToken)
         if token_accepted
