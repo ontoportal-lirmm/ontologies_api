@@ -38,12 +38,10 @@ module Sinatra
       end
 
       def reset_password(email, username, token)
-        user = LinkedData::Models::User.where(email: email, username: username).include(User.goo_attrs_to_load(includes_param)).first
+        user = LinkedData::Models::User.where(email: email, username: username).include(User.goo_attrs_to_load(includes_param) + [:resetToken, :passwordHash, :resetTokenExpireTime]).first
 
         error 404, "User not found" unless user
 
-        user.bring(:resetToken)
-        user.bring(:passwordHash)
         user.show_apikey = true
         token_accepted = token.eql?(user.resetToken)
         if token_accepted
