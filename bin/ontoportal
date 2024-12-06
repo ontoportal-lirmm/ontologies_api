@@ -3,10 +3,11 @@
 # Function to display script usage information
 show_help() {
   cat << EOL
-Usage: $0 {dev|test|run|help} [--reset-cache] [--api-url API_URL] [--api-key API_KEY] [--old-path OLD_PATH] [--goo-path GOO_PATH] [--sparql-client-path SPARQL_CLIENT_PATH]
+Usage: $0 {dev|test|run|help} [--reset-cache] [--api-url API_URL] [--api-key API_KEY] [--old-path OLD_PATH] [--goo-path GOO_PATH] [--sparql-client-path SPARQL_CLIENT_PATH] [--with-provision]
   dev            : Start the Ontoportal API development server.
                   Example: $0 dev --api-url http://localhost:9393
                   Use --reset-cache to remove volumes: $0 dev --reset-cache
+                  Use --with-provision to parse ontology for use
   test           : Run tests. Specify either a test file or use 'all'.
                   Example: $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
                   Example (run all tests): $0 test all -v
@@ -20,12 +21,13 @@ Description:
 
 Options:
   --reset-cache             : Remove Docker volumes (used with 'dev').
+  --with-provision          : Parse ontology for use.
   --api-url API_URL         : Specify the API URL.
   --api-key API_KEY         : Specify the API key.
   --old-path OLD_PATH       : Specify the path for ontologies_linked_data.
   --goo-path GOO_PATH       : Specify the path for goo.
   --sparql-client-path      : Specify the path for sparql-client.
-  test_file | all            : Specify either a test file or  all the tests will be run.
+  test_file | all           : Specify either a test file or  all the tests will be run.
   -v                        : Enable verbosity.
   --name=name_of_the_test   : Specify the name of the test.
 
@@ -101,6 +103,32 @@ build_docker_run_cmd() {
 }
 
 
+provision() {
+  echo "[+] Running Cron provisioning"
+  source .env
+
+  echo "[+] Cleaning volumes"
+  docker compose -f docker-compose.yml --profile 4store down --volumes >/dev/null 2>&1
+  docker compose -p ontoportal_docker down --volumes >/dev/null 2>&1
+
+  commands=(
+      "bundle exec rake user:create[admin,admin@nodomain.org,password]"
+      "bundle exec rake user:adminify[admin]"
+      "bundle exec bin/ncbo_ontology_import --admin-user admin --ontologies $STARTER_ONTOLOGY --from-apikey $OP_API_KEY --from $OP_API_URL"
+      "bundle exec bin/ncbo_ontology_process -o ${STARTER_ONTOLOGY}"
+  )
+  for cmd in "${commands[@]}"; do
+    echo "[+] Run: $cmd"
+    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\" >/dev/null 2>&1" 
+    if ! eval "$docker_cron_cmd"; then
+        echo "Error: Failed to run provisioning .  $cmd"
+        exit 1
+    fi
+  done
+
+  echo "CRON Setup completed successfully!"
+}
+
 # Function to handle the "dev" and "test" options
 run_command() {
   local custom_command="$1"
@@ -110,6 +138,7 @@ run_command() {
   local old_path=""
   local goo_path=""
   local sparql_client_path=""
+  local with_provision=""
 
   shift
   # Check for command line arguments
@@ -135,6 +164,10 @@ run_command() {
         sparql_client_path="$2"
         shift 2
         ;;
+      --with-provision)
+        with_provision="$1"
+        shift 1
+        ;;
       *)
         echo "Unknown option: $1"
         show_help
@@ -147,6 +180,7 @@ run_command() {
   if [ "$reset_cache" = true ]; then
     echo "Resetting cache. Running: docker compose down --volumes"
     docker compose down --volumes
+    docker compose -p ontoportal_docker down --volumes
   fi
 
   # Check if arguments are provided
@@ -168,6 +202,12 @@ run_command() {
   fi
 
 
+  # run provision
+  if [ "$with_provision" == "--with-provision"  ]; then
+    provision
+  else
+    echo "[+] Skipping Cron provisioning"
+  fi
 
   # Build the Docker run command
   echo "Run: $custom_command"
