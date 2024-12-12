@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 37a9573c11978869a867050f8ec75e048c8b9b2b
+  revision: d50c624868dec11cb0afcc88ba422d021c77926c
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 312ef426eeaa461e88fa23124ea5fd531f4276ba
+  revision: 6fd6960a1f134ec8c8aff07a5897bb0da12bcc8d
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -119,7 +119,7 @@ GEM
     bcrypt_pbkdf (1.1.1)
     bigdecimal (3.1.8)
     builder (3.3.0)
-    capistrano (3.19.1)
+    capistrano (3.19.2)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -138,7 +138,7 @@ GEM
       rexml
     cube-ruby (0.0.3)
     dante (0.2.0)
-    date (3.4.0)
+    date (3.4.1)
     declarative (0.0.20)
     docile (1.4.1)
     domain_name (0.6.20240107)
@@ -164,7 +164,7 @@ GEM
     google-analytics-data (0.6.1)
       google-analytics-data-v1beta (>= 0.11, < 2.a)
       google-cloud-core (~> 1.6)
-    google-analytics-data-v1beta (0.13.1)
+    google-analytics-data-v1beta (0.14.0)
       gapic-common (>= 0.21.1, < 2.a)
       google-cloud-errors (~> 1.0)
     google-apis-analytics_v3 (0.16.0)
@@ -203,15 +203,15 @@ GEM
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
-    hashdiff (1.1.1)
+    hashdiff (1.1.2)
     htmlentities (4.3.4)
     http-accept (1.7.0)
-    http-cookie (1.0.7)
+    http-cookie (1.0.8)
       domain_name (~> 0.5)
     httpclient (2.8.3)
     i18n (1.14.6)
       concurrent-ruby (~> 1.0)
-    json (2.8.1)
+    json (2.9.0)
     json-ld (3.0.2)
       multi_json (~> 1.12)
       rdf (>= 2.2.8, < 4.0)
@@ -223,7 +223,7 @@ GEM
     language_server-protocol (3.17.0.3)
     libxml-ruby (5.0.3)
     link_header (0.0.8)
-    logger (1.6.1)
+    logger (1.6.2)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -235,19 +235,19 @@ GEM
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2024.1105)
+    mime-types-data (3.2024.1203)
     mini_mime (1.1.5)
-    minitest (5.25.1)
+    minitest (5.25.4)
     minitest-hooks (1.5.2)
       minitest (> 5.3)
     minitest-stub_any_instance (1.0.3)
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.15.0)
-    mutex_m (0.2.0)
-    net-http-persistent (4.0.4)
+    mutex_m (0.3.0)
+    net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
-    net-imap (0.4.17)
+    net-imap (0.4.18)
       date
       net-protocol
     net-pop (0.1.2)
@@ -262,14 +262,14 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     netrc (0.11.0)
-    newrelic_rpm (9.15.0)
+    newrelic_rpm (9.16.1)
     oj (3.16.7)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     omni_logger (0.1.4)
       logger
     os (1.1.4)
-    ostruct (0.6.0)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parseconfig (1.1.2)
     parser (3.3.6.0)
@@ -277,7 +277,7 @@ GEM
       racc
     pony (1.13.1)
       mail (>= 2.0)
-    pry (0.14.2)
+    pry (0.15.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.1.1)
@@ -319,14 +319,14 @@ GEM
     redcarpet (3.6.0)
     redis (5.3.0)
       redis-client (>= 0.22.0)
-    redis-client (0.22.2)
+    redis-client (0.23.0)
       connection_pool
     redis-rack-cache (2.2.1)
       rack-cache (>= 1.10, < 2)
       redis-store (>= 1.6, < 2)
     redis-store (1.11.0)
       redis (>= 4, < 6)
-    regexp_parser (2.9.2)
+    regexp_parser (2.9.3)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -343,17 +343,17 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.68.0)
+    rubocop (1.69.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 2.4, < 3.0)
-      rubocop-ast (>= 1.32.2, < 2.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.36.2, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.34.0)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.36.2)
       parser (>= 3.3.1.0)
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
@@ -403,7 +403,9 @@ GEM
     tzinfo (1.2.11)
       thread_safe (~> 0.1)
     uber (0.1.0)
-    unicode-display_width (2.6.0)
+    unicode-display_width (3.1.2)
+      unicode-emoji (~> 4.0, >= 4.0.4)
+    unicode-emoji (4.0.4)
     unicorn (6.1.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
@@ -416,7 +418,7 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.9.0)
+    webrick (1.9.1)
 
 PLATFORMS
   x86_64-linux
