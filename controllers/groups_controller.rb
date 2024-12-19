@@ -13,7 +13,9 @@ class GroupsController < ApplicationController
     # Display all groups
     get do
       check_last_modified_collection(LinkedData::Models::Group)
-      groups = Group.where.include(Group.goo_attrs_to_load(includes_param)).to_a
+      groups = Group.where.include(*Group.goo_attrs_to_load(includes_param), ontologies: [:viewingRestriction]).to_a
+      # Private ontologies viewd only by admins of the portal
+      groups = reject_private_ontologies(groups) unless current_user.admin?
       reply groups
     end
 
@@ -21,8 +23,10 @@ class GroupsController < ApplicationController
     get '/:acronym' do
       check_last_modified_collection(LinkedData::Models::Group)
       acronym = params["acronym"]
-      g = Group.find(acronym).include(Group.goo_attrs_to_load(includes_param)).first
+      g = Group.find(acronym).include(*Group.goo_attrs_to_load(includes_param), ontologies: [:viewingRestriction]).first
       error 404, "Group #{acronym} not found" if g.nil?
+      # Private ontologies viewd only by admins of the portal
+      g = reject_private_ontologies([g]).first unless current_user.admin?
       reply 200, g
     end
 
@@ -81,5 +85,13 @@ class GroupsController < ApplicationController
       end
       reply 201, group
     end
+    
+    def reject_private_ontologies(groups)
+      groups.each do |group|
+        public_ontologies = group.ontologies.reject { |ontology| ontology.viewingRestriction == "private" }
+        group.instance_variable_set(:@ontologies, public_ontologies)
+      end
+    end
+
   end
 end
