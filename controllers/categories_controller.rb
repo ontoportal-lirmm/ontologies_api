@@ -13,7 +13,8 @@ class CategoriesController < ApplicationController
     # Display all categories
     get do
       check_last_modified_collection(LinkedData::Models::Category)
-      categories = Category.where.include(Category.goo_attrs_to_load(includes_param)).to_a
+      categories = Category.where.include(*Category.goo_attrs_to_load(includes_param), ontologies: [:viewingRestriction]).to_a
+      categories = reject_private_ontologies(categories) unless current_user.admin? # only portal admin can see private ontologies
       reply categories
     end
 
@@ -21,8 +22,9 @@ class CategoriesController < ApplicationController
     get '/:acronym' do
       check_last_modified_collection(LinkedData::Models::Category)
       acronym = params["acronym"]
-      category = Category.find(acronym).include(Category.goo_attrs_to_load(includes_param)).first
+      category = Category.find(acronym).include(*Category.goo_attrs_to_load(includes_param), ontologies: [:viewingRestriction]).first
       error 404, "Category #{acronym} not found" if category.nil?
+      category = reject_private_ontologies([category]).first unless current_user.admin? # only portal admin can see private ontologies
       reply 200, category
     end
 
@@ -82,5 +84,13 @@ class CategoriesController < ApplicationController
       end
       reply 201, category
     end
+
+    def reject_private_ontologies(categories)
+      categories.each do |category|
+        public_ontologies = category.ontologies.reject { |ontology| ontology.viewingRestriction == "private" }
+        category.instance_variable_set(:@ontologies, public_ontologies)
+      end
+    end
+
   end
 end
