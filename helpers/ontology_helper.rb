@@ -75,6 +75,15 @@ module Sinatra
         end
         return filename, tmpfile
       end
+
+      # reject private ontologies in groups and categories 
+      def reject_private_ontologies(items)
+        items.each do |item|
+          public_ontologies = item.ontologies.reject { |ontology| ontology.viewingRestriction == "private" }
+          item.instance_variable_set(:@ontologies, public_ontologies)
+        end
+      end
+
     end
   end
 end
