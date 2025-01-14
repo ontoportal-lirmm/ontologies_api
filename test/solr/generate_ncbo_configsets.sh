@@ -12,7 +12,7 @@ if [[ ! -d ${ld_config}/property_search ]]; then
   exit 1
 fi
 if [[ ! -d ${configsets}/_default/conf ]]; then
-  echo 'cant find default solr configset' 
+  echo 'cant find default solr configset'
   exit 1
 fi
 mkdir -p ${configsets}/property_search/conf

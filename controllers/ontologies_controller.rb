@@ -47,6 +47,25 @@ class OntologiesController < ApplicationController
       reply(latest || {})
     end
 
+    # on demand ontology pull
+    post "/:acronym/pull" do
+      LOGGER.info "Forcing the pull and processing of ontology #{params['acronym']}"
+      actions = NcboCron::Models::OntologySubmissionParser::ACTIONS.dup
+      actions[:remote_pull] = true
+      ont = Ontology.find(params["acronym"]).first
+      error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
+      ont.bring(:acronym, :submissions, :viewingRestriction, :administeredBy)
+      check_write_access(ont)
+      latest = ont.latest_submission(status: :any)
+      error 404, "Ontology #{params["acronym"]} contains no submissions" if latest.nil?
+      check_last_modified(latest)
+      latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
+      error 404, "Ontology #{params["acronym"]} is not configured to be remotely pulled" unless latest.remote_pulled?
+      NcboCron::Models::OntologySubmissionParser.new.queue_submission(latest, actions)
+      LOGGER.info "Ontology #{params['acronym']} has been queued for pull and processing"
+      halt 204
+    end
+
     ##
     # Update latest submission of an ontology
     REQUIRES_REPROCESS = ["prefLabelProperty", "definitionProperty", "synonymProperty", "authorProperty", "classType", "hierarchyProperty", "obsoleteProperty", "obsoleteParent"]
@@ -117,8 +136,8 @@ class OntologiesController < ApplicationController
     get '/:acronym/download' do
       acronym = params["acronym"]
       ont = Ontology.find(acronym).include(Ontology.goo_attrs_to_load).first
-      ont.bring(:viewingRestriction) if ont.bring?(:viewingRestriction)
       error 422, "You must provide an existing `acronym` to download" if ont.nil?
+      ont.bring(:viewingRestriction) if ont.bring?(:viewingRestriction)
       check_access(ont)
       restricted_download = LinkedData::OntologiesAPI.settings.restrict_download.include?(acronym)
       error 403, "License restrictions on download for #{acronym}" if restricted_download && !current_user.admin?

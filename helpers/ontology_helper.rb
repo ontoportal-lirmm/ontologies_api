@@ -20,8 +20,13 @@ module Sinatra
         ont_submission.submissionId = submission_id
 
         # Get file info
-        add_file_to_submission(ont, ont_submission)
-
+        filename, tmpfile = add_file_to_submission(ont, ont_submission)
+        # if no actual file was uploaded, we remove the file parameters
+        if filename.nil? && tmpfile.nil?
+          params.delete("uploadFilePath")
+          params.delete("diffFilePath")
+        end
+        
         # Add new format if it doesn't exist
         if ont_submission.hasOntologyLanguage.nil?
           error 422, "You must specify the ontology format using the `hasOntologyLanguage` parameter" if params["hasOntologyLanguage"].nil? || params["hasOntologyLanguage"].empty?
@@ -70,6 +75,15 @@ module Sinatra
         end
         return filename, tmpfile
       end
+
+      # reject private ontologies in groups and categories 
+      def reject_private_ontologies(items)
+        items.each do |item|
+          public_ontologies = item.ontologies.reject { |ontology| ontology.viewingRestriction == "private" }
+          item.instance_variable_set(:@ontologies, public_ontologies)
+        end
+      end
+
     end
   end
 end

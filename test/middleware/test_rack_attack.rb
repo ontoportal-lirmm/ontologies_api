@@ -6,13 +6,13 @@ RACK_CONFIG = File.join([settings.root, "config.ru"])
 
 class TestRackAttack < TestCase
   
-  def self.before_suite
+  def before_suite
     # Store app settings
     @@auth_setting = LinkedData.settings.enable_security
     @@throttling_setting = LinkedData.settings.enable_throttling
     @@req_per_sec_limit = LinkedData::OntologiesAPI.settings.req_per_second_per_ip
     @@safe_ips = LinkedData::OntologiesAPI.settings.safe_ips
-    
+
     LinkedData.settings.enable_security = true
     LinkedData::OntologiesAPI.settings.enable_throttling = true
     LinkedData::OntologiesAPI.settings.req_per_second_per_ip = 1
@@ -29,11 +29,13 @@ class TestRackAttack < TestCase
     @@admin.save
 
     # Redirect output or we get a bunch of noise from Rack (gets reset in the after_suite method).
+    # Disable output redirect when debugging
+
     $stdout = File.open("/dev/null", "w")
     $stderr = File.open("/dev/null", "w")
 
 
-    @@port1 = self.new('').unused_port
+    @@port1 = unused_port
 
     # Fork the process to create two servers. This isolates the Rack::Attack configuration, which makes other tests fail if included.
     @@pid1 = fork do
@@ -45,7 +47,7 @@ class TestRackAttack < TestCase
       Signal.trap("HUP") { Process.exit! }
     end
 
-    @@port2 =  self.new('').unused_port
+    @@port2 = unused_port
     @@pid2 = fork do
       require_relative '../../config/rack_attack'
       Rack::Server.start(
@@ -59,21 +61,21 @@ class TestRackAttack < TestCase
     sleep(5)
   end
 
-  def self.after_suite
+  def after_suite
     # Restore app settings
     LinkedData.settings.enable_security = @@auth_setting
     LinkedData::OntologiesAPI.settings.enable_throttling = @@throttling_setting
     LinkedData::OntologiesAPI.settings.req_per_second_per_ip = @@req_per_sec_limit
     LinkedData::OntologiesAPI.settings.safe_ips = @@safe_ips
-    
-    Process.kill("HUP", @@pid1)
+
+    Process.kill("TERM", @@pid1)
     Process.wait(@@pid1)
-    Process.kill("HUP", @@pid2)
+    Process.kill("TERM", @@pid2)
     Process.wait(@@pid2)
-    
+
     $stdout = STDOUT
     $stderr = STDERR
-    
+
     @@admin.delete
     @@user.delete
     @@bp_user.delete
@@ -81,7 +83,7 @@ class TestRackAttack < TestCase
 
   def test_throttling_limit
     request_in_threads do
-      assert_raises(OpenURI::HTTPError) { request() }
+      assert_raises(OpenURI::HTTPError) { request }
     end
   end
 
@@ -90,10 +92,10 @@ class TestRackAttack < TestCase
   def test_throttling_limit_with_forwarding
     limit = LinkedData::OntologiesAPI.settings.req_per_second_per_ip 
     headers = {"Authorization" => "apikey token=#{@@user.apikey}", "X-Forwarded-For" => "1.2.3.6"}
-    
+
     exception = assert_raises(OpenURI::HTTPError) do
       (limit * 5).times do
-        open("http://127.0.0.1:#{@@port1}/ontologies", headers)
+        URI.open("http://127.0.0.1:#{@@port1}/ontologies", headers)
       end
     end
     assert_match /429 Too Many Requests/, exception.message
@@ -101,7 +103,7 @@ class TestRackAttack < TestCase
 
   def test_throttling_admin_override
     request_in_threads do
-      assert_raises(OpenURI::HTTPError) { request() }
+      assert_raises(OpenURI::HTTPError) { request }
 
       request(user: @@admin) do |r|
         assert r.status[0].to_i == 200
@@ -111,14 +113,14 @@ class TestRackAttack < TestCase
 
   def test_two_servers_one_ip
     request_in_threads do
-      assert_raises(OpenURI::HTTPError) { request() }
+      assert_raises(OpenURI::HTTPError) { request }
       assert_raises(OpenURI::HTTPError) { request(port: @@port2) }
     end
   end
 
   def test_throttling_ui_override
     request_in_threads do
-      assert_raises(OpenURI::HTTPError) { request() }
+      assert_raises(OpenURI::HTTPError) { request }
 
       request(user: @@bp_user) do |r|
         assert r.status[0].to_i == 200
@@ -133,8 +135,8 @@ class TestRackAttack < TestCase
     safe_ips.each do |safe_ip|
       headers = {"Authorization" => "apikey token=#{@@user.apikey}", "X-Forwarded-For" => "#{safe_ip}"}
       (limit * 5).times do
-        response = open("http://127.0.0.1:#{@@port1}/ontologies", headers)
-        refute_match /429/, response.status.first, "Requests from a safelisted IP address were throttled"      
+        response = URI.open("http://127.0.0.1:#{@@port1}/ontologies", headers)
+        refute_match /429/, response.status.first, "Requests from a safelisted IP address were throttled"
       end
     end
   end
@@ -150,7 +152,7 @@ class TestRackAttack < TestCase
     # Sometimes a single request can get through without failing depending
     # on the order of the request as it coincides with the threaded requests.
     (LinkedData::OntologiesAPI.settings.req_per_second_per_ip * 2).times do
-      open("http://localhost:#{port}/ontologies", headers)
+      URI.open("http://127.0.0.1:#{port}/ontologies", headers)
     end
   end
 
@@ -162,7 +164,7 @@ class TestRackAttack < TestCase
         threads << Thread.new do
           while true
             sleep(0.2)
-            request() rescue next
+            request rescue next
           end
         end
       end

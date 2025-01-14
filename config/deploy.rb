@@ -31,6 +31,7 @@ set :linked_dirs, %w{log vendor/bundle tmp/pids tmp/sockets public/system}
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
+set :default_env, { path: "/usr/local/bin:/usr/bin:$PATH" }
 
 # Default value for keep_releases is 5
 set :keep_releases, 5

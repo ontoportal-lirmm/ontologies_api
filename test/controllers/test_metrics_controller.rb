@@ -2,22 +2,22 @@ require_relative '../test_case'
 
 class TestMetricsController < TestCase
 
-  def self.before_suite
+  def before_suite
     if OntologySubmission.all.count > 100
       puts "this test is going to wipe out all submission and ontologies. probably this is not a test env."
       return
     end
-    OntologySubmission.all.each { |s| s.delete }
-    Ontology.all.each { |o| o.delete }
-    @@data = { "classes" => [486, 481], # depending if owlapi imports SKOS
-               "averageChildCount" => 5,
-               "maxChildCount" => 65,
-               "classesWithOneChild" => [13, 14],
-               "classesWithMoreThan25Children" => 2,
-               "classesWithNoDefinition" => [11, 10],
-               "individuals" => 124,
-               "properties" => [63, 45],
-               "maxDepth" => 7 }
+    OntologySubmission.all.each {|s| s.delete }
+    Ontology.all.each {|o| o.delete }
+    @@data = {"classes"=>486,
+              "averageChildCount"=>5,
+              "maxChildCount"=>65,
+              "classesWithOneChild"=>14,
+              "classesWithMoreThan25Children"=>2,
+              "classesWithNoDefinition"=>11,
+              "individuals"=>124,
+              "properties"=>63,
+              "maxDepth"=> 7 }
     @@options = { ont_count: 2,
                   submission_count: 3,
                   submissions_to_process: [1, 2],

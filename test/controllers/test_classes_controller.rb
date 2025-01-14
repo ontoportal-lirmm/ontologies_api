@@ -2,13 +2,14 @@ require_relative '../test_case'
 
 class TestClassesController < TestCase
 
-  def self.before_suite
+  def before_suite
     options = {ont_count: 1,
                submission_count: 3,
                submissions_to_process: [1, 2],
                process_submission: true,
                random_submission_count: false,
-               process_options: {process_rdf: true, extract_metadata: false}
+               process_options: {process_rdf: true, extract_metadata: false},
+               file_path: "./test/data/ontology_files/BRO_v3.2.owl",
     }
     return LinkedData::SampleData::Ontology.create_ontologies_and_submissions(options)
   end
@@ -82,7 +83,6 @@ class TestClassesController < TestCase
     assert response["@id"] == "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Ontology_Development_and_Management"
   end
 
-
   def test_all_class_pages
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
 
@@ -99,7 +99,7 @@ class TestClassesController < TestCase
       assert last_response.ok?
       page_response = MultiJson.load(last_response.body)
       page_response["collection"].each do |item|
-        assert_instance_of String, item["prefLabel"]
+        assert_instance_of String, item["prefLabel"], item["@id"]
         assert_instance_of String, item["@id"]
         assert_instance_of Hash, item["@context"]
         assert_instance_of Hash, item["links"]
@@ -131,6 +131,7 @@ class TestClassesController < TestCase
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction',
             "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Electron_Microscope" ]
+
     clss_ids.each do |cls_id|
       escaped_cls= CGI.escape(cls_id)
       call = "/ontologies/#{ont.acronym}/classes/#{escaped_cls}?include=all"
@@ -149,6 +150,7 @@ class TestClassesController < TestCase
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction',
             "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Electron_Microscope" ]
+
     clss_ids.each do |cls_id|
       escaped_cls= CGI.escape(cls_id)
       call = "/ontologies/#{ont.acronym}/classes/#{escaped_cls}?include=properties"
@@ -163,7 +165,6 @@ class TestClassesController < TestCase
 
   def test_single_cls
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
-
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction',
             "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Electron_Microscope" ]
 
@@ -182,13 +183,8 @@ class TestClassesController < TestCase
         assert_instance_of(Array, cls["synonym"])
         assert(cls["@id"] == cls_id)
 
-        if submission_id.nil? || submission_id == 2
-          assert(cls["prefLabel"]["In version 3.2"])
-          assert(cls["definition"][0]["In version 3.2"])
-        else
-          assert(!cls["prefLabel"]["In version 3.2"])
-          assert(!cls["definition"][0]["In version 3.2"])
-        end
+        assert(cls["prefLabel"]["In version 3.2"])
+        assert(cls["definition"][0]["In version 3.2"])
 
         if cls["prefLabel"].include? "Electron"
           assert_equal(1, cls["synonym"].length)
@@ -208,7 +204,7 @@ class TestClassesController < TestCase
     roots = MultiJson.load(last_response.body)
     assert_includes [9, 6, 5], roots.length
     roots.each do |r|
-      assert_instance_of String, r["prefLabel"]
+      assert_instance_of String, r["prefLabel"], r["@id"]
       assert_instance_of String, r["@id"]
       assert r.include?"hasChildren"
       #By definition roots have no parents
@@ -221,7 +217,6 @@ class TestClassesController < TestCase
   end
 
   def test_classes_for_not_parsed_ontology
-
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
 
     #first submission was not parsed
@@ -232,7 +227,6 @@ class TestClassesController < TestCase
   end
 
   def test_tree
-
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
 
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction',
@@ -251,7 +245,6 @@ class TestClassesController < TestCase
   end
 
   def test_path_to_root_for_cls
-
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction',
             "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Electron_Microscope" ]
@@ -264,7 +257,6 @@ class TestClassesController < TestCase
   end
 
   def test_ancestors_for_cls
-
     ont = Ontology.find("TEST-ONT-0").include(:acronym).first
     ancestors_data = {}
     ancestors_data['http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_Interaction'] =[
@@ -456,7 +448,6 @@ class TestClassesController < TestCase
   end
 
   def test_children_for_cls_round_trip
-
     clss_ids = [ 'http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Molecular_and_Cellular_Data',
             "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Microscope" ]
 
@@ -513,7 +504,7 @@ class TestClassesController < TestCase
       assert last_response.ok?
       page_response = MultiJson.load(last_response.body)
       page_response["collection"].each do |item|
-        assert_instance_of String, item["prefLabel"]
+        assert_instance_of String, item["prefLabel"], item["@id"]
         assert_instance_of String, item["@id"]
         assert_instance_of Hash, item["@context"]
         assert_instance_of Hash, item["links"]
@@ -531,6 +522,50 @@ class TestClassesController < TestCase
     assert last_response.ok?
     page_response = MultiJson.load(last_response.body)
     assert page_response["collection"].length == 0
+  end
+
+  def test_default_multilingual
+    ont = Ontology.find("TEST-ONT-0").include(:acronym).first
+    sub = ont.latest_submission
+    sub.bring_remaining
+
+    # rdfs:label is NOT present and the prefLabel is NOT defined for the ontology or portal language
+    sub.naturalLanguage = [RDF::URI.new('http://lexvo.org/id/iso639-3/es')]
+    sub.save
+
+    get "/ontologies/#{ont.acronym}/classes/#{CGI.escape('http://bioontology.org/ontologies/Activity.owl#Community_Engagement')}"
+    assert last_response.ok?
+    page_response = MultiJson.load(last_response.body)
+    # does not contain a value in english show the generated one
+    assert_equal 'Community_Engagement', page_response["prefLabel"]
+
+    # rdfs:label is present but NOT for either the ontology or portal language
+    get "/ontologies/#{ont.acronym}/classes/#{CGI.escape('http://bioontology.org/ontologies/Activity.owl#Biospecimen_Management')}"
+    assert last_response.ok?
+    page_response = MultiJson.load(last_response.body)
+    # does not contain a value in english show the generated one
+    assert_equal 'Biospecimen_Management', page_response["prefLabel"]
+
+    # prefLabel NOT present, rdfs:label is present but NOT for either the ontology or portal language
+    get "/ontologies/#{ont.acronym}/classes/#{CGI.escape('http://bioontology.org/ontologies/Activity.owl#Gene_Therapy')}"
+    assert last_response.ok?
+    page_response = MultiJson.load(last_response.body)
+    # does not contain a value in english show the generated one
+    assert_equal 'Gene_Therapy', page_response["prefLabel"]
+
+    # prefLabel is present in the ontology language
+    sub.naturalLanguage = [RDF::URI.new('http://lexvo.org/id/iso639-3/fr')]
+    sub.save
+
+
+    get "/ontologies/#{ont.acronym}/classes/#{CGI.escape('http://bioontology.org/ontologies/Activity.owl#Biospecimen_Management')}"
+    assert last_response.ok?
+    page_response = MultiJson.load(last_response.body)
+    # show french value as specified in submission naturalLanguage
+    assert_equal 'Biospecimen Management', page_response["prefLabel"]
+
+    sub.naturalLanguage = []
+    sub.save
   end
 
 end
