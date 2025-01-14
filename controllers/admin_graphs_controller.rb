@@ -1,3 +1,4 @@
+require 'ncbo_cron/graphs_counts'
 class AdminGraphsController < ApplicationController
 
   namespace '/admin' do
@@ -10,7 +11,7 @@ class AdminGraphsController < ApplicationController
     get '/graphs' do
       file_path = NcboCron.settings.graph_counts_report_path
       output = NcboCron::GraphsCounts.new.read_graph_counts(file_path)
-      reply output.to_json
+      reply output
     end
 
     post '/graphs' do
