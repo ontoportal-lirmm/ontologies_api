@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time File Processing</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+</head>
+<body class="bg-gray-100 p-4">
+<div class="w-50 mx-auto bg-white p-8 rounded shadow-md" style="width: 50%">
+    <h1 class="text-2xl font-bold mb-4">Real-time File Processing</h1>
+    <form id="fileForm" enctype="multipart/form-data">
+        <div class="mb-4">
+            <label for="fileInput" class="block text-gray-700 font-semibold mb-2">Choose a File:</label>
+            <input type="file" id="fileInput" name="file"
+                   class="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Submit
+        </button>
+    </form>
+    <div id="operationContainer" class="mt-4"></div>
+</div>
+
+<style>
+    .operation-log pre {
+        overflow-x: auto;
+        max-height: 200px;
+        white-space: pre-wrap;
+    }
+</style>
+
+<script>
+    const operationContainer = document.getElementById('operationContainer');
+    const operationLogs = {};
+
+    // WebSocket connection
+    const socket = new WebSocket('ws://localhost:9393/ontologies/upload/ws');
+
+    setInterval(function () {
+        socket.send('heartbeat');
+    }, 30000); //30s
+
+    socket.onopen = function (event) {
+        console.log('WebSocket connected.');
+    };
+
+    socket.onmessage = function (event) {
+        const msg = JSON.parse(event.data);
+        updateOperationStatus(msg);
+    };
+
+    socket.onclose = function (event) {
+        console.log('WebSocket closed.');
+    };
+
+    // Initialize highlight.js
+    hljs.highlightAll();
+
+    // Handle file submission
+    document.getElementById('fileForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('http://localhost:9393/ontologies/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('File uploaded successfully.');
+                    } else {
+                        console.error('Error uploading file:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading file:', error);
+                });
+        } else {
+            console.error('No file selected.');
+        }
+    });
+
+    // Function to update operation status
+    function updateOperationStatus(msg) {
+        if (!operationLogs[msg.id]) {
+            operationLogs[msg.id] = [];
+        }
+        operationLogs[msg.id].push(msg);
+
+        // Clear the operation container
+        operationContainer.innerHTML = '';
+
+        // Re-render operations
+        for (const id in operationLogs) {
+            const operationDiv = document.createElement('div');
+            operationDiv.classList.add('mb-4');
+
+            // Operation title
+            const title = document.createElement('h2');
+            title.classList.add('block', 'text-left', 'font-semibold', 'text-lg', 'mb-2');
+            title.textContent = `Operation ${id}`;
+            operationDiv.appendChild(title);
+
+            // Operation details
+            const operationDetails = document.createElement('div');
+            operationDetails.classList.add('px-4', 'py-2', 'bg-gray-200', 'rounded');
+
+            // Display logs for this operation
+            operationLogs[id].forEach(log => {
+                const logItem = document.createElement('pre');
+                logItem.classList.add('operation-log', 'overflow-scroll');
+                logItem.textContent = log.message;
+                operationDetails.appendChild(logItem);
+            });
+
+            operationDiv.appendChild(operationDetails);
+            operationContainer.appendChild(operationDiv);
+        }
+
+        // Re-highlight syntax
+        hljs.highlightAll();
+    }
+</script>
+</body>
+</html>
+

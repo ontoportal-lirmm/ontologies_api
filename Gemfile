@@ -3,20 +3,20 @@ gem 'activesupport', '~> 5'
 # see https://github.com/ncbo/ontologies_api/issues/69
 gem 'bigdecimal'
 # gem 'faraday', '~> 1.9'
+gem 'google-protobuf', '3.25.3'
+gem 'json-ld'
 gem 'json-schema', '~> 2.0'
 gem 'multi_json'
 gem 'oj'
+gem 'parallel'
 gem 'parseconfig'
 gem 'rack'
 gem 'rake', '~> 10.0'
+gem 'request_store'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
 gem 'sinatra', '~> 1.0'
 gem 'sinatra-advanced-routes'
 gem 'sinatra-contrib', '~> 1.0'
-gem 'request_store'
-gem 'parallel'
-gem 'json-ld'
-gem 'google-protobuf', '3.25.3'
 
 # Rack middleware
 gem 'ffi', '~> 1.16.3'
@@ -38,29 +38,27 @@ gem 'cube-ruby', require: 'cube'
 gem 'newrelic_rpm', group: [:default, :deployment]
 
 # HTTP server
+gem "faye-websocket", "~> 0.11.3"
+gem "puma", "~> 6.4"
 gem 'unicorn'
 gem 'unicorn-worker-killer'
+
+
 
 # Templating
 gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
 gem 'redcarpet'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/add-triple-store-logging'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
-gem 'ncbo_ontology_recommender', git: 'https://github.com/ncbo/ncbo_ontology_recommender.git', branch: 'master'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
-gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
+gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
 gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
+gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 
 group :development do
-  # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
-  gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
-  gem 'rubocop'
-end
-
-group :deployment do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
   gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0', require: false
   gem 'capistrano', '~> 3', require: false
@@ -68,6 +66,9 @@ group :deployment do
   gem 'capistrano-locally', require: false
   gem 'capistrano-rbenv', require: false
   gem 'ed25519', '>= 1.2', '< 2.0', require: false
+  gem "listen", "~> 3.9"
+  gem 'pry'
+  gem 'rubocop'
 end
 
 
