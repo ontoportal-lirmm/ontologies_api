@@ -11,10 +11,22 @@ module Admin
         end
       }
 
-      get '/latest_query_logs' do
+      get '/latest_day_query_logs' do
         logs = Goo.logger.get_logs
-        logs = logs.map { |log| MultiJson.load(log) }
-        reply logs
+        reply 200, paginate_logs(logs)
+      end
+
+      get '/last_n_s_query_logs' do
+        sec = params[:seconds] || 10
+        logs = Goo.logger.queries_last_n_seconds(sec.to_i)
+        reply 200, paginate_logs(logs)
+      end
+
+      def paginate_logs(logs)
+        page, size = page_params
+        start = (page - 1) * size
+        page_end = [start + size - 1, logs.size].min
+        page_object(logs[start..page_end] || [], logs.size)
       end
 
     end
