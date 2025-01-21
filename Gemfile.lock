@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 6594c7dd689d96d4085ea66deffb9528b418b74c
+  revision: e7831230455c5d72447d38537049ff5b8ec8d4ce
   branch: feature/add-triple-store-logging
   specs:
     goo (0.0.2)
@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: e1a64a77ba07e5d6662caa599a959758530bda23
-  branch: development
+  revision: d50c624868dec11cb0afcc88ba422d021c77926c
+  branch: master
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: fe45cb7aede88df91c72335613825950c9c9639f
+  revision: d4737ff08f33517cf93b4d82c78a471017991d97
   branch: development
   specs:
     sparql-client (3.2.2)
