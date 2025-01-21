@@ -8,6 +8,7 @@ class TestLoggingController < TestCase
     Goo.redis_client.flushdb
     Goo.add_query_logger(enabled: true, file: "./queries.log")
   end
+
   def teardown
     Goo.add_query_logger(enabled: false, file: nil)
     File.delete("./queries.log") if File.exist?("./queries.log")
@@ -16,10 +17,40 @@ class TestLoggingController < TestCase
   end
 
   def test_logging_endpoint
-    LinkedData::Models::Ontology.where.include(:acronym).all
-    get '/admin/latest_query_logs'
+    (1..10).each do |_i|
+      LinkedData::Models::Ontology.where.include(:acronym).all
+    end
+    get '/admin/latest_day_query_logs?page=1&pagesize=10'
     assert last_response.ok?
     logs = MultiJson.load(last_response.body)
-    assert logs
+    assert_equal 10, logs['collection'].size
+
+    get '/admin/latest_day_query_logs?page=2&pagesize=10'
+    assert last_response.ok?
+    logs = MultiJson.load(last_response.body)
+    assert_equal 1, logs['collection'].size
+
+    get '/admin/latest_day_query_logs?page=3&pagesize=10'
+    assert last_response.ok?
+    logs = MultiJson.load(last_response.body)
+    assert_empty logs['collection']
+  end
+
+  def test_n_last_seconds_logs
+    (1..10).each do |_i|
+      LinkedData::Models::Ontology.where.include(:acronym).all
+    end
+    get '/admin/last_n_s_query_logs?seconds=2&page=1&pagesize=10'
+    assert last_response.ok?
+    logs = MultiJson.load(last_response.body)
+    assert_equal 10, logs['collection'].size
+
+    sleep 1
+    LinkedData::Models::Ontology.where.include(:acronym).all
+    get '/admin/last_n_s_query_logs?seconds=1&page=1&pagesize=10'
+    assert last_response.ok?
+    logs = MultiJson.load(last_response.body)
+    assert_equal 1, logs['collection'].size
+    binding.pry
   end
 end
