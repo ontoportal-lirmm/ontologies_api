@@ -3,10 +3,9 @@ class ArtefactsController < ApplicationController
     namespace "/artefacts" do
         # Get all Semantic Artefacts
         get do
-            artefacts = nil
             check_last_modified_collection(LinkedData::Models::SemanticArtefact)
             options = {
-                allow_views: params['also_include_views'] ||= false,
+                also_include_views: params['also_include_views'] ||= false,
                 includes: LinkedData::Models::SemanticArtefact.goo_attrs_to_load([])
             }
             artefacts = LinkedData::Models::SemanticArtefact.all_artefacts(options)
