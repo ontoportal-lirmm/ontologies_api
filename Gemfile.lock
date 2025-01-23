@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: e7831230455c5d72447d38537049ff5b8ec8d4ce
-  branch: feature/add-triple-store-logging
+  revision: 5825dc1f9d0ff439b1ba9d8f78fa7bb20b1c65d0
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: d50c624868dec11cb0afcc88ba422d021c77926c
-  branch: master
+  revision: dd736917974f13ac7558e0d2a61a84030d82acaa
+  branch: development
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 32c1aed4221e1b5f50a7931137092ee4ba62ca94
-  branch: feature/add-queries-logging-
+  revision: 6cb18910e322645e3cc3490951d10f19468da52f
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: d4737ff08f33517cf93b4d82c78a471017991d97
+  revision: d4a226e75eb4aeaaf42720eac4f23f55380a0bd3
   branch: development
   specs:
     sparql-client (3.2.2)
@@ -254,7 +254,7 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-scp (4.0.0)
+    net-scp (4.1.0)
       net-ssh (>= 2.6.5, < 8.0.0)
     net-sftp (4.0.0)
       net-ssh (>= 5.0.0, < 8.0.0)
@@ -343,7 +343,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.70.0)
+    rubocop (1.71.0)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
