@@ -15,7 +15,7 @@ class AdminGraphsController < ApplicationController
     end
 
     post '/graphs' do
-      NcboCron::GraphsCounts.new(nil, GRAPH_COUNT_REPORT_PATH).run
+      generate_graphs_counts
       reply({ message: 'Graph counts generated', status: 200 })
     end
 
@@ -23,7 +23,12 @@ class AdminGraphsController < ApplicationController
       url = params['url']
       error 400, 'You must provide a valid URL for the graph to delete' if url.blank?
       Goo.sparql_data_client.delete_graph(url)
+      generate_graphs_counts
       reply({ message: "Graph #{url} deleted", status: 200 })
+    end
+
+    def generate_graphs_counts
+      NcboCron::GraphsCounts.new(nil, GRAPH_COUNT_REPORT_PATH).run
     end
   end
 end

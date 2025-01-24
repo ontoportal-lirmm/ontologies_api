@@ -52,6 +52,10 @@ LinkedData.config do |config|
   config.repository_folder            = REPOSITORY_FOLDER.to_s
 #  config.enable_notifications          = false
 
+   # SPARQL logging
+   config.log_file = './sparql.log'
+   config.logging = false
+
     config.interportal_hash = {
       "agroportal" => {
         "api" => "http://data.agroportal.lirmm.fr",
