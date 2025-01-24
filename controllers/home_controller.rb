@@ -31,15 +31,27 @@ class HomeController < ApplicationController
         routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
       end
 
-      config = LinkedData::Models::PortalConfig.current_portal_config
+      catalog = LinkedData::Models::SemanticArtefactCatalog.all.first
+      catalog = create_catalog if catalog.nil?
+      catalog.bring(*LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load(includes_param))
+      catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
+      catalog.federated_portals.each { |item| item.delete('apikey') }
+      catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
+      catalog.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
+      
+      reply catalog
+    end
 
-      federated_portals = config.federated_portals
-      federated_portals. transform_values! { |v| v.delete(:apikey) ; v }
-      config.init_federated_portals_settings(federated_portals)
-      config.id = RDF::URI.new(LinkedData.settings.id_url_prefix)
-      config.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
-
-      reply config
+    patch do
+      catalog = LinkedData::Models::SemanticArtefactCatalog.where.first
+      error 422, "There is no catalog configs in the triple store" if catalog.nil?
+      populate_from_params(catalog, params)
+      if catalog.valid?
+        catalog.save
+      else
+        error 422, catalog.errors
+      end
+      halt 204
     end
 
     get "documentation" do
@@ -239,6 +251,22 @@ class HomeController < ApplicationController
       navigable_routes
     end
 
+    private
+
+    def create_catalog
+        catalog = nil
+        catalogs = LinkedData::Models::SemanticArtefactCatalog.all
+        if catalogs.nil? || catalogs.empty?
+            catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {"acronym" => "ontoportal"})
+            if catalog.valid?
+                catalog.save
+            else
+                error 422, catalog.errors
+            end
+        end
+        catalog
+    end
+    
   end
 end
 
