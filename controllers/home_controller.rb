@@ -54,6 +54,10 @@ class HomeController < ApplicationController
       halt 204
     end
 
+    get "doc/api" do
+      redirect "/documentation", 301
+    end
+
     get "documentation" do
       @metadata_all = metadata_all.sort { |a, b| a[0].name <=> b[0].name }
       haml "documentation/documentation".to_sym, :layout => "documentation/layout".to_sym
@@ -257,7 +261,7 @@ class HomeController < ApplicationController
         catalog = nil
         catalogs = LinkedData::Models::SemanticArtefactCatalog.all
         if catalogs.nil? || catalogs.empty?
-            catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {"acronym" => "ontoportal"})
+            catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {"test_attr_to_persist" => "test_to_persist"})
             if catalog.valid?
                 catalog.save
             else
