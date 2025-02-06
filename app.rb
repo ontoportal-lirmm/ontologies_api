@@ -1,10 +1,11 @@
+$VERBOSE = false
+
 # sinatra-base
 require 'sinatra'
 
 # sinatra-contrib
 require 'sinatra/respond_with'
 require 'sinatra/namespace'
-require 'sinatra/advanced_routes'
 require 'sinatra/multi_route'
 
 # Other gem dependencies
@@ -24,7 +25,6 @@ require 'rack/post-body-to-params'
 require 'rack-timeout'
 require 'rack/cors'
 require_relative 'lib/rack/slow_requests'
-require_relative 'lib/rack/cube_reporter'
 require_relative 'lib/rack/param_translator'
 require_relative 'lib/rack/slice_detection'
 require_relative 'lib/rack/request_lang'
@@ -86,25 +86,6 @@ if [:development, :console].include?(settings.environment)
   set :show_exceptions, false
 end
 
-# mini-profiler sets the etag header to nil, so don't use when caching is enabled
-if [:development].include?(settings.environment) && !LinkedData.settings.enable_http_cache && LinkedData::OntologiesAPI.settings.enable_miniprofiler
-  begin
-    require 'rack-mini-profiler'
-    Rack::MiniProfiler.config.storage = Rack::MiniProfiler::FileStore
-    Rack::MiniProfiler.config.position = 'right'
-    c = ::Rack::MiniProfiler.config
-    c.pre_authorize_cb = lambda { |env|
-      true
-    }
-    tmp = File.expand_path("../tmp/miniprofiler", __FILE__)
-    FileUtils.mkdir_p(tmp) unless File.exists?(tmp)
-    c.storage_options = {path: tmp}
-    use Rack::MiniProfiler
-    puts ">> rack-mini-profiler is enabled"
-  rescue LoadError
-    # profiler isn't there
-  end
-end
 
 use Rack::Cors do
   allow do
@@ -113,32 +94,14 @@ use Rack::Cors do
   end
 end
 
-# Use middleware (ORDER IS IMPORTANT)
-use Rack::Cors do
-  allow do
-    origins '*'
-    resource '*', :headers => :any, :methods => [:get, :post, :put, :patch, :delete, :options]
-  end
-end
 
-if Goo.queries_debug?
-  use Goo::Debug
-end
 
-# Monitoring middleware
-if LinkedData::OntologiesAPI.settings.enable_monitoring
-  cube_settings = {
-    cube_host: LinkedData::OntologiesAPI.settings.cube_host,
-    cube_port: LinkedData::OntologiesAPI.settings.cube_port
-  }
-  use Rack::CubeReporter, cube_settings
-  use Rack::SlowRequests, log_path: LinkedData::OntologiesAPI.settings.slow_request_log
-end
 
 # Show exceptions after timeout
 if LinkedData::OntologiesAPI.settings.enable_req_timeout
   use Rack::Timeout; Rack::Timeout.timeout = LinkedData::OntologiesAPI.settings.req_timeout # seconds, shorter than unicorn timeout
 end
+
 use Rack::SliceDetection
 use Rack::Accept
 use Rack::PostBodyToParams

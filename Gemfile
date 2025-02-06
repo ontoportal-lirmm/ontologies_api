@@ -1,40 +1,43 @@
 source 'https://rubygems.org'
-gem 'activesupport', '~> 5'
-# see https://github.com/ncbo/ontologies_api/issues/69
+gem 'activesupport'
 gem 'bigdecimal'
-# gem 'faraday', '~> 1.9'
-gem 'json-schema', '~> 2.0'
+gem 'json-schema'
 gem 'multi_json'
 gem 'oj'
 gem 'parseconfig'
 gem 'rack'
-gem 'rake', '~> 10.0'
+gem 'rake'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
-gem 'sinatra', '~> 1.0'
-gem 'sinatra-advanced-routes'
-gem 'sinatra-contrib', '~> 1.0'
+gem 'sinatra'
+gem 'rackup'
+
+github 'sinatra/sinatra' do
+  gem 'sinatra-contrib'
+end
+
 gem 'request_store'
 gem 'parallel'
-gem 'json-ld'
-gem 'google-protobuf', '3.25.3'
+gem 'google-protobuf'
+gem 'net-ftp'
+gem 'json-ld', '~> 3.2.0'
+gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
 
 # Rack middleware
-gem 'ffi', '~> 1.16.3'
-gem 'rack-accept', '~> 0.4'
-gem 'rack-attack', '~> 6.6.1', require: 'rack/attack'
-gem 'rack-cache', '~> 1.13.0'
+gem 'ffi'
+gem 'rack-accept'
+gem 'rack-attack', require: 'rack/attack'
+gem 'rack-cache'
 gem 'rack-cors', require: 'rack/cors'
 # GitHub dependency can be removed when https://github.com/niko/rack-post-body-to-params/pull/6 is merged and released
 gem 'rack-post-body-to-params', github: 'palexander/rack-post-body-to-params', branch: 'multipart_support'
 gem 'rack-timeout'
-gem 'redis-rack-cache', '~> 2.0'
+gem 'redis-rack-cache'
 
 # Data access (caching)
 gem 'redis'
-gem 'redis-store', '~>1.10'
+gem 'redis-store'
 
 # Monitoring
-gem 'cube-ruby', require: 'cube'
 gem 'newrelic_rpm', group: [:default, :deployment]
 
 # HTTP server
@@ -42,16 +45,16 @@ gem 'unicorn'
 gem 'unicorn-worker-killer'
 
 # Templating
-gem 'haml', '~> 5.2.2' # pin see https://github.com/ncbo/ontologies_api/pull/107
+gem 'haml'
 gem 'redcarpet'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
-gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'development'
+gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'feature/migrate-to-ruby-3.2'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'feature/migrate-ruby-3.2'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/migrate-ruby-3.2'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
-gem 'ontologies_linked_data', git: 'https://github.com/ontoportal-lirmm/ontologies_linked_data.git', branch: 'development'
 
 
 group :development do
@@ -77,12 +80,14 @@ end
 
 group :test do
   gem 'crack', '0.4.5'
-  gem 'minitest', '~> 5.0'
-  gem 'minitest-hooks', "~> 1.5"
+  gem 'minitest'
+  gem 'minitest-hooks'
   gem 'minitest-stub_any_instance'
+  gem 'minitest-reporters'
+  gem 'minitest-fail-fast'
   gem 'rack-test'
   gem 'simplecov', require: false
   gem 'simplecov-cobertura' # for codecov.io
-  gem 'webmock', '~> 3.19.1'
+  gem 'webmock'
   gem 'webrick'
 end
