@@ -1,10 +1,11 @@
+$VERBOSE = false
+
 # sinatra-base
 require 'sinatra'
 
 # sinatra-contrib
 require 'sinatra/respond_with'
 require 'sinatra/namespace'
-require 'sinatra/advanced_routes'
 require 'sinatra/multi_route'
 
 # Other gem dependencies
