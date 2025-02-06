@@ -40,7 +40,7 @@ class TestRackAttack < TestCase
     # Fork the process to create two servers. This isolates the Rack::Attack configuration, which makes other tests fail if included.
     @@pid1 = fork do
       require_relative '../../config/rack_attack'
-      Rack::Server.start(
+      Rackup::Server.start(
         config: RACK_CONFIG,
         Port: @@port1
       )
@@ -50,7 +50,7 @@ class TestRackAttack < TestCase
     @@port2 = unused_port
     @@pid2 = fork do
       require_relative '../../config/rack_attack'
-      Rack::Server.start(
+      Rackup::Server.start(
         config: RACK_CONFIG,
         Port: @@port2
       )
