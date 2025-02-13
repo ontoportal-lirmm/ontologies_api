@@ -31,12 +31,15 @@ class HomeController < ApplicationController
         routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
       end
 
-      catalog = LinkedData::Models::SemanticArtefactCatalog.all.first
-      catalog = create_catalog if catalog.nil?
+      catalog = LinkedData::Models::SemanticArtefactCatalog.all.first || create_catalog
       catalog.bring(*LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load(includes_param))
-      catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
-      catalog.federated_portals.each { |item| item.delete('apikey') }
-      catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
+      if catalog.loaded_attributes.include?(:federated_portals)
+        catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
+        catalog.federated_portals.each { |item| item.delete('apikey') }
+      end
+      if catalog.loaded_attributes.include?(:fundedBy)
+        catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) } 
+      end
       catalog.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
       
       reply catalog
@@ -48,10 +51,10 @@ class HomeController < ApplicationController
       populate_from_params(catalog, params)
       if catalog.valid?
         catalog.save
+        status 200
       else
         error 422, catalog.errors
       end
-      halt 204
     end
 
     get "doc/api" do
