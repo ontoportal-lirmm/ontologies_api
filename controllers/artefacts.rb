@@ -4,11 +4,9 @@ class ArtefactsController < ApplicationController
         # Get all Semantic Artefacts
         get do
             check_last_modified_collection(LinkedData::Models::SemanticArtefact)
-            options = {
-                also_include_views: params['also_include_views'] ||= false,
-                includes: LinkedData::Models::SemanticArtefact.goo_attrs_to_load([])
-            }
-            artefacts = LinkedData::Models::SemanticArtefact.all_artefacts(options)
+            attributes, page, pagesize, _, _ = settings_params(LinkedData::Models::SemanticArtefact)
+            pagesize = 20 if params["pagesize"].nil?
+            artefacts = LinkedData::Models::SemanticArtefact.all_artefacts(attributes, page, pagesize)
             reply artefacts
         end
 
