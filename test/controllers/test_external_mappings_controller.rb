@@ -65,7 +65,7 @@ class TestExternalMappingsController < TestCase
                 creator: "tim"
     }
 
-    post "/mappings/", MultiJson.dump(mapping), "CONTENT_TYPE" => "application/json"
+    post "/mappings", MultiJson.dump(mapping), "CONTENT_TYPE" => "application/json"
     assert last_response.status == 201, "Error creating the external mapping: #{last_response.body}"
 
     response = MultiJson.load(last_response.body)
