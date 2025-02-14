@@ -50,10 +50,10 @@ gem 'redcarpet'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
-gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'feature/migrate-to-ruby-3.2'
+gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
-gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'feature/migrate-ruby-3.2'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/migrate-ruby-3.2'
+gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 

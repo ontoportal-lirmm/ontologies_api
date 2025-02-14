@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: dd3ea6c0f583c2044622a9f872a0bd18e898bb79
-  branch: feature/migrate-ruby-3.2
+  revision: e48a2d13a65cc2dd1c12d116cfc9da9061106861
+  branch: development
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 9cbc8b9ea384350597412c24e3dffb96b7d650ff
-  branch: feature/migrate-to-ruby-3.2
+  revision: c863617c47ee224905d845a4baa5558b674a7b91
+  branch: master
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: d5f5a439fdec58a9f0ac074f263dc18ff78f3df0
-  branch: feature/migrate-ruby-3.2
+  revision: 09b5de3b25f5b27019532361886b55bb36864c65
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -111,7 +111,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: c4b7c04e6d23ef8e17404d64cc731bece268acea
+  revision: c235249abaafa2780b540aca1813dfcf3d17c2dd
   specs:
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -127,7 +127,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (8.0.1)
+    activesupport (7.2.2.1)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -139,7 +139,6 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
-      uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     airbrussh (1.5.3)
@@ -188,8 +187,8 @@ GEM
       net-http (>= 0.5.0)
     faraday-retry (2.2.1)
       faraday (~> 2.0)
+    ffi (1.17.1)
     ffi (1.17.1-arm64-darwin)
-    ffi (1.17.1-x86_64-linux-gnu)
     fugit (1.11.1)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
@@ -266,7 +265,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    json (2.9.1)
+    json (2.10.1)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
@@ -284,7 +283,7 @@ GEM
     language_server-protocol (3.17.0.4)
     libxml-ruby (5.0.3)
     link_header (0.0.8)
-    logger (1.6.5)
+    logger (1.6.6)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -322,7 +321,7 @@ GEM
       uri
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
-    net-imap (0.5.5)
+    net-imap (0.5.6)
       date
       net-protocol
     net-pop (0.1.2)
@@ -358,7 +357,7 @@ GEM
     public_suffix (6.0.1)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.9)
+    rack (3.1.10)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-attack (6.7.0)
@@ -461,8 +460,9 @@ GEM
       rack-protection (= 4.1.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
-    sshkit (1.23.2)
+    sshkit (1.24.0)
       base64
+      logger
       net-scp (>= 1.1.2)
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
