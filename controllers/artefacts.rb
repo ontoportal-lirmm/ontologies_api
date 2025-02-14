@@ -59,6 +59,37 @@ class ArtefactsController < ApplicationController
             reply distros.sort {|a,b| b.distributionId.to_i <=> a.distributionId.to_i }
         end
 
+        # Ressources
+        namespace "/:artefactID/resources" do
+            get '/classes' do
+                redirect "/ontologies/#{params["artefactID"]}/classes", 301
+            end
+
+            get '/concepts' do
+                redirect "/ontologies/#{params["artefactID"]}/classes", 301
+            end
+
+            get '/properties' do
+                redirect "/ontologies/#{params["artefactID"]}/properties", 301
+            end
+
+            get '/individuals' do
+                redirect "/ontologies/#{params["artefactID"]}/individuals", 301
+            end
+
+            get '/schemes' do
+                redirect "/ontologies/#{params["artefactID"]}/schemes", 301
+            end
+
+            get '/collections' do
+                redirect "/ontologies/#{params["artefactID"]}/collections", 301
+            end
+
+            get '/labels' do
+                redirect "/ontologies/#{params["artefactID"]}/skos_xl_labels", 301
+            end
+        end
+
     end
 
 end
