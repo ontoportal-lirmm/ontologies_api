@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="TestNotesController" filepath="test/controllers/test_notes_controller.rb" skipped="0" failures="0" errors="0" tests="6" assertions="20" time="0.9029009999940172">
+    <testcase name="test_proposal_lifecycle" lineno="83" classname="TestNotesController" assertions="6" time="0.7028869999921881" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+    <testcase name="test_notes_for_ontology" lineno="120" classname="TestNotesController" assertions="2" time="0.02254700000048615" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+    <testcase name="test_single_note" lineno="47" classname="TestNotesController" assertions="2" time="0.01706199999898672" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+    <testcase name="test_note_lifecycle" lineno="57" classname="TestNotesController" assertions="6" time="0.08505299998796545" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+    <testcase name="test_notes_for_class" lineno="130" classname="TestNotesController" assertions="2" time="0.0666180000116583" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+    <testcase name="test_all_notes" lineno="40" classname="TestNotesController" assertions="2" time="0.0087340000027325" file="test/controllers/test_notes_controller.rb">
+    </testcase>
+  </testsuite>
+</testsuites>

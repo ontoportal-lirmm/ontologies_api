@@ -1,5 +1,5 @@
 x-app: &app
-  image: agroportal/ontologies_api:master
+  image: agroportal/ontoportal_api:latest
   environment: &env
     # default bundle config resolves to /usr/local/bundle/config inside of the container
     # we are setting it to local app directory if we need to use 'bundle config local'
@@ -17,6 +17,7 @@ x-app: &app
     REPOSITORY_FOLDER: /srv/ontoportal/data/repository
     REPORT_PATH: /srv/ontoportal/data/reports/ontologies_report.json
     MGREP_DICTIONARY_FILE: /srv/ontoportal/data/mgrep
+    RUBY_VERSION: 3.1.0
   stdin_open: true
   tty: true
   command: /bin/bash
@@ -49,7 +50,7 @@ services:
       - "9393:9393"
     volumes:
       # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
-      - app_api:/srv/ontoportal/ontologies_api
+      - .:/srv/ontoportal/ontologies_api
       - repository:/srv/ontoportal/data/repository
 
   ncbo_cron:

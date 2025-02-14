@@ -46,8 +46,8 @@ set :method_override, true
 # Setup root and static public directory
 set :root, File.dirname(__FILE__)
 use Rack::Static,
-  :urls => ["/static"],
-  :root => "public"
+    :urls => ["/static"],
+    :root => "public"
 
 # Setup the environment
 environment = settings.environment.nil? ? :development : settings.environment
@@ -55,23 +55,23 @@ require_relative "config/config"
 
 if ENV['OVERRIDE_CONFIG'] == 'true'
   LinkedData.config do |config|
-    config.goo_backend_name  = ENV['GOO_BACKEND_NAME']
-    config.goo_host          = ENV['GOO_HOST']
-    config.goo_port          = ENV['GOO_PORT'].to_i
-    config.goo_path_query    = ENV['GOO_PATH_QUERY']
-    config.goo_path_data     = ENV['GOO_PATH_DATA']
-    config.goo_path_update   = ENV['GOO_PATH_UPDATE']
-    config.goo_redis_host    = ENV['REDIS_HOST']
-    config.goo_redis_port    = ENV['REDIS_PORT']
-    config.http_redis_host   = ENV['REDIS_HOST']
-    config.http_redis_port   = ENV['REDIS_PORT']
+    config.goo_backend_name = ENV['GOO_BACKEND_NAME']
+    config.goo_host = ENV['GOO_HOST']
+    config.goo_port = ENV['GOO_PORT'].to_i
+    config.goo_path_query = ENV['GOO_PATH_QUERY']
+    config.goo_path_data = ENV['GOO_PATH_DATA']
+    config.goo_path_update = ENV['GOO_PATH_UPDATE']
+    config.goo_redis_host = ENV['REDIS_HOST']
+    config.goo_redis_port = ENV['REDIS_PORT']
+    config.http_redis_host = ENV['REDIS_HOST']
+    config.http_redis_port = ENV['REDIS_PORT']
   end
 
   Annotator.config do |config|
     config.annotator_redis_host = ENV['ANNOTATOR_REDIS_HOST']
     config.annotator_redis_port = ENV['ANNOTATOR_REDIS_PORT']
-    config.mgrep_host           = ENV['MGREP_HOST']
-    config.mgrep_port           = ENV['MGREP_PORT']
+    config.mgrep_host = ENV['MGREP_HOST']
+    config.mgrep_port = ENV['MGREP_PORT']
   end
 end
 
@@ -86,16 +86,12 @@ if [:development, :console].include?(settings.environment)
   set :show_exceptions, false
 end
 
-
 use Rack::Cors do
   allow do
     origins '*'
     resource '*', :headers => :any, :methods => [:get, :post, :put, :patch, :delete, :options]
   end
 end
-
-
-
 
 # Show exceptions after timeout
 if LinkedData::OntologiesAPI.settings.enable_req_timeout
@@ -123,17 +119,17 @@ if LinkedData.settings.enable_http_cache
   redis_host_port = "#{LinkedData::OntologiesAPI.settings.http_redis_host}:#{LinkedData::OntologiesAPI.settings.http_redis_port}"
   verbose = environment == :development
   use Rack::Cache,
-    verbose: verbose,
-    allow_reload: true,
-    metastore: "redis://#{redis_host_port}/0/metastore",
-    entitystore: "redis://#{redis_host_port}/0/entitystore"
+      verbose: verbose,
+      allow_reload: true,
+      metastore: "redis://#{redis_host_port}/0/metastore",
+      entitystore: "redis://#{redis_host_port}/0/entitystore"
 end
 
-# Initialize unicorn Worker killer to mitigate unicorn worker memory bloat
-if LinkedData::OntologiesAPI.settings.enable_unicorn_workerkiller
-  require 'unicorn'
-  require_relative 'config/unicorn_workerkiller'
-end
+# # Initialize unicorn Worker killer to mitigate unicorn worker memory bloat
+# if LinkedData::OntologiesAPI.settings.enable_unicorn_workerkiller
+#   require 'unicorn'
+#   require_relative 'config/unicorn_workerkiller'
+# end
 
 # Add New Relic last to allow Rack middleware instrumentation
 require 'newrelic_rpm'
@@ -141,10 +137,31 @@ require 'newrelic_rpm'
 # Initialize the app
 require_relative 'init'
 
+require_relative 'lib/api_monitor'
+configure do
+  set :monitor, APIMonitor.new(pool_size: ENV.fetch('REDIS_POOL_SIZE', 5).to_i)
+end
+
+require "sinatra/reloader"
+
+configure :development do
+  register Sinatra::Reloader
+end
+
+require 'sinatra/reloader' if development?
+require 'listen'
+set :bind, '0.0.0.0'
+set :port, 3000
+
 # Enter console mode
 if settings.environment == :console
   require 'rack/test'
-  include Rack::Test::Methods; def app() Sinatra::Application end
+  include Rack::Test::Methods;
+
+  def app()
+    Sinatra::Application
+  end
+
   Pry.start binding, :quiet => true
   exit
 end

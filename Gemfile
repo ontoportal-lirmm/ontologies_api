@@ -17,13 +17,14 @@ end
 
 gem 'request_store'
 gem 'parallel'
+gem 'connection_pool'
 gem 'google-protobuf'
 gem 'net-ftp'
 gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.15.0'
 gem 'rack-accept'
 gem 'rack-attack', require: 'rack/attack'
 gem 'rack-cache'
@@ -57,15 +58,18 @@ gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/migrate-ruby-3.2'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 
+gem 'rackup'
+gem 'puma', "~> 6.4"
+gem 'listen', '~> 3.8'
+
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
-  gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
   gem 'rubocop'
 end
 
 group :deployment do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
-  gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0', require: false
+  gem 'bcrypt_pbkdf',  require: false
   gem 'capistrano', '~> 3', require: false
   gem 'capistrano-bundler', require: false
   gem 'capistrano-locally', require: false
