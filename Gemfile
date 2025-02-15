@@ -23,7 +23,7 @@ gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.15.0'
 gem 'rack-accept'
 gem 'rack-attack', require: 'rack/attack'
 gem 'rack-cache'
@@ -46,7 +46,6 @@ gem 'unicorn-worker-killer'
 
 # Templating
 gem 'haml', '~> 5.2.2'
-gem 'redcarpet'
 gem 'rack-contrib'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
