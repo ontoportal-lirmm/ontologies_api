@@ -58,7 +58,7 @@ gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'developm
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
-  gem 'shotgun'
+  gem 'shotgun', github: 'syphax-bouazzouni/shotgun', branch: 'master'
   gem 'rubocop'
 end
 

@@ -52,8 +52,6 @@ RUN cp config/environments/config.rb.sample config/environments/development.rb &
 RUN adduser --disabled-password --gecos "" appuser && \
     chown -R appuser:appuser /srv/ontoportal
 
-USER appuser
-
 # Expose port
 EXPOSE 9393
 
