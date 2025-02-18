@@ -124,7 +124,7 @@ class TestMappingsController < TestCase
     end
     assert rest_count == 3
 
-    get "/mappings/recent/"
+    get "/mappings/recent"
     assert last_response.status == 200
     response = MultiJson.load(last_response.body)
     assert (response.length == 5)
@@ -191,7 +191,7 @@ class TestMappingsController < TestCase
     ]
     ontologies_params.each do |ontologies|
       ont1, ont2 = ontologies.split(",")
-      get "/mappings/?ontologies=#{ontologies}"
+      get "/mappings?ontologies=#{ontologies}"
       assert last_response.ok?
       mappings = MultiJson.load(last_response.body)
       #pages
@@ -284,7 +284,7 @@ class TestMappingsController < TestCase
     created = []
 
     mappings.each_with_index do |mapping, i|
-      post '/mappings/',
+      post '/mappings',
            MultiJson.dump(mapping),
            "CONTENT_TYPE" => "application/json"
 
@@ -315,7 +315,7 @@ class TestMappingsController < TestCase
     created = []
     mappings.each do |mapping|
 
-      post "/mappings/",
+      post "/mappings",
            MultiJson.dump(mapping),
            "CONTENT_TYPE" => "application/json"
 
@@ -351,7 +351,7 @@ class TestMappingsController < TestCase
     end
     NcboCron::Models::QueryWarmer.new(Logger.new(TestLogFile.new)).run
     assert LinkedData::Models::MappingCount.where.all.length > 2
-    get "/mappings/statistics/ontologies/"
+    get "/mappings/statistics/ontologies"
     assert last_response.ok?
     stats = MultiJson.load(last_response.body)
     data = {"CNO-TEST-MAP-0"=>19,

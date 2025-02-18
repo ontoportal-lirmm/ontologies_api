@@ -184,7 +184,7 @@ class SearchController < ApplicationController
     def search(model, query, params = {})
       query = query.blank? ? "*" : query
 
-      resp = model.search(query, search_params(params))
+      resp = model.search(query, search_params(**params))
 
       total_found = resp["response"]["numFound"]
       docs = resp["response"]["docs"]

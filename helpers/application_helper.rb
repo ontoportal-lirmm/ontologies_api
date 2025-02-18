@@ -8,13 +8,13 @@ module Sinatra
       ##
       # Escape text for use in html
       def h(text)
-        Rack::Utils.escape_html(text)
+        Rack::Utils.escape_html(text).gsub('/', '&#x2F;')
       end
 
       ##
       # Populate +obj+ using values from +params+
       # Will also try to find related objects using a Goo lookup.
-      # TODO: Currerntly, this allows for mass-assignment of everything, which will permit
+      # TODO: Currently, this allows for mass-assignment of everything, which will permit
       # users to overwrite any attribute, including things like passwords.
       def populate_from_params(obj, params)
         return if obj.nil?
@@ -23,7 +23,7 @@ module Sinatra
         if obj.is_a?(LinkedData::Models::Base)
           obj.bring_remaining if obj.exist?
           no_writable_attributes = obj.class.attributes(:all) - obj.class.attributes
-          params = params.reject  {|k,v| no_writable_attributes.include? k.to_sym}
+          params = params.reject { |k, v| no_writable_attributes.include? k.to_sym }
         end
         params.each do |attribute, value|
           next if value.nil?
@@ -63,7 +63,7 @@ module Sinatra
           elsif attr_cls && not_hash_or_array || (attr_cls && not_array_of_hashes)
             # Replace the initial value with the object, handling Arrays as appropriate
             if value.is_a?(Array)
-              value = value.map {|e| attr_cls.find(uri_as_needed(e)).include(attr_cls.attributes).first}
+              value = value.map { |e| attr_cls.find(uri_as_needed(e)).include(attr_cls.attributes).first }
             elsif !value.nil?
               value = attr_cls.find(uri_as_needed(value)).include(attr_cls.attributes).first
             end
@@ -72,6 +72,7 @@ module Sinatra
             if value.is_a?(Array)
               retrieved_values = []
               value.each do |e|
+                e = e.to_h
                 retrieved_value = attr_cls.where(e.symbolize_keys).first
                 if retrieved_value
                   retrieved_values << retrieved_value
@@ -80,7 +81,7 @@ module Sinatra
                 end
               end
             else
-              retrieved_values = attr_cls.where(value.symbolize_keys).to_a
+              retrieved_values = attr_cls.where(value.to_h.symbolize_keys).to_a
               unless retrieved_values
                 retrieved_values = populate_from_params(attr_cls.new, e.symbolize_keys).save
               end
@@ -89,7 +90,7 @@ module Sinatra
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:date_time)
             # TODO: Remove this awful hack when obj.class.model_settings[:range][attribute] contains DateTime class
             is_array = value.is_a?(Array)
-            value = Array(value).map{ |v| DateTime.parse(v) }
+            value = Array(value).map { |v| DateTime.parse(v) }
             value = value.first unless is_array
             value
           elsif attribute_settings && attribute_settings[:enforce] && attribute_settings[:enforce].include?(:uri) && attribute_settings[:enforce].include?(:list)
@@ -157,9 +158,19 @@ module Sinatra
           status = obj
           obj = nil
         end
-        status, obj = response.first, response.last if response.length == 2
-        status, headers, obj = response.first, response[1], response.last if response.length == 3
-        if obj.is_a?(Rack::File) # Avoid the serializer when returning files
+
+        if response.length == 2
+          status = response.first
+          obj = response.last
+        end
+
+        if response.length == 3
+          status = response.first
+          headers = response[1]
+          obj = response.last
+        end
+
+        if obj.is_a?(Rack::Files) || obj.is_a?(Rack::Files::Iterator) # Avoid the serializer when returning files
           super(response)
         else
           super(LinkedData::Serializer.build_response(@env, status: status, headers: headers, ld_object: obj))
@@ -184,7 +195,7 @@ module Sinatra
       # Look for the includes parameter and provide a formatted list of attributes
       def includes_param
         if @params["display"]
-          return @params["display"].split(",").map {|e| e.to_sym}
+          return @params["display"].split(",").map { |e| e.to_sym }
         end
         Array.new
       end
@@ -192,14 +203,14 @@ module Sinatra
       ##
       # Look for the ontologies acronym and give back a formatted list of ontolody id uris
       # This can be called without passing an argument and it will use the values from the current request
-      def ontologies_param(params=nil)
+      def ontologies_param(params = nil)
         params ||= @params
 
         if params["ontologies"]
           # Get list
-          ontologies = params["ontologies"].split(",").map {|o| o.strip}
+          ontologies = params["ontologies"].split(",").map { |o| o.strip }
           # When they aren't URIs, make them URIs
-          ontologies.map! {|o| o.start_with?("http://") ? replace_url_prefix(o) : ontology_uri_from_acronym(o)}
+          ontologies.map! { |o| o.start_with?("http://") ? replace_url_prefix(o) : ontology_uri_from_acronym(o) }
           if ontologies.include? nil
             error 404, "The ontologies parameter `[#{params["ontologies"]}]` includes non-existent acronyms. Notice that acronyms are case sensitive."
           end
@@ -208,7 +219,7 @@ module Sinatra
         Array.new
       end
 
-      def restricted_ontologies(params=nil)
+      def restricted_ontologies(params = nil)
         params ||= @params
 
         found_onts = false
@@ -237,23 +248,23 @@ module Sinatra
         return onts
       end
 
-      def restricted_ontologies_to_acronyms(params=nil, onts=nil)
+      def restricted_ontologies_to_acronyms(params = nil, onts = nil)
         onts ||= restricted_ontologies(params)
-        return onts.map {|o| o.acronym }
+        return onts.map { |o| o.acronym }
       end
 
-      def ontologies_param_to_acronyms(params=nil)
+      def ontologies_param_to_acronyms(params = nil)
         ontResourceIds = ontologies_param(params)
-        return ontResourceIds.map { |ontResourceId| ontResourceId.to_s.split('/')[-1]}
+        return ontResourceIds.map { |ontResourceId| ontResourceId.to_s.split('/')[-1] }
       end
 
       ##
       # Get semantic types parameter in the form [semantic_types=T099,T085,T345]
-      def semantic_types_param(params=nil)
+      def semantic_types_param(params = nil)
         params ||= @params
 
         if params["semantic_types"]
-          semanticTypes = params["semantic_types"].split(",").map {|o| o.strip}
+          semanticTypes = params["semantic_types"].split(",").map { |o| o.strip }
           return semanticTypes
         end
         Array.new
@@ -261,21 +272,21 @@ module Sinatra
 
       ##
       # Get cui parameter in the form [cui=C0302369,C0522224,C0176617]
-      def cui_param(params=nil)
+      def cui_param(params = nil)
         params ||= @params
         if params["cui"]
-          cui = params["cui"].split(",").map {|o| o.strip}
+          cui = params["cui"].split(",").map { |o| o.strip }
           return cui
         end
         Array.new
       end
 
       # validates month for 1-12 or 01-09
-      def month_param(params=nil)
+      def month_param(params = nil)
         params ||= @params
         if params["month"]
           month = params["month"].strip
-          if %r{(?<month>^(0[1-9]|[1-9]|1[0-2])$)}x === month
+          if /(?<month>^(0[1-9]|[1-9]|1[0-2])$)/x === month
             return month.to_i.to_s
           end
         end
@@ -283,11 +294,11 @@ module Sinatra
       end
 
       # validates year for starting with 1 or 2 and containing 4 digits
-      def year_param(params=nil)
+      def year_param(params = nil)
         params ||= @params
         if params["year"]
           year = params["year"].strip
-          if %r{(?<year>^([1-2]\d{3})$)}x === year
+          if /(?<year>^([1-2]\d{3})$)/x === year
             return year.to_i.to_s
           end
         end
@@ -327,14 +338,14 @@ module Sinatra
       def ontology_objects_from_params(params = nil)
         ontologies = Set.new(ontologies_param(params))
         all_onts = LinkedData::Models::Ontology.where.include(LinkedData::Models::Ontology.goo_attrs_to_load).to_a
-        all_onts.select {|o| ontologies.include?(o.id.to_s)}
+        all_onts.select { |o| ontologies.include?(o.id.to_s) }
       end
 
       def ontology_uri_acronym_map
         cached_map = naive_expiring_cache_read(__method__)
         return cached_map if cached_map
         map = {}
-        LinkedData::Models::Ontology.where.include(:acronym).all.each {|o| map[o.acronym] = o.id.to_s}
+        LinkedData::Models::Ontology.where.include(:acronym).all.each { |o| map[o.acronym] = o.id.to_s }
         naive_expiring_cache_write(__method__, map)
         map
       end
@@ -343,7 +354,7 @@ module Sinatra
         cached_map = naive_expiring_cache_read(__method__)
         return cached_map if cached_map
         map = {}
-        LinkedData::Models::Ontology.where.include(:acronym).all.each {|o| map[o.id.to_s] = o.acronym}
+        LinkedData::Models::Ontology.where.include(:acronym).all.each { |o| map[o.id.to_s] = o.acronym }
         naive_expiring_cache_write(__method__, map)
         map
       end
@@ -381,10 +392,10 @@ module Sinatra
 
       def get_ontology_and_submission
         ont = Ontology.find(@params["ontology"])
-              .include(:acronym, :administeredBy, :acl, :viewingRestriction)
-              .include(submissions:
-                       [:submissionId, submissionStatus: [:code], ontology: [:acronym], metrics: :classes])
-                .first
+                      .include(:acronym, :administeredBy, :acl, :viewingRestriction)
+                      .include(submissions:
+                                 [:submissionId, submissionStatus: [:code], ontology: [:acronym], metrics: :classes])
+                      .first
         error(404, "Ontology '#{@params["ontology"]}' not found.") if ont.nil?
         check_access(ont) if LinkedData.settings.enable_security # Security check
         submission = nil
@@ -392,7 +403,7 @@ module Sinatra
           submission = ont.submission(@params[:ontology_submission_id])
           if submission.nil?
             error 404,
-               "You must provide an existing submission ID for the #{@params["acronym"]} ontology"
+                  "You must provide an existing submission ID for the #{@params["acronym"]} ontology"
           end
         else
           submission = ont.latest_submission(status: [:RDF])
@@ -418,28 +429,29 @@ module Sinatra
         return class_params_include || params_include
       end
 
-
       ##
       # Checks to see if the request has a file attached
       def request_has_file?
-        @params.any? {|p,v| v.instance_of?(Hash) && v.key?(:tempfile) && v[:tempfile].instance_of?(Tempfile)}
+        @params.any? { |p, v| v.instance_of?(Hash) && v.key?(:tempfile) && v[:tempfile].instance_of?(Tempfile) }
       end
 
       ##
       # Looks for a file that was included as a multipart in a request
       def file_from_request
-        @params.each do |param, value|
-          if value.instance_of?(Hash) && value.has_key?(:tempfile) && value[:tempfile].instance_of?(Tempfile)
+        @params.each_value do |value|
+          if value.is_a?(Hash) && value.key?(:tempfile) && value[:tempfile].instance_of?(Tempfile)
             return value[:filename], value[:tempfile]
           end
         end
-        return nil, nil
+
+        [nil, nil]
       end
+
       private
 
       def naive_expiring_cache_write(key, object, timeout = 60)
         @naive_expiring_cache ||= {}
-        @naive_expiring_cache[key] = {timeout: Time.now + timeout, object: object}
+        @naive_expiring_cache[key] = { timeout: Time.now + timeout, object: object }
       end
 
       def naive_expiring_cache_read(key)
@@ -449,7 +461,6 @@ module Sinatra
         return if Time.now > object[:timeout]
         return object[:object]
       end
-
 
       def save_submission_language(submission, language_property = :naturalLanguage)
         request_lang = RequestStore.store[:requested_lang]
@@ -463,7 +474,7 @@ module Sinatra
         collection_natural_language = collection_natural_language.values.flatten if collection_natural_language.is_a?(Hash)
         submissions_language = collection_natural_language.map { |natural_language| natural_language.to_s.split('/').last[0..1] }.compact.first
 
-        RequestStore.store[:requested_lang] =  submissions_language if submissions_language
+        RequestStore.store[:requested_lang] = submissions_language if submissions_language
       end
 
     end
