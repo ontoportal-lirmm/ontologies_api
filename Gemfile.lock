@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 728ac871578d607d1c4e4e7a4f0800e8d263890f
+  revision: dd2578f4022364abee328591da084551ca8f14e0
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -357,6 +357,7 @@ GEM
       logger
     os (1.1.4)
     ostruct (0.6.1)
+    pandoc-ruby (2.1.10)
     parallel (1.26.3)
     parseconfig (1.1.2)
     parser (3.3.7.1)
@@ -545,6 +546,7 @@ DEPENDENCIES
   newrelic_rpm
   oj
   ontologies_linked_data!
+  pandoc-ruby
   parallel
   parseconfig
   rack
