@@ -31,8 +31,10 @@ class HomeController < ApplicationController
         routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
       end
 
-      catalog = LinkedData::Models::SemanticArtefactCatalog.all.first || create_catalog
-      catalog.bring(*LinkedData::Models::SemanticArtefactCatalog.goo_attrs_to_load(includes_param))
+      catalog_class = LinkedData::Models::SemanticArtefactCatalog
+      catalog = catalog_class.all.first || create_catalog
+      attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
+      catalog.bring(*attributes_to_include)
       if catalog.loaded_attributes.include?(:federated_portals)
         catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
         catalog.federated_portals.each { |item| item.delete('apikey') }
