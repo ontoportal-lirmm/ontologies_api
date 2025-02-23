@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: c863617c47ee224905d845a4baa5558b674a7b91
+  revision: cc4cd9218db7181c4843772631b7f3a96c74a4aa
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: b5878d6edb5013dad9b1a89eb44675659f45ed6c
+  revision: f5d14ee2a35a877b60f17c594af39dfaab138180
   branch: fix/remove-all-in-goo_attr_to_load
   specs:
     ontologies_linked_data (0.0.1)
@@ -274,7 +274,8 @@ GEM
     http-accept (1.7.0)
     http-cookie (1.0.8)
       domain_name (~> 0.5)
-    httpclient (2.8.3)
+    httpclient (2.9.0)
+      mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     json (2.10.1)
@@ -308,7 +309,7 @@ GEM
     mime-types (3.6.0)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0204)
+    mime-types-data (3.2025.0220)
     mini_mime (1.1.5)
     minitest (5.25.4)
     minitest-fail-fast (0.1.0)
@@ -409,7 +410,7 @@ GEM
     rdf-xsd (3.3.0)
       rdf (~> 3.3)
       rexml (~> 3.2)
-    redis (5.3.0)
+    redis (5.4.0)
       redis-client (>= 0.22.0)
     redis-client (0.23.2)
       connection_pool
@@ -435,7 +436,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.72.1)
+    rubocop (1.72.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
