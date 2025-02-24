@@ -47,6 +47,7 @@ gem 'unicorn-worker-killer'
 # Templating
 gem 'haml', '~> 5.2.2'
 gem 'rack-contrib'
+gem 'pandoc-ruby'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
