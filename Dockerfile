@@ -48,10 +48,6 @@ COPY . .
 RUN cp config/environments/config.rb.sample config/environments/development.rb && \
     cp config/environments/config.rb.sample config/environments/production.rb
 
-# Create non-root user
-RUN adduser --disabled-password --gecos "" appuser && \
-    chown -R appuser:appuser /srv/ontoportal
-
 # Expose port
 EXPOSE 9393
 
