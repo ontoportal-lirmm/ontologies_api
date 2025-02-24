@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: f5d14ee2a35a877b60f17c594af39dfaab138180
-  branch: fix/remove-all-in-goo_attr_to_load
+  revision: b321d73a28b4f60fc5969da7a071b3c19c1a84f3
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
