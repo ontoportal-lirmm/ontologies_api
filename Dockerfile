@@ -30,6 +30,7 @@ RUN apt-get update && \
          git \
          curl \
          libffi-dev \
+         pandoc \
      pkg-config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
