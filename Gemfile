@@ -23,7 +23,7 @@ gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
 
 # Rack middleware
-gem 'ffi'
+gem 'ffi', '~> 1.15.0'
 gem 'rack-accept'
 gem 'rack-attack', require: 'rack/attack'
 gem 'rack-cache'
@@ -45,8 +45,9 @@ gem 'unicorn'
 gem 'unicorn-worker-killer'
 
 # Templating
-gem 'haml'
-gem 'redcarpet'
+gem 'haml', '~> 5.2.2'
+gem 'rack-contrib'
+gem 'pandoc-ruby'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
@@ -56,10 +57,9 @@ gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data',
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
-
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42
-  gem 'shotgun', github: 'palexander/shotgun', branch: 'ncbo'
+  gem 'shotgun', github: 'syphax-bouazzouni/shotgun', branch: 'master'
   gem 'rubocop'
 end
 
