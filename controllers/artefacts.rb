@@ -60,7 +60,8 @@ class ArtefactsController < ApplicationController
         # Ressources
         namespace "/:artefactID/resources" do
             get '/classes' do
-                redirect "/ontologies/#{params["artefactID"]}/classes", 301
+                paginated = params["page"] || params["pagesize"]
+                reply handle_resource_request(LinkedData::Models::Class, paging: paginated.present?)
             end
 
             get '/concepts' do
@@ -72,19 +73,47 @@ class ArtefactsController < ApplicationController
             end
 
             get '/individuals' do
-                redirect "/ontologies/#{params["artefactID"]}/individuals", 301
+                paginated = params["page"] || params["pagesize"]
+                reply handle_resource_request(LinkedData::Models::Instance, paging: paginated.present?)
             end
 
             get '/schemes' do
-                redirect "/ontologies/#{params["artefactID"]}/schemes", 301
+                paginated = params["page"] || params["pagesize"]
+                reply handle_resource_request(LinkedData::Models::SKOS::Scheme, paging: paginated.present?)
             end
 
             get '/collections' do
-                redirect "/ontologies/#{params["artefactID"]}/collections", 301
+                paginated = params["page"] || params["pagesize"]
+                reply handle_resource_request(LinkedData::Models::SKOS::Collection, paging: paginated.present?, clean_attributes: true)
+            end
+        
+            get '/labels' do
+                paginated = params["page"] || params["pagesize"]
+                reply handle_resource_request(LinkedData::Models::SKOS::Label, paging: paginated.present?, clean_attributes: true)
             end
 
-            get '/labels' do
-                redirect "/ontologies/#{params["artefactID"]}/skos_xl_labels", 301
+            private
+            
+            def handle_resource_request(model, paging: false, clean_attributes: false)
+                artefact, distribution = get_artefact_and_distribution
+                check_last_modified_segment(model, [@params["artefactID"]])
+                attributes, page, size = settings_params(model).first(3)
+                attributes.delete_if { |x| x.is_a?(Hash) } if clean_attributes
+                index = model.where.in(distribution.submission)
+                data = paging ? index.include(attributes).page(page, size).all : index.include(attributes).all
+                return data
+            end
+
+            def get_artefact_and_distribution
+                artefact = LinkedData::Models::SemanticArtefact.find(@params["artefactID"])
+                error 404, "You must provide a valid `artefactID` to retrieve an artefact" if artefact.nil?
+                check_last_modified(artefact)
+                latest_distribution = artefact.latest_distribution(status: [:RDF])
+                error 404, "Artefact #{@params["artefactID"]} distribution not found." if latest_distribution.nil?
+                if !latest_distribution.submission.ready?(status: [:RDF])
+                    error 404, "Artefact #{params["artefactID"]} distribution #{latest_distribution.distributionId} has not been parsed."
+                end
+                return artefact, latest_distribution
             end
         end
 
