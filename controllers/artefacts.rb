@@ -119,19 +119,35 @@ class ArtefactsController < ApplicationController
                 props_page, _ = handle_properties_request(ontology, latest_submission, page, size)
                 reply props_page
             end
+
+            get '/individuals' do
+                ontology, latest_submission = get_ontology_and_latest_submission
+                type = LinkedData::Models::Class.class_rdf_type(latest_submission)
+                attributes, page, size = settings_params(LinkedData::Models::Instance).first(3)
+                if type == RDF::OWL[:Class]
+                    reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Instance, attributes, page, size)
+                else
+                    reply empty_page(page, size)
+                end
+            end
           
-            %w[individuals schemes collections labels].each do |resource_type|
+            %w[schemes collections labels].each do |resource_type|
                 get "/#{resource_type}" do
-                    ontology, latest_submission = get_ontology_and_latest_submission
                     model_class = case resource_type
-                        when 'individuals' then LinkedData::Models::Instance
                         when 'schemes' then LinkedData::Models::SKOS::Scheme
                         when 'collections' then LinkedData::Models::SKOS::Collection
                         when 'labels' then LinkedData::Models::SKOS::Label
                     end
+
+                    ontology, latest_submission = get_ontology_and_latest_submission
+                    type = LinkedData::Models::Class.class_rdf_type(latest_submission)
+                    if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
+                        attributes, page, size = settings_params(model_class).first(3)
+                        reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)    
+                    else
+                        reply empty_page(page, size)
+                    end
                     
-                    attributes, page, size = settings_params(model_class).first(3)
-                    reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)
                 end
             end
           
