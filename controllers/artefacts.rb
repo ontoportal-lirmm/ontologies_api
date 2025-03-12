@@ -85,7 +85,6 @@ class ArtefactsController < ApplicationController
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type == RDF::OWL[:Class]
-                    attributes.reject! { |x| x.is_a?(Hash) }
                     reply handle_resource_request(LinkedData::Models::Class, page, size, attributes)
                 else
                     reply empty_page(page, size)
@@ -98,7 +97,6 @@ class ArtefactsController < ApplicationController
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
-                    attributes.reject! { |x| x.is_a?(Hash) }
                     reply handle_resource_request(LinkedData::Models::Class, page, size, attributes)
                 else
                     reply empty_page(page, size)
@@ -107,12 +105,7 @@ class ArtefactsController < ApplicationController
           
             get '/properties' do
                 ont, latest_submission = get_latest_submission
-                begin
-                    props = ont.properties(latest_submission)
-                rescue LinkedData::Models::Ontology::ParsedSubmissionError => e
-                    error 404, e.message
-                end
-                
+                props = ont.properties(latest_submission)
                 _, page, size = settings_params(LinkedData::Models::OntologyProperty).first(3)
                 reply Goo::Base::Page.new(page, size, props.length, props)
             end
@@ -127,7 +120,6 @@ class ArtefactsController < ApplicationController
                     end
                     
                     attributes, page, size = settings_params(model_class).first(3)
-                    attributes.reject! { |x| x.is_a?(Hash) }
                     reply handle_resource_request(model_class, page, size, attributes)
                 end
             end
@@ -156,8 +148,7 @@ class ArtefactsController < ApplicationController
                 unless @latest_submission.ready?(status: [:RDF])
                     error 404, "Artefact #{params["artefactID"]} distribution #{@latest_submission.submissionId} has not been parsed."
                 end
-                
-                @latest_submission.bring(*LinkedData::Models::OntologySubmission.goo_attrs_to_load([]))
+                @latest_submission.bring(ontology: [:acronym])
                 return @ontology, @latest_submission
             end
         end
