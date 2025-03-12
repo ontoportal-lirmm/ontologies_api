@@ -60,10 +60,10 @@ class ArtefactsController < ApplicationController
         # Ressources
         namespace "/:artefactID/resources" do
             get do
-                ontology, submission = get_latest_submission
+                ontology, latest_submission = get_ontology_and_latest_submission
                 _, page, size = settings_params(LinkedData::Models::Class).first(3)
-                size_per_route = (size / 5).to_i
-                
+                size_per_route = size < 6 ? size : (size / 6).to_i
+
                 resource_types = [
                   LinkedData::Models::Class,
                   LinkedData::Models::Instance,
@@ -73,45 +73,56 @@ class ArtefactsController < ApplicationController
                 ]
 
                 resources = resource_types.flat_map do |model|
-                  handle_resource_request(model, page, size_per_route, model.goo_attrs_to_load([])).to_a
+                    handle_resources_request(ontology, latest_submission, model, model.goo_attrs_to_load([]), page, size_per_route).to_a
                 end
 
-                reply Goo::Base::Page.new(page, size, resources.length, resources)
+                # add properties because there is no specific model for it
+                props_page, props_count = handle_properties_request(ontology, latest_submission, page, size_per_route)
+                resources.concat(props_page.to_a)
+
+                resouces_count = 0
+                resource_types.each do |model|
+                    resouces_count += model.where.in(latest_submission).count
+                end
+                resouces_count += props_count
+
+                reply Goo::Base::Page.new(page, size, resouces_count, resources)
             end
           
             get '/classes' do
-                ontology, submission = get_latest_submission
-                type = LinkedData::Models::Class.class_rdf_type(submission)
+                ontology, latest_submission = get_ontology_and_latest_submission
+                type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type == RDF::OWL[:Class]
-                    reply handle_resource_request(LinkedData::Models::Class, page, size, attributes)
+                    reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
                     reply empty_page(page, size)
                 end
             end
           
             get '/concepts' do
-                ontology, submission = get_latest_submission
-                type = LinkedData::Models::Class.class_rdf_type(submission)
+                ontology, latest_submission = get_ontology_and_latest_submission
+                type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
-                    reply handle_resource_request(LinkedData::Models::Class, page, size, attributes)
+                    reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
                     reply empty_page(page, size)
                 end
             end
           
             get '/properties' do
-                ont, latest_submission = get_latest_submission
-                props = ont.properties(latest_submission)
+                ontology, latest_submission = get_ontology_and_latest_submission
                 _, page, size = settings_params(LinkedData::Models::OntologyProperty).first(3)
-                reply Goo::Base::Page.new(page, size, props.length, props)
+                props_page, _ = handle_properties_request(ontology, latest_submission, page, size)
+                reply props_page
             end
           
             %w[individuals schemes collections labels].each do |resource_type|
                 get "/#{resource_type}" do
+                    ontology, latest_submission = get_ontology_and_latest_submission
                     model_class = case resource_type
                         when 'individuals' then LinkedData::Models::Instance
                         when 'schemes' then LinkedData::Models::SKOS::Scheme
@@ -120,7 +131,7 @@ class ArtefactsController < ApplicationController
                     end
                     
                     attributes, page, size = settings_params(model_class).first(3)
-                    reply handle_resource_request(model_class, page, size, attributes)
+                    reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)
                 end
             end
           
@@ -130,13 +141,18 @@ class ArtefactsController < ApplicationController
                 Goo::Base::Page.new(page, size, 0, [])
             end
             
-            def handle_resource_request(model, page, size, attributes)
-                _, latest_submission = get_latest_submission
+            def handle_resources_request(ont, latest_submission, model,  attributes, page, size)
                 check_last_modified_segment(model, [@params["artefactID"]])
                 model.where.in(latest_submission).include(attributes).page(page, size).all
             end
+
+            def handle_properties_request(ontology, latest_submission, page, size)
+                props = ontology.properties(latest_submission)
+                page = Goo::Base::Page.new(page, size, props.length, props.first(size))
+                return page, props.length
+            end
           
-            def get_latest_submission
+            def get_ontology_and_latest_submission
                 @ontology ||= Ontology.find(@params["artefactID"]).first
                 error 404, "You must provide a valid `artefactID` to retrieve an artefact" if @ontology.nil?
                 
