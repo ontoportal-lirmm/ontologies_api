@@ -59,10 +59,6 @@ class HomeController < ApplicationController
       end
     end
 
-    get "doc/api" do
-      redirect "/documentation", 301
-    end
-
     get "documentation" do
       @metadata_all = get_metadata_all.sort { |a, b| a[0].name <=> b[0].name }
       haml "documentation/documentation".to_sym, :layout => "documentation/layout".to_sym
