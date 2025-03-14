@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: a9e695ad3906e5de504d42a410beee6ea81f7aae
+  revision: 111dc2a04489a2c712777586796c519195408bf5
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -221,23 +221,24 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-cloud-core (1.7.1)
+    google-cloud-core (1.8.0)
       google-cloud-env (>= 1.0, < 3.a)
       google-cloud-errors (~> 1.0)
-    google-cloud-env (2.2.1)
+    google-cloud-env (2.2.2)
+      base64 (~> 0.2)
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.5.0)
     google-logging-utils (0.1.0)
-    google-protobuf (4.30.0)
+    google-protobuf (4.30.1)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.0-arm64-darwin)
+    google-protobuf (4.30.1-arm64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.0-x86_64-darwin)
+    google-protobuf (4.30.1-x86_64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.0-x86_64-linux)
+    google-protobuf (4.30.1-x86_64-linux)
       bigdecimal
       rake (>= 13)
     googleapis-common-protos (1.6.0)
@@ -254,16 +255,16 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    grpc (1.70.1)
+    grpc (1.71.0)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.70.1-arm64-darwin)
+    grpc (1.71.0-arm64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.70.1-x86_64-darwin)
+    grpc (1.71.0-x86_64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
-    grpc (1.70.1-x86_64-linux)
+    grpc (1.71.0-x86_64-linux)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     haml (5.2.2)
@@ -278,7 +279,7 @@ GEM
       mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    json (2.10.1)
+    json (2.10.2)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
@@ -311,7 +312,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2025.0304)
     mini_mime (1.1.5)
-    minitest (5.25.4)
+    minitest (5.25.5)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
     minitest-hooks (1.5.2)
@@ -372,7 +373,7 @@ GEM
     public_suffix (6.0.1)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.11)
+    rack (3.1.12)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-attack (6.7.0)
@@ -436,7 +437,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.73.2)
+    rubocop (1.74.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -506,7 +507,7 @@ GEM
     uri (1.0.3)
     uuid (2.3.9)
       macaddr (~> 1.0)
-    webmock (3.25.0)
+    webmock (3.25.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
