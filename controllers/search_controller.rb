@@ -8,6 +8,14 @@ class SearchController < ApplicationController
       process_search
     end
 
+    get '/content' do
+      process_search
+    end
+
+    get '/metadata' do
+      process_search
+    end
+
     post do
       process_search
     end
