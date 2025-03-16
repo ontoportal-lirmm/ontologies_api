@@ -173,9 +173,9 @@ class ArtefactsController < ApplicationController
                     end
 
                     ontology, latest_submission = get_ontology_and_latest_submission
+                    attributes, page, size = settings_params(model_class).first(3)
                     type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                     if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
-                        attributes, page, size = settings_params(model_class).first(3)
                         reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)    
                     else
                         reply empty_page(page, size)
