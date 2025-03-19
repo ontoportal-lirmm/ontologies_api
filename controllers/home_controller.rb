@@ -11,25 +11,6 @@ class HomeController < ApplicationController
     get do
       expires 3600, :public
       last_modified @@root_last_modified ||= Time.now.httpdate
-      routes = routes_list
-
-      # TODO: delete when ccv will be on production
-      routes.delete('/ccv')
-
-      routes.delete('/resource_index') if LinkedData.settings.enable_resource_index == false
-
-      routes.delete('/Agents')
-
-      routes_hash = {}
-      context = {}
-
-      routes.each do |route|
-        next unless  routes_by_class.key?(route)
-
-        route_no_slash = route.gsub('/', '')
-        context[route_no_slash] = routes_by_class[route].type_uri.to_s if routes_by_class[route].respond_to?(:type_uri)
-        routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
-      end
 
       catalog_class = LinkedData::Models::SemanticArtefactCatalog
       catalog = catalog_class.all.first || create_catalog
@@ -42,8 +23,6 @@ class HomeController < ApplicationController
       if catalog.loaded_attributes.include?(:fundedBy)
         catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) } 
       end
-      catalog.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
-      
       reply catalog
     end
 
