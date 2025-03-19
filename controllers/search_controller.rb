@@ -216,6 +216,8 @@ class SearchController < ApplicationController
 
     def process_search(params = nil)
       params ||= @params
+      params['q'] ||= params['query']
+      params.delete('query')
       text = params["q"]
 
       query = get_term_search_query(text, params)
