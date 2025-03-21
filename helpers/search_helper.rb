@@ -75,7 +75,7 @@ module Sinatra
           if !QUERYLESS_FIELDS_PARAMS.keys.any? { |k| params.key?(k) } ||
             params[EXACT_MATCH_PARAM] == "true" ||
             params[SUGGEST_PARAM] == "true"
-            raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>]"
+            raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
           else
             text = ''
             params['sort'] = 'prefLabelExact asc, submissionAcronym asc' if sort == 'prefLabel'
