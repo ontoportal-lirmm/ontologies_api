@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 111dc2a04489a2c712777586796c519195408bf5
+  revision: 11bf507999651a030cb5550423ce67fb301667f4
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -103,7 +103,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: c235249abaafa2780b540aca1813dfcf3d17c2dd
+  revision: cfcc70dee1133690207b5a3dc6000426ec04e250
   specs:
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -145,7 +145,7 @@ GEM
     airbrussh (1.5.3)
       sshkit (>= 1.6.1, != 1.7.0)
     ansi (1.5.0)
-    ast (2.4.2)
+    ast (2.4.3)
     base64 (0.2.0)
     bcp47_spec (0.2.1)
     bcrypt (3.1.20)
@@ -241,13 +241,13 @@ GEM
     google-protobuf (4.30.1-x86_64-linux)
       bigdecimal
       rake (>= 13)
-    googleapis-common-protos (1.6.0)
+    googleapis-common-protos (1.7.0)
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.7)
       grpc (~> 1.41)
-    googleapis-common-protos-types (1.18.0)
+    googleapis-common-protos-types (1.19.0)
       google-protobuf (>= 3.18, < 5.a)
-    googleauth (1.13.1)
+    googleauth (1.14.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -307,10 +307,10 @@ GEM
       net-pop
       net-smtp
     method_source (1.1.0)
-    mime-types (3.6.0)
+    mime-types (3.6.2)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0304)
+    mime-types-data (3.2025.0318)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
@@ -362,7 +362,7 @@ GEM
     pandoc-ruby (2.1.10)
     parallel (1.26.3)
     parseconfig (1.1.2)
-    parser (3.3.7.1)
+    parser (3.3.7.2)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
@@ -448,8 +448,8 @@ GEM
       rubocop-ast (>= 1.38.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.38.1)
-      parser (>= 3.3.1.0)
+    rubocop-ast (1.42.0)
+      parser (>= 3.3.7.2)
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
     ruby2_keywords (0.0.5)
