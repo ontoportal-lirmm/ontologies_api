@@ -13,7 +13,37 @@ class SearchController < ApplicationController
     end
 
     get '/metadata' do
-      process_search
+      if params[:query].nil? && params[:q].nil?
+        raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
+      end
+
+      query = params[:query] || params[:q]
+      page, page_size = page_params
+
+      # Filters
+      acronyms = params.fetch("acronyms", "").split(',')
+      status = params.fetch("status", "").split(',')
+
+
+      # Query Fields (Boosting)
+      qf = [
+        "acronym_text^50",
+        "description_text^40",
+        "name_text^30",
+        "homepage_t^10",
+        "version_t^5"
+      ].join(" ")
+
+
+      fq = []
+      fq << acronyms.map { |x| "acronym_text:\"#{x}\"" }.join(" OR ") unless acronyms.empty?
+      fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
+      
+      reply search(LinkedData::Models::Ontology,
+                    query,
+                    fq: fq, qf: qf,
+                    page: page, page_size: page_size,
+                    sort: "score desc, acronym_sort asc, name_sort asc")  
     end
 
     post do
