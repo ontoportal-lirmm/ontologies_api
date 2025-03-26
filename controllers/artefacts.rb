@@ -61,6 +61,7 @@ class ArtefactsController < ApplicationController
         namespace "/:artefactID/resources" do
             get do
                 ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
                 _, page, size = settings_params(LinkedData::Models::Class).first(3)
                 size_per_route = size < 6 ? size : (size / 6).to_i
 
@@ -86,35 +87,38 @@ class ArtefactsController < ApplicationController
                 end
                 resouces_count += props_count
 
-                reply Goo::Base::Page.new(page, size, resouces_count, resources)
+                reply page_object(resources, resouces_count)
             end
-          
+
             get '/classes' do
                 ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type == RDF::OWL[:Class]
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply empty_page
                 end
             end
           
             get '/concepts' do
                 ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                 attributes, page, size = settings_params(LinkedData::Models::Class).first(3)
                 
                 if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply empty_page
                 end
             end
           
             get '/properties' do
                 ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
                 _, page, size = settings_params(LinkedData::Models::OntologyProperty).first(3)
                 props_page, _ = handle_properties_request(ontology, latest_submission, page, size)
                 reply props_page
@@ -122,12 +126,13 @@ class ArtefactsController < ApplicationController
 
             get '/individuals' do
                 ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                 attributes, page, size = settings_params(LinkedData::Models::Instance).first(3)
                 if type == RDF::OWL[:Class]
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Instance, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply empty_page
                 end
             end
           
@@ -140,23 +145,28 @@ class ArtefactsController < ApplicationController
                     end
 
                     ontology, latest_submission = get_ontology_and_latest_submission
+                    check_access(ontology)
                     attributes, page, size = settings_params(model_class).first(3)
                     type = LinkedData::Models::Class.class_rdf_type(latest_submission)
                     if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
                         reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)    
                     else
-                        reply empty_page(page, size)
+                        reply empty_page
                     end
                     
                 end
             end
-          
-            private
-            
-            def empty_page(page, size)
-                Goo::Base::Page.new(page, size, 0, [])
+
+            get '/resource' do
+                fetch_resource
             end
-            
+
+            get '/:uri' do
+                fetch_resource
+            end
+
+            private
+
             def handle_resources_request(ont, latest_submission, model,  attributes, page, size)
                 check_last_modified_segment(model, [@params["artefactID"]])
                 model.where.in(latest_submission).include(attributes).page(page, size).all
@@ -183,8 +193,51 @@ class ArtefactsController < ApplicationController
                 @latest_submission.bring(ontology: [:acronym])
                 return @ontology, @latest_submission
             end
+            
+            def fetch_resource
+                uri = params['uri']
+                ontology_acronym = params['artefactID']
+                
+                error 404, "The uri parameter must be provided via ?uri=<uri>" if uri.nil?
+              
+                ontology, latest_submission = get_ontology_and_latest_submission
+                check_access(ontology)
+              
+                fq = [
+                  "ontology_t:\"#{ontology_acronym}\"",
+                  "resource_id:\"#{uri}\""
+                ]
+                conn = SOLR::SolrConnector.new(Goo.search_conf, :ontology_data)
+                resp = conn.search("*:*", fq: fq, defType: "edismax", start: 0, rows: 1)
+                doc = resp["response"]["docs"].first
+
+                if doc
+                  type = doc["type_t"] || doc["type_txt"].first
+              
+                  resource = case type
+                             when LinkedData::Models::Class.type_uri.to_s, "http://www.w3.org/2004/02/skos/core#Concept"
+                               LinkedData::Models::Class.find(uri).in(latest_submission).include(LinkedData::Models::Class.goo_attrs_to_load(includes_param)).first
+                             when LinkedData::Models::Instance.type_uri.to_s
+                               LinkedData::Models::Instance.find(uri).in(latest_submission).include(LinkedData::Models::Instance.goo_attrs_to_load(includes_param)).first
+                             when LinkedData::Models::AnnotationProperty.type_uri.to_s, LinkedData::Models::ObjectProperty.type_uri.to_s, LinkedData::Models::DatatypeProperty.type_uri.to_s
+                               ontology.property(uri, latest_submission)
+                             when LinkedData::Models::SKOS::Scheme.type_uri.to_s
+                               LinkedData::Models::SKOS::Scheme.find(uri).in(latest_submission).include(LinkedData::Models::SKOS::Scheme.goo_attrs_to_load(includes_param)).first
+                             when LinkedData::Models::SKOS::Collection.type_uri.to_s
+                               LinkedData::Models::SKOS::Collection.find(uri).in(latest_submission).include(LinkedData::Models::SKOS::Collection.goo_attrs_to_load(includes_param)).first
+                             when LinkedData::Models::SKOS::Label.type_uri.to_s
+                               LinkedData::Models::SKOS::Label.find(uri).in(latest_submission).include(LinkedData::Models::SKOS::Label.goo_attrs_to_load(includes_param)).first
+                             else
+                               doc
+                             end              
+                  reply resource
+                else
+                  error 404, "Resource with uri: #{uri} not found"
+                end
+            end
+              
+
         end
 
     end
-
 end
