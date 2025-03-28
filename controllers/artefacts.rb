@@ -268,7 +268,7 @@ class ArtefactsController < ApplicationController
             end
           
             def get_ontology_and_latest_submission
-                @ontology ||= Ontology.find(@params["artefactID"]).first
+                @ontology ||= Ontology.find(@params["artefactID"]).include(:acronym, :administeredBy, :acl, :viewingRestriction).first
                 error 404, "You must provide a valid `artefactID` to retrieve an artefact" if @ontology.nil?
                 
                 check_last_modified(@ontology)
