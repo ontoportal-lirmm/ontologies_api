@@ -65,6 +65,10 @@ class ApplicationController
               nextPage: { type: 'string', format: 'uri' },
               prevPage: { type: 'string', format: 'uri' }
             }
+          },
+          collection: {
+            type: 'array',
+            items: { type: 'string' }
           }
         }
       },

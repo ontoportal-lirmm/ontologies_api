@@ -4,14 +4,36 @@ require 'cgi'
 class SearchController < ApplicationController
   namespace "/search" do
     # execute a search query
+
+    doc('Search content/metadata of artefacts') do
+      parameter('q', type: 'string', description: 'Query text')
+      parameter('page', type: 'integer', description: 'Page number', default: '1')
+      parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
+      parameter('display', type: 'string', description: 'Attributes to display', default: '')
+      response(200, 'return the search results', content( '$ref' => '#/components/schemas/page'))
+    end
     get do
       process_search
     end
 
+    doc('Search content of artefacts') do
+      parameter('q', type: 'string', description: 'Query text')
+      parameter('page', type: 'integer', description: 'Page number', default: '1')
+      parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
+      parameter('display', type: 'string', description: 'Attributes to display', default: '')
+      response(200, 'return the search results', content( '$ref' => '#/components/schemas/page'))
+    end
     get '/content' do
       process_search
     end
 
+    doc('Search metadata of artefacts') do
+      parameter('q', type: 'string', description: 'Query text')
+      parameter('page', type: 'integer', description: 'Page number', default: '1')
+      parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
+      parameter('display', type: 'string', description: 'Attributes to display', default: '')
+      response(200, 'return the search results', content( '$ref' => '#/components/schemas/page'))
+    end
     get '/metadata' do
       process_search
     end
