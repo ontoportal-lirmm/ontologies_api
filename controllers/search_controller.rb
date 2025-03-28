@@ -8,6 +8,14 @@ class SearchController < ApplicationController
       process_search
     end
 
+    get '/content' do
+      process_search
+    end
+
+    get '/metadata' do
+      process_search
+    end
+
     post do
       process_search
     end
@@ -208,6 +216,8 @@ class SearchController < ApplicationController
 
     def process_search(params = nil)
       params ||= @params
+      params['q'] ||= params['query']
+      params.delete('query')
       text = params["q"]
 
       query = get_term_search_query(text, params)
