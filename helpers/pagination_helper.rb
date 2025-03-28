@@ -35,6 +35,10 @@ module Sinatra
         page_obj = LinkedData::Models::Page.new(page, size, total_result_count, array)
         page_obj
       end
+      
+      def empty_page
+        page_object([], 0)        
+      end
     end
   end
 end
