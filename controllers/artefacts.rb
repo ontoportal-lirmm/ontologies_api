@@ -19,6 +19,14 @@ class ArtefactsController < ApplicationController
             reply artefact
         end
 
+        get "/:artefactID/record" do
+            record = LinkedData::Models::SemanticArtefactCatalogRecord.find(params["artefactID"])
+            error 404, "You must provide a valid `artefactID` to retrieve ats record" if record.nil?
+            check_last_modified(record)
+            record.bring(*LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load(includes_param))
+            reply record
+        end
+
         # Display latest distribution
         get "/:artefactID/distributions/latest" do
             artefact = LinkedData::Models::SemanticArtefact.find(params["artefactID"])
@@ -235,9 +243,27 @@ class ArtefactsController < ApplicationController
                   error 404, "Resource with uri: #{uri} not found"
                 end
             end
-              
 
         end
-
     end
+    
+    namespace "/records" do
+        get do
+            check_last_modified_collection(LinkedData::Models::SemanticArtefactCatalogRecord)
+            attributes, page, pagesize, _, _ = settings_params(LinkedData::Models::SemanticArtefactCatalogRecord)
+            pagesize = 20 if params["pagesize"].nil?
+            records = LinkedData::Models::SemanticArtefactCatalogRecord.all(attributes, page, pagesize)
+            reply records
+        end
+
+        # Get all records on an artefacts (records => submissions)
+        get "/:artefactID" do
+            record = LinkedData::Models::SemanticArtefactCatalogRecord.find(params["artefactID"])
+            error 404, "You must provide a valid `artefactID` to retrieve ats record" if record.nil?
+            check_last_modified(record)
+            records_of_artefact = record.artefact_all_records(LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load(includes_param))
+            reply records_of_artefact
+        end
+    end
+
 end
