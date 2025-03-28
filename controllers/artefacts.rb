@@ -92,6 +92,14 @@ class ArtefactsController < ApplicationController
 
         # Ressources
         namespace "/:artefactID/resources" do
+            doc('Get the list all resources of an artefact') do
+                path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                parameter('page', type: 'integer', description: 'Page number', default: '1')
+                parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                response(200, 'return the list of resources of a the artefact with id :artefactID', content( '$ref' => '#/components/schemas/page'))
+                response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+            end
             get do
                 ontology, latest_submission = get_ontology_and_latest_submission
                 _, page, size = settings_params(LinkedData::Models::Class).first(3)
@@ -121,7 +129,15 @@ class ArtefactsController < ApplicationController
 
                 reply Goo::Base::Page.new(page, size, resouces_count, resources)
             end
-          
+
+            doc('Get the list all classes of an OWL artefact') do
+                path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                parameter('page', type: 'integer', description: 'Page number', default: '1')
+                parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                response(200, 'return a page of classes for the artefact with id :artefactID', content( '$ref' => '#/components/schemas/page'))
+                response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+            end
             get '/classes' do
                 ontology, latest_submission = get_ontology_and_latest_submission
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
@@ -133,7 +149,15 @@ class ArtefactsController < ApplicationController
                     reply empty_page(page, size)
                 end
             end
-          
+
+            doc('Get the list all concepts of a SKOS artefact') do
+                path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                parameter('page', type: 'integer', description: 'Page number', default: '1')
+                parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                response(200, 'return a page of concepts for the artefact with id :artefactID', content( '$ref' => '#/components/schemas/page'))
+                response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+            end
             get '/concepts' do
                 ontology, latest_submission = get_ontology_and_latest_submission
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
@@ -145,7 +169,15 @@ class ArtefactsController < ApplicationController
                     reply empty_page(page, size)
                 end
             end
-          
+
+            doc('Get the list all properties of an artefact') do
+                path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                parameter('page', type: 'integer', description: 'Page number', default: '1')
+                parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                response(200, 'return the page of properties of a the artefact with id :artefactID', content( '$ref' => '#/components/schemas/page'))
+                response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+            end
             get '/properties' do
                 ontology, latest_submission = get_ontology_and_latest_submission
                 _, page, size = settings_params(LinkedData::Models::OntologyProperty).first(3)
@@ -153,6 +185,14 @@ class ArtefactsController < ApplicationController
                 reply props_page
             end
 
+            doc('Get the list all individuals of an OWL artefact') do
+                path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                parameter('page', type: 'integer', description: 'Page number', default: '1')
+                parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                response(200, 'return the page of individuals of a the artefact with id :artefactID', content( '$ref' => '#/components/schemas/page'))
+                response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+            end
             get '/individuals' do
                 ontology, latest_submission = get_ontology_and_latest_submission
                 type = LinkedData::Models::Class.class_rdf_type(latest_submission)
@@ -165,6 +205,14 @@ class ArtefactsController < ApplicationController
             end
           
             %w[schemes collections labels].each do |resource_type|
+                doc("Get the list all #{resource_type} of a SKOS artefact") do
+                    path_parameter('artefactID', type: 'string', description: 'Id de l\'artefact', default: 'INRAETHES')
+                    parameter('page', type: 'integer', description: 'Page number', default: '1')
+                    parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '50')
+                    parameter('display', type: 'string', description: 'Attributes to display', default: '')
+                    response(200, "return the page of #{resource_type} of a the artefact with id :artefactID", content( '$ref' => '#/components/schemas/page'))
+                    response(404, 'You must provide a valid `artefactID` to retrieve an artefact', content( '$ref' => '#/components/schemas/error' ))
+                end
                 get "/#{resource_type}" do
                     model_class = case resource_type
                         when 'schemes' then LinkedData::Models::SKOS::Scheme
