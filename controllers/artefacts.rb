@@ -6,6 +6,7 @@ class ArtefactsController < ApplicationController
             check_last_modified_collection(LinkedData::Models::SemanticArtefact)
             attributes, page, pagesize, _, _ = settings_params(LinkedData::Models::SemanticArtefact)
             pagesize = 20 if params["pagesize"].nil?
+            attributes = LinkedData::Models::SemanticArtefact.goo_attrs_to_load([]) if includes_param.first == :all
             artefacts = LinkedData::Models::SemanticArtefact.all_artefacts(attributes, page, pagesize)
             reply artefacts
         end
@@ -252,6 +253,7 @@ class ArtefactsController < ApplicationController
             check_last_modified_collection(LinkedData::Models::SemanticArtefactCatalogRecord)
             attributes, page, pagesize, _, _ = settings_params(LinkedData::Models::SemanticArtefactCatalogRecord)
             pagesize = 20 if params["pagesize"].nil?
+            attributes = LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load([])  if includes_param.first == :all
             records = LinkedData::Models::SemanticArtefactCatalogRecord.all(attributes, page, pagesize)
             reply records
         end
@@ -261,8 +263,8 @@ class ArtefactsController < ApplicationController
             record = LinkedData::Models::SemanticArtefactCatalogRecord.find(params["artefactID"])
             error 404, "You must provide a valid `artefactID` to retrieve ats record" if record.nil?
             check_last_modified(record)
-            records_of_artefact = record.artefact_all_records(LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load(includes_param))
-            reply records_of_artefact
+            record.bring(*LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load(includes_param))
+            reply record
         end
     end
 
