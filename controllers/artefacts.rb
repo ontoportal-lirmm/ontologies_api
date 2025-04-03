@@ -54,7 +54,8 @@ class ArtefactsController < ApplicationController
                 includes: LinkedData::Models::SemanticArtefactDistribution.goo_attrs_to_load([])
             }
             distros = artefact.all_distributions(options)
-            reply distros.sort {|a,b| b.distributionId.to_i <=> a.distributionId.to_i }
+            distros.sort {|a,b| b.distributionId.to_i <=> a.distributionId.to_i }
+            reply hydra_page_object(distros, distros.length)
         end
 
         # Ressources
@@ -85,8 +86,8 @@ class ArtefactsController < ApplicationController
                     resouces_count += model.where.in(latest_submission).count
                 end
                 resouces_count += props_count
-
-                reply Goo::Base::Page.new(page, size, resouces_count, resources)
+                
+                reply hydra_page_object(resources, resouces_count)
             end
           
             get '/classes' do
@@ -97,7 +98,7 @@ class ArtefactsController < ApplicationController
                 if type == RDF::OWL[:Class]
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply hydra_page_object([], 0)
                 end
             end
           
@@ -109,7 +110,7 @@ class ArtefactsController < ApplicationController
                 if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Class, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply hydra_page_object([], 0)
                 end
             end
           
@@ -127,7 +128,7 @@ class ArtefactsController < ApplicationController
                 if type == RDF::OWL[:Class]
                     reply handle_resources_request(ontology, latest_submission, LinkedData::Models::Instance, attributes, page, size)
                 else
-                    reply empty_page(page, size)
+                    reply hydra_page_object([], 0)
                 end
             end
           
@@ -145,26 +146,23 @@ class ArtefactsController < ApplicationController
                     if type.to_s == "http://www.w3.org/2004/02/skos/core#Concept"
                         reply handle_resources_request(ontology, latest_submission, model_class, attributes, page, size)    
                     else
-                        reply empty_page(page, size)
+                        reply hydra_page_object([], 0)
                     end
                     
                 end
             end
           
             private
-            
-            def empty_page(page, size)
-                Goo::Base::Page.new(page, size, 0, [])
-            end
-            
+
             def handle_resources_request(ont, latest_submission, model,  attributes, page, size)
                 check_last_modified_segment(model, [@params["artefactID"]])
-                model.where.in(latest_submission).include(attributes).page(page, size).all
+                result = model.where.in(latest_submission).include(attributes).page(page, size).all
+                hydra_page_object(result, result.aggregate)
             end
 
             def handle_properties_request(ontology, latest_submission, page, size)
                 props = ontology.properties(latest_submission)
-                page = Goo::Base::Page.new(page, size, props.length, props.first(size))
+                page = hydra_page_object(props.first(size), props.length)
                 return page, props.length
             end
           

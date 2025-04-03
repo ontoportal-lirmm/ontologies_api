@@ -32,9 +32,14 @@ module Sinatra
       # Return a page object given the total potential results for a call and an array
       def page_object(array, total_result_count = 0)
         page, size = page_params
-        page_obj = LinkedData::Models::Page.new(page, size, total_result_count, array)
-        page_obj
+        LinkedData::Models::Page.new(page, size, total_result_count, array)
       end
+
+      def hydra_page_object(array, total_result_count = 0)
+        page, size = page_params
+        LinkedData::Models::HydraPage.new(page, size, total_result_count, array)
+      end
+
     end
   end
 end
