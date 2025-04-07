@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 55d163206560da5db5a4a86ecaf04800e38ea016
+  revision: 32af0c3a538e3ad3440cdbfaea127a5569c40ec8
   branch: feature/hydra-pagination
   specs:
     ontologies_linked_data (0.0.1)
