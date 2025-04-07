@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 11bf507999651a030cb5550423ce67fb301667f4
-  branch: development
+  revision: 55d163206560da5db5a4a86ecaf04800e38ea016
+  branch: feature/hydra-pagination
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -187,7 +187,7 @@ GEM
       logger
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
-    faraday-retry (2.2.1)
+    faraday-retry (2.3.1)
       faraday (~> 2.0)
     ffi (1.15.5)
     fugit (1.11.1)
@@ -229,16 +229,16 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.5.0)
     google-logging-utils (0.1.0)
-    google-protobuf (4.30.1)
+    google-protobuf (4.30.2)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.1-arm64-darwin)
+    google-protobuf (4.30.2-arm64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.1-x86_64-darwin)
+    google-protobuf (4.30.2-x86_64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.30.1-x86_64-linux)
+    google-protobuf (4.30.2-x86_64-linux)
       bigdecimal
       rake (>= 13)
     googleapis-common-protos (1.7.0)
@@ -298,7 +298,7 @@ GEM
     libxml-ruby (5.0.3)
     link_header (0.0.8)
     lint_roller (1.1.0)
-    logger (1.6.6)
+    logger (1.7.0)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
     mail (2.8.1)
@@ -307,10 +307,10 @@ GEM
       net-pop
       net-smtp
     method_source (1.1.0)
-    mime-types (3.6.1)
+    mime-types (3.6.2)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0318)
+    mime-types-data (3.2025.0402)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
@@ -351,7 +351,7 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     netrc (0.11.0)
-    newrelic_rpm (9.17.0)
+    newrelic_rpm (9.18.0)
     oj (3.16.10)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
@@ -362,11 +362,12 @@ GEM
     pandoc-ruby (2.1.10)
     parallel (1.26.3)
     parseconfig (1.1.2)
-    parser (3.3.7.2)
+    parser (3.3.7.4)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
       mail (>= 2.0)
+    prism (1.4.0)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -437,7 +438,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.74.0)
+    rubocop (1.75.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -445,11 +446,12 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.40.0)
-      parser (>= 3.3.1.0)
+    rubocop-ast (1.44.0)
+      parser (>= 3.3.7.2)
+      prism (~> 1.4)
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
     ruby2_keywords (0.0.5)
