@@ -39,11 +39,44 @@ class SearchController < ApplicationController
       fq << acronyms.map { |x| "acronym_text:\"#{x}\"" }.join(" OR ") unless acronyms.empty?
       fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
       
-      reply search(LinkedData::Models::Ontology,
+      resp = search(LinkedData::Models::Ontology,
                     query,
                     fq: fq, qf: qf,
                     page: page, page_size: page_size,
-                    sort: "score desc, acronym_sort asc, name_sort asc")  
+                    sort: "score desc, acronym_sort asc, name_sort asc")
+
+      result = {}
+      total_found = resp.length
+
+      # Build a hash of ontology artefacts by merging information from two resource types:
+      # "ontology" provides basic metadata (acronym, name), while "ontology_submission" adds details (description, homepage, version)
+      # Entries are merged by resource ID to avoid duplication.
+      resp.each do |doc|
+        doc = doc.symbolize_keys
+        resource_model = doc[:resource_model]
+        case resource_model
+        when "ontology"
+          artefact_id = doc[:resource_id]
+          result[artefact_id] ||= {
+            id: "#{Goo.id_prefix}artefacts/#{doc[:acronym_text]}",
+            acronym: doc[:acronym_text]
+          }
+          result[artefact_id][:name] ||= doc[:name_text]
+        when "ontology_submission"
+          artefact_id = doc[:ontology_t]
+          acronym = artefact_id.split('/').last
+          result[artefact_id] ||= {
+            id: "#{Goo.id_prefix}artefacts/#{acronym}",
+            acronym: acronym
+          }
+          result[artefact_id][:description] ||= doc[:description_text]
+          result[artefact_id][:homepage] ||= doc[:homepage_t]
+          result[artefact_id][:versionInfo] ||= doc[:version_t]
+        end
+      end
+      
+      # TO-DO: change this to hydra page 
+      reply page_object(result.values, result.length)
     end
 
     post do
