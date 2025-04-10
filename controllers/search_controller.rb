@@ -13,68 +13,44 @@ class SearchController < ApplicationController
     end
 
     get '/metadata' do
-      if params[:query].nil? && params[:q].nil?
-        raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
-      end
-
-      query = params[:query] || params[:q]
+      query = get_query(params)
+      options = get_ontology_metadata_search_options(params)
       page, page_size = page_params
 
-      # Filters
-      acronyms = params.fetch("acronyms", "").split(',')
-      status = params.fetch("status", "").split(',')
-
-
-      # Query Fields (Boosting)
-      qf = [
-        "acronym_text^50",
-        "description_text^40",
-        "name_text^30",
-        "homepage_t^10",
-        "version_t^5"
-      ].join(" ")
-
-
-      fq = []
-      fq << acronyms.map { |x| "acronym_text:\"#{x}\"" }.join(" OR ") unless acronyms.empty?
-      fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
-      
-      resp = search(LinkedData::Models::Ontology,
-                    query,
-                    fq: fq, qf: qf,
-                    page: page, page_size: page_size,
-                    sort: "score desc, acronym_sort asc, name_sort asc")
+      resp = search(Ontology, query, options)
 
       result = {}
-      total_found = resp.length
-
-      # Build a hash of ontology artefacts by merging information from two resource types:
-      # "ontology" provides basic metadata (acronym, name), while "ontology_submission" adds details (description, homepage, version)
-      # Entries are merged by resource ID to avoid duplication.
+      acronyms_ids = {}
       resp.each do |doc|
-        doc = doc.symbolize_keys
-        resource_model = doc[:resource_model]
-        case resource_model
-        when "ontology"
-          artefact_id = doc[:resource_id]
-          result[artefact_id] ||= {
-            id: "#{Goo.id_prefix}artefacts/#{doc[:acronym_text]}",
-            acronym: doc[:acronym_text]
-          }
-          result[artefact_id][:name] ||= doc[:name_text]
-        when "ontology_submission"
-          artefact_id = doc[:ontology_t]
-          acronym = artefact_id.split('/').last
-          result[artefact_id] ||= {
-            id: "#{Goo.id_prefix}artefacts/#{acronym}",
-            acronym: acronym
-          }
-          result[artefact_id][:description] ||= doc[:description_text]
-          result[artefact_id][:homepage] ||= doc[:homepage_t]
-          result[artefact_id][:versionInfo] ||= doc[:version_t]
-        end
+        resource_id = doc["resource_id"]
+        id = doc["submissionId_i"]
+        acronym = doc["ontology_t"].split('/').last
+        next if acronym.blank?
+        
+        already_found_submission_id = acronyms_ids[acronym]
+        old_id = already_found_submission_id.to_i rescue 0
+        already_found = (old_id && id && (id <= old_id))
+
+        next if already_found
+
+        not_restricted = (doc["ontology_viewingRestriction_t"]&.eql?('public') || current_user&.admin?)
+        user_not_restricted = not_restricted ||
+          Array(doc["ontology_viewingRestriction_txt"]).any? {|u| u.split(' ').last == current_user&.username} ||
+          Array(doc["ontology_acl_txt"]).any? {|u| u.split(' ').last == current_user&.username}
+
+        user_restricted = !user_not_restricted
+        next if user_restricted
+        
+        acronyms_ids[acronym] = id
+        result[acronym] = {
+          id: "#{LinkedData.settings.id_url_prefix}artefacts/#{acronym}",
+          acronym: acronym,
+          description: doc['description_text'],
+          ontology: doc['ontology_t'],
+          name: doc['ontology_name_text']
+        }
       end
-      
+
       # TO-DO: change this to hydra page 
       reply page_object(result.values, result.length)
     end
@@ -86,54 +62,8 @@ class SearchController < ApplicationController
     namespace "/ontologies" do
       get do
         query = params[:query] || params[:q]
-        groups = params.fetch("groups", "").split(',')
-        categories = params.fetch("hasDomain", "").split(',')
-        languages = params.fetch("languages", "").split(',')
-        status = params.fetch("status", "").split(',')
-        format = params.fetch("hasOntologyLanguage", "").split(',')
-        is_of_type = params.fetch("isOfType", "").split(',')
-        has_format = params.fetch("hasFormat", "").split(',')
-        visibility = params["visibility"]
-        show_views = params["show_views"] == 'true'
-        sort = params.fetch("sort", "score desc, ontology_name_sort asc, ontology_acronym_sort asc")
-        page, page_size = page_params
-
-        fq = [
-          'resource_model:"ontology_submission"',
-          'submissionStatus_txt:ERROR_* OR submissionStatus_txt:"RDF" OR submissionStatus_txt:"UPLOADED"',
-          groups.map { |x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\"" }.join(' OR '),
-          categories.map { |x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\"" }.join(' OR '),
-          languages.map { |x| "naturalLanguage_txt:\"#{x.downcase}\"" }.join(' OR '),
-        ]
-
-        fq << "ontology_viewingRestriction_t:#{visibility}" unless visibility.blank?
-        fq << "!ontology_viewOf_t:*" unless show_views
-
-        fq << format.map { |x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\"" }.join(' OR ') unless format.blank?
-
-        fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
-        fq << is_of_type.map { |x| "isOfType_t:#{x}" }.join(' OR ') unless is_of_type.blank?
-        fq << has_format.map { |x| "hasFormalityLevel_t:#{x}" }.join(' OR ') unless has_format.blank?
-
-        fq.reject!(&:blank?)
-
-        if params[:qf]
-          qf = params[:qf]
-        else
-          qf = [
-            "ontology_acronymSuggestEdge^25  ontology_nameSuggestEdge^15 descriptionSuggestEdge^10 ", # start of the word first
-            "ontology_acronym_text^15  ontology_name_text^10 description_text^5 ", # full word match
-            "ontology_acronymSuggestNgram^2 ontology_nameSuggestNgram^1.5 descriptionSuggestNgram" # substring match last
-          ].join(' ')
-        end
-
-        page_data = search(Ontology, query, {
-          fq: fq,
-          qf: qf,
-          page: page,
-          page_size: page_size,
-          sort: sort
-        })
+        options = get_ontology_metadata_search_options(params)
+        page_data = search(Ontology, query, options)
 
         total_found = page_data.aggregate
         ontology_rank = LinkedData::Models::Ontology.rank
