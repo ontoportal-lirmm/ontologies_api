@@ -22,13 +22,11 @@ class SearchController < ApplicationController
       result = {}
       acronyms_ids = {}
       resp.each do |doc|
-        resource_id = doc["resource_id"]
         id = doc["submissionId_i"]
-        acronym = doc["ontology_t"].split('/').last
+        acronym = doc["ontology_acronym_text"] || doc["ontology_t"]&.split('/')&.last
         next if acronym.blank?
         
-        already_found_submission_id = acronyms_ids[acronym]
-        old_id = already_found_submission_id.to_i rescue 0
+        old_id = acronyms_ids[acronym].to_i rescue 0
         already_found = (old_id && id && (id <= old_id))
 
         next if already_found
