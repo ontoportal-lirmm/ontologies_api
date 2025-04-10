@@ -42,13 +42,7 @@ class SearchController < ApplicationController
         next if user_restricted
         
         acronyms_ids[acronym] = id
-        result[acronym] = {
-          id: "#{LinkedData.settings.id_url_prefix}artefacts/#{acronym}",
-          acronym: acronym,
-          description: doc['description_text'],
-          ontology: doc['ontology_t'],
-          name: doc['ontology_name_text']
-        }
+        result[acronym] = LinkedData::Models::SemanticArtefact.read_only(id: "#{LinkedData.settings.id_url_prefix}artefacts/#{acronym}", acronym: acronym, description: doc['description_text'], title: doc['ontology_name_text'])
       end
 
       # TO-DO: change this to hydra page 
