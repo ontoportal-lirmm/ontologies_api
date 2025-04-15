@@ -30,6 +30,50 @@ class TestArtefactsController < TestCase
         @@pagesize = 1
     end
 
+    def test_home_controller
+        get "/"
+        assert last_response.ok?
+        catalog_data = MultiJson.load(last_response.body)
+        expected_data = {
+            "acronym" => "OntoPortal",
+            "title" => "OntoPortal",
+            "identifier" => nil,
+            "status" => "alpha",
+            "language" => ["English"],
+            "accessRights" => "public",
+            "license" => "https://opensource.org/licenses/BSD-2-Clause",
+            "rightsHolder" => nil,
+            "description" => "Welcome to OntoPortal Appliance, your ontology repository for your ontologies",
+            "landingPage" => "http://bioportal.bioontology.org",
+            "keyword" => [],
+            "bibliographicCitation" => [],
+            "created" => nil,
+            "modified" => nil,
+            "contactPoint" => [],
+            "creator" => [],
+            "contributor" => [],
+            "publisher" => [],
+            "subject" => [],
+            "coverage" => [],
+            "createdWith" => [],
+            "accrualMethod" => [],
+            "accrualPeriodicity" => [],
+            "wasGeneratedBy" => [],
+            "accessURL" => "http://data.bioontology.org/",
+            "@id" => "http://data.bioontology.org/",
+            "@type" => "https://w3id.org/mod#SemanticArtefactCatalog"
+        }
+        
+        expected_data.each do |key, value|
+            assert_equal value, catalog_data[key]
+        end
+        
+        assert catalog_data.key?("links")
+        assert catalog_data["links"].is_a?(Hash)
+        assert catalog_data.key?("@context")
+        assert catalog_data["@context"].is_a?(Hash)
+    end
+
     
     def test_all_artefacts
         route = '/artefacts'
@@ -120,6 +164,30 @@ class TestArtefactsController < TestCase
         properties_page_data = MultiJson.load(last_response.body)
         properties_count = @@ontology_0.properties.count
         validate_hydra_page(route, properties_page_data, properties_count)
+    end
+    
+    def test_records
+        get "/records?page=#{@@page}&pagesize=#{@@pagesize}"
+        assert last_response.ok?
+        records_page_data = MultiJson.load(last_response.body)
+        validate_page(records_page_data, @@num_onts_created)
+        records_page_data["collection"].each do |artefact|
+            assert @@created_ont_acronyms.include?(artefact["acronym"])
+        end
+    end
+    
+    def test_one_record
+        get "/records/#{@@ontology_0_acronym}"
+        assert last_response.ok?
+        record_data_from_records = MultiJson.load(last_response.body)
+        assert_equal @@ontology_0_acronym, record_data_from_records["acronym"]
+        
+        get "/artefacts/#{@@ontology_0_acronym}/record"
+        assert last_response.ok?
+        record_data_from_artefact = MultiJson.load(last_response.body)
+        assert_equal @@ontology_0_acronym, record_data_from_artefact["acronym"]
+
+        assert_equal record_data_from_artefact, record_data_from_records
     end
 
     private
