@@ -39,7 +39,11 @@ module Sinatra
         page, size = page_params
         LinkedData::Models::HydraPage.new(page, size, total_result_count, array)
       end
-      
+
+      def hydra_empty_page
+        hydra_page_object([], 0)
+      end
+
       def empty_page
         page_object([], 0)        
       end

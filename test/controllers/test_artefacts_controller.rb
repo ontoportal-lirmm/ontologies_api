@@ -81,7 +81,7 @@ class TestArtefactsController < TestCase
         assert last_response.ok?
         artefacts_page_data = MultiJson.load(last_response.body)
         validate_hydra_page(route, artefacts_page_data, @@num_onts_created)
-        artefacts_page_data["collection"].each do |artefact|
+        artefacts_page_data["member"].each do |artefact|
             assert @@created_ont_acronyms.include?(artefact["acronym"])
         end
     end
@@ -167,11 +167,12 @@ class TestArtefactsController < TestCase
     end
     
     def test_records
-        get "/records?page=#{@@page}&pagesize=#{@@pagesize}"
+        route = "/records"
+        get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         records_page_data = MultiJson.load(last_response.body)
-        validate_page(records_page_data, @@num_onts_created)
-        records_page_data["collection"].each do |artefact|
+        validate_hydra_page(route, records_page_data, @@num_onts_created)
+        records_page_data["member"].each do |artefact|
             assert @@created_ont_acronyms.include?(artefact["acronym"])
         end
     end
@@ -204,7 +205,7 @@ class TestArtefactsController < TestCase
         assert page_data['view'].key?('previousPage')
         assert page_data['view'].key?('nextPage')
         assert page_data['view'].key?('lastPage')
-        assert page_data["collection"].is_a?(Array)
+        assert page_data["member"].is_a?(Array)
     end
 
     def total_resources_count

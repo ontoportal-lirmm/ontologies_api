@@ -15,15 +15,17 @@ class ArtefactsdataController < ApplicationController
         LinkedData::Models::SKOS::Label
       ]
 
+      total_count = 0
       resources = types.flat_map do |model|
-        load_resources_page(ontology, latest_submission, model, model.goo_attrs_to_load([]), page, size_per_type).to_a
+        resource_page = load_resources_page(ontology, latest_submission, model, model.goo_attrs_to_load([]), page, size_per_type)
+        total_count += resource_page.aggregate
+        resource_page.to_a
       end
 
-      props_page, props_count = load_properties_page(ontology, latest_submission, page, size_per_type)
+      props_page = load_properties_page(ontology, latest_submission, page, size_per_type)
       resources.concat(props_page.to_a)
-
-      total_count = types.sum { |model| model.where.in(latest_submission).count } + props_count
-      reply page_object(resources, total_count)
+      total_count += props_page.aggregate
+      reply hydra_page_object(resources, total_count)
     end
 
     def self.define_resource_routes(resource_types, expected_type)
@@ -40,7 +42,7 @@ class ArtefactsdataController < ApplicationController
           if rdf_type == expected_type
             reply load_resources_page(ontology, latest_submission, model_class, attributes, page, size)
           else
-            reply empty_page
+            reply hydra_empty_page
           end
         end
 
@@ -59,8 +61,7 @@ class ArtefactsdataController < ApplicationController
       ontology, latest_submission = get_ontology_and_latest_submission
       check_access(ontology)
       _, page, size = settings_params(LinkedData::Models::OntologyProperty).first(3)
-      props_page, _ = load_properties_page(ontology, latest_submission, page, size)
-      reply props_page
+      reply load_properties_page(ontology, latest_submission, page, size)
     end
 
     ['/properties/property', '/properties/:uri', '/resource', '/:uri'].each do |path|

@@ -23,13 +23,14 @@ module Sinatra
 
       def load_resources_page(ont, latest_submission, model, attributes, page, size)
         check_last_modified_segment(model, [@params["artefactID"]])
-        model.where.in(latest_submission).include(attributes).page(page, size).all
+        all_count = model.where.in(latest_submission).count
+        resources = model.where.in(latest_submission).include(attributes).page(page, size).page_count_set(all_count).all
+        return hydra_page_object(resources.to_a, all_count)
       end
 
       def load_properties_page(ontology, latest_submission, page, size)
         props = ontology.properties(latest_submission)
-        page = page_object(props.first(size), props.length)
-        return page, props.length
+        return hydra_page_object(props.first(size), props.length)
       end
 
       # Resolves a resource by its URI by first fetching its metadata from Solr,

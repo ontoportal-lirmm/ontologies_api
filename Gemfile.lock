@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 4e5d1fd945e5212250887c604c748eeb559242a7
+  revision: d925ba09b99346f51253ff1b2ac8aa83ad53c660
   branch: feature/hydra-pagination
   specs:
     ontologies_linked_data (0.0.1)
@@ -310,7 +310,7 @@ GEM
     mime-types (3.6.2)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0402)
+    mime-types-data (3.2025.0408)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
@@ -360,9 +360,9 @@ GEM
     os (1.1.4)
     ostruct (0.6.1)
     pandoc-ruby (2.1.10)
-    parallel (1.26.3)
+    parallel (1.27.0)
     parseconfig (1.1.2)
-    parser (3.3.7.4)
+    parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
@@ -449,7 +449,7 @@ GEM
       rubocop-ast (>= 1.44.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.44.0)
+    rubocop-ast (1.44.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     ruby-progressbar (1.13.0)
