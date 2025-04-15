@@ -44,10 +44,8 @@ class ArtefactsdataController < ApplicationController
           end
         end
 
-        ["/#{type}/#{singular}", "/#{type}/:uri"].each do |path|
-          get path do
-            resolve_resource_by_uri
-          end
+        get "/#{type}/:uri" do
+          resolve_resource_by_uri
         end
       end
     end
@@ -63,7 +61,7 @@ class ArtefactsdataController < ApplicationController
       reply props_page
     end
 
-    ['/properties/property', '/properties/:uri', '/resource', '/:uri'].each do |path|
+    ['/properties/:uri', '/resource', '/:uri'].each do |path|
       get path do
         resolve_resource_by_uri
       end
