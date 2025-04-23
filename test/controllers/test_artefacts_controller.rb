@@ -135,7 +135,6 @@ class TestArtefactsController < TestCase
             page_data = MultiJson.load(last_response.body)
             if @@ontology_type == "OWL"
                 resource_count = model_count(resource_model[resource], @@ontology_0.latest_submission)
-                binding.pry
                 validate_hydra_page(route, page_data, resource_count)
             else
                 validate_hydra_page(route, page_data, 0)
@@ -207,7 +206,6 @@ class TestArtefactsController < TestCase
         assert page_data['view'].key?('nextPage')
         assert page_data['view'].key?('lastPage')
         assert page_data["member"].is_a?(Array)
-        binding.pry
     end
 
     def total_resources_count
