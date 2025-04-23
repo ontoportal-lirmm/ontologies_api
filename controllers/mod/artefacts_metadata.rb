@@ -55,9 +55,10 @@ class ArtefactsMetadataController < ApplicationController
     get '/:artefactID/distributions' do
       artefact = find_artefact(params["artefactID"])
       check_last_modified_segment(LinkedData::Models::SemanticArtefactDistribution, [params["artefactID"]])
-      options = { status: (params["include_status"] || "ANY"), includes: LinkedData::Models::SemanticArtefactDistribution.goo_attrs_to_load([]) }
-      distros = artefact.all_distributions(options)
-      reply distros.sort { |a, b| b.distributionId.to_i <=> a.distributionId.to_i }
+      attributes, page, pagesize= settings_params(LinkedData::Models::SemanticArtefactCatalogRecord).first(3)
+      attributes = LinkedData::Models::SemanticArtefactDistribution.goo_attrs_to_load([]) if includes_param.first == :all
+      distros = artefact.all_distributions(attributes, page, pagesize)
+      reply distros
     end
     
   end
