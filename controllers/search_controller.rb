@@ -43,8 +43,7 @@ class SearchController < ApplicationController
         result[acronym] = LinkedData::Models::SemanticArtefact.read_only(id: "#{LinkedData.settings.id_url_prefix}artefacts/#{acronym}", acronym: acronym, description: doc['description_text'], title: doc['ontology_name_text'])
       end
 
-      # TO-DO: change this to hydra page 
-      reply page_object(result.values, result.length)
+      reply hydra_page_object(result.values, result.length)
     end
 
     post do
