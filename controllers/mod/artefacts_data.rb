@@ -2,7 +2,7 @@ class ArtefactsdataController < ApplicationController
   namespace "/artefacts/:artefactID/resources" do
     
     get do
-      ontology, latest_submission = get_ontology_and_latest_submission
+      ontology, latest_submission = get_ontology_and_submission(ontology_acronym: params["artefactID"])
       check_access(ontology)
       _, page, size = settings_params(LinkedData::Models::Class).first(3)
       size_per_type = [size / 6, 1].max
@@ -32,7 +32,7 @@ class ArtefactsdataController < ApplicationController
       resource_types.each do |type|
     
         get "/#{type}" do
-          ontology, latest_submission = get_ontology_and_latest_submission
+          ontology, latest_submission = get_ontology_and_submission(ontology_acronym: params["artefactID"])
           check_access(ontology)
           model_class = (type == 'properties') ? LinkedData::Models::OntologyProperty : model_from_type(type)
           attributes, page, size = settings_params(model_class).first(3)

@@ -4,23 +4,6 @@ module Sinatra
   module Helpers
     module ArtefactHelper
 
-      def get_ontology_and_latest_submission
-        @ontology ||= Ontology.find(@params["artefactID"]).include(:acronym, :administeredBy, :acl, :viewingRestriction).first
-        error 404, "You must provide a valid `artefactID` to retrieve an artefact" if @ontology.nil?
-
-        check_last_modified(@ontology)
-
-        @latest_submission ||= @ontology.latest_submission(status: [:RDF])
-        error 404, "Artefact #{@params["artefactID"]} distribution not found." if @latest_submission.nil?
-
-        unless @latest_submission.ready?(status: [:RDF])
-          error 404, "Artefact #{params["artefactID"]} distribution #{@latest_submission.submissionId} has not been parsed."
-        end
-
-        @latest_submission.bring(ontology: [:acronym])
-        return @ontology, @latest_submission
-      end
-
       def load_resources_hydra_page(ont, latest_submission, model, attributes, page, size)
         check_last_modified_segment(model, [@params["artefactID"]])
         all_count = model.where.in(latest_submission).count
@@ -41,7 +24,7 @@ module Sinatra
 
         error 404, "The uri parameter must be provided via ?uri=<uri>" if uri.nil?
 
-        ontology, latest_submission = get_ontology_and_latest_submission
+        ontology, latest_submission = get_ontology_and_submission(ontology_acronym: ontology_acronym)
         check_access(ontology)
 
         fq = [
