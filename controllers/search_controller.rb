@@ -35,37 +35,37 @@ class SearchController < ApplicationController
       response(200, 'return the search results', content( '$ref' => '#/components/schemas/page'))
     end
     get '/metadata' do
-      if params[:query].nil? && params[:q].nil?
-        raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
-      end
-
-      query = params[:query] || params[:q]
+      query = get_query(params)
+      options = get_ontology_metadata_search_options(params)
       page, page_size = page_params
 
-      # Filters
-      acronyms = params.fetch("acronyms", "").split(',')
-      status = params.fetch("status", "").split(',')
+      resp = search(Ontology, query, options)
 
+      result = {}
+      acronyms_ids = {}
+      resp.each do |doc|
+        id = doc["submissionId_i"]
+        acronym = doc["ontology_acronym_text"] || doc["ontology_t"]&.split('/')&.last
+        next if acronym.blank?
+        
+        old_id = acronyms_ids[acronym].to_i rescue 0
+        already_found = (old_id && id && (id <= old_id))
 
-      # Query Fields (Boosting)
-      qf = [
-        "acronym_text^50",
-        "description_text^40",
-        "name_text^30",
-        "homepage_t^10",
-        "version_t^5"
-      ].join(" ")
+        next if already_found
 
+        not_restricted = (doc["ontology_viewingRestriction_t"]&.eql?('public') || current_user&.admin?)
+        user_not_restricted = not_restricted ||
+          Array(doc["ontology_viewingRestriction_txt"]).any? {|u| u.split(' ').last == current_user&.username} ||
+          Array(doc["ontology_acl_txt"]).any? {|u| u.split(' ').last == current_user&.username}
 
-      fq = []
-      fq << acronyms.map { |x| "acronym_text:\"#{x}\"" }.join(" OR ") unless acronyms.empty?
-      fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
-      
-      reply search(LinkedData::Models::Ontology,
-                    query,
-                    fq: fq, qf: qf,
-                    page: page, page_size: page_size,
-                    sort: "score desc, acronym_sort asc, name_sort asc")  
+        user_restricted = !user_not_restricted
+        next if user_restricted
+        
+        acronyms_ids[acronym] = id
+        result[acronym] = LinkedData::Models::SemanticArtefact.read_only(id: "#{LinkedData.settings.id_url_prefix}artefacts/#{acronym}", acronym: acronym, description: doc['description_text'], title: doc['ontology_name_text'])
+      end
+
+      reply hydra_page_object(result.values, result.length)
     end
 
     post do
@@ -75,54 +75,8 @@ class SearchController < ApplicationController
     namespace "/ontologies" do
       get do
         query = params[:query] || params[:q]
-        groups = params.fetch("groups", "").split(',')
-        categories = params.fetch("hasDomain", "").split(',')
-        languages = params.fetch("languages", "").split(',')
-        status = params.fetch("status", "").split(',')
-        format = params.fetch("hasOntologyLanguage", "").split(',')
-        is_of_type = params.fetch("isOfType", "").split(',')
-        has_format = params.fetch("hasFormat", "").split(',')
-        visibility = params["visibility"]
-        show_views = params["show_views"] == 'true'
-        sort = params.fetch("sort", "score desc, ontology_name_sort asc, ontology_acronym_sort asc")
-        page, page_size = page_params
-
-        fq = [
-          'resource_model:"ontology_submission"',
-          'submissionStatus_txt:ERROR_* OR submissionStatus_txt:"RDF" OR submissionStatus_txt:"UPLOADED"',
-          groups.map { |x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\"" }.join(' OR '),
-          categories.map { |x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\"" }.join(' OR '),
-          languages.map { |x| "naturalLanguage_txt:\"#{x.downcase}\"" }.join(' OR '),
-        ]
-
-        fq << "ontology_viewingRestriction_t:#{visibility}" unless visibility.blank?
-        fq << "!ontology_viewOf_t:*" unless show_views
-
-        fq << format.map { |x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\"" }.join(' OR ') unless format.blank?
-
-        fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
-        fq << is_of_type.map { |x| "isOfType_t:#{x}" }.join(' OR ') unless is_of_type.blank?
-        fq << has_format.map { |x| "hasFormalityLevel_t:#{x}" }.join(' OR ') unless has_format.blank?
-
-        fq.reject!(&:blank?)
-
-        if params[:qf]
-          qf = params[:qf]
-        else
-          qf = [
-            "ontology_acronymSuggestEdge^25  ontology_nameSuggestEdge^15 descriptionSuggestEdge^10 ", # start of the word first
-            "ontology_acronym_text^15  ontology_name_text^10 description_text^5 ", # full word match
-            "ontology_acronymSuggestNgram^2 ontology_nameSuggestNgram^1.5 descriptionSuggestNgram" # substring match last
-          ].join(' ')
-        end
-
-        page_data = search(Ontology, query, {
-          fq: fq,
-          qf: qf,
-          page: page,
-          page_size: page_size,
-          sort: sort
-        })
+        options = get_ontology_metadata_search_options(params)
+        page_data = search(Ontology, query, options)
 
         total_found = page_data.aggregate
         ontology_rank = LinkedData::Models::Ontology.rank

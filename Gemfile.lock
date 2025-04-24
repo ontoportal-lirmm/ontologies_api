@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 905f76ea31eff1d6dacb10a97dffde3b89a00e21
+  revision: f67735fba1744b3aba25144e64634c30c2545f39
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -103,7 +103,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: cfcc70dee1133690207b5a3dc6000426ec04e250
+  revision: c918134b0a520cb80b8b4cc3ab222cb6bbd9c827
   specs:
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -169,7 +169,7 @@ GEM
       sshkit (~> 1.3)
     coderay (1.1.3)
     concurrent-ruby (1.3.5)
-    connection_pool (2.5.0)
+    connection_pool (2.5.2)
     crack (0.4.5)
       rexml
     dante (0.2.0)
@@ -279,7 +279,7 @@ GEM
       mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    json (2.10.2)
+    json (2.11.2)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
@@ -310,7 +310,7 @@ GEM
     mime-types (3.6.2)
       logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2025.0408)
+    mime-types-data (3.2025.0422)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
@@ -336,7 +336,7 @@ GEM
       uri
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
-    net-imap (0.5.6)
+    net-imap (0.5.7)
       date
       net-protocol
     net-pop (0.1.2)
@@ -360,9 +360,9 @@ GEM
     os (1.1.4)
     ostruct (0.6.1)
     pandoc-ruby (2.1.10)
-    parallel (1.26.3)
+    parallel (1.27.0)
     parseconfig (1.1.2)
-    parser (3.3.7.4)
+    parser (3.3.8.0)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
@@ -374,7 +374,7 @@ GEM
     public_suffix (6.0.1)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.12)
+    rack (3.1.13)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-attack (6.7.0)
@@ -438,7 +438,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.75.2)
+    rubocop (1.75.3)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -449,7 +449,7 @@ GEM
       rubocop-ast (>= 1.44.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.44.0)
+    rubocop-ast (1.44.1)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     ruby-progressbar (1.13.0)
