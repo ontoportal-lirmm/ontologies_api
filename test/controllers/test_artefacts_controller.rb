@@ -34,44 +34,48 @@ class TestArtefactsController < TestCase
         get "/"
         assert last_response.ok?
         catalog_data = MultiJson.load(last_response.body)
-        expected_data = {
-            "acronym" => "OntoPortal",
-            "title" => "OntoPortal",
-            "identifier" => nil,
-            "status" => "alpha",
-            "language" => ["English"],
-            "accessRights" => "public",
-            "license" => "https://opensource.org/licenses/BSD-2-Clause",
-            "rightsHolder" => nil,
-            "description" => "Welcome to OntoPortal Appliance, your ontology repository for your ontologies",
-            "landingPage" => "http://bioportal.bioontology.org",
-            "keyword" => [],
-            "bibliographicCitation" => [],
-            "created" => nil,
-            "modified" => nil,
-            "contactPoint" => [],
-            "creator" => [],
-            "contributor" => [],
-            "publisher" => [],
-            "subject" => [],
-            "coverage" => [],
-            "createdWith" => [],
-            "accrualMethod" => [],
-            "accrualPeriodicity" => [],
-            "wasGeneratedBy" => [],
-            "accessURL" => "http://data.bioontology.org/",
-            "@id" => "http://data.bioontology.org/",
-            "@type" => "https://w3id.org/mod#SemanticArtefactCatalog"
-        }
-        
-        expected_data.each do |key, value|
-            assert_equal value, catalog_data[key]
-        end
-        
+
         assert catalog_data.key?("links")
-        assert catalog_data["links"].is_a?(Hash)
+        assert catalog_data.delete("links").is_a?(Hash)
         assert catalog_data.key?("@context")
-        assert catalog_data["@context"].is_a?(Hash)
+        assert catalog_data.delete("@context").is_a?(Hash)
+
+        expected_data = {
+            "acronym"=>"OntoPortal",
+            "title"=>"OntoPortal",
+            "color"=>"#5499A3",
+            "description"=>"Welcome to OntoPortal Appliance, your ontology repository for your ontologies",
+            "logo"=>"https://ontoportal.org/images/logo.png",
+            "identifier"=>nil,
+            "status"=>"alpha",
+            "language"=>["English"],
+            "accessRights"=>"public",
+            "license"=>"https://opensource.org/licenses/BSD-2-Clause",
+            "rightsHolder"=>nil,
+            "landingPage"=>"http://bioportal.bioontology.org",
+            "keyword"=>[],
+            "bibliographicCitation"=>[],
+            "created"=>nil,
+            "modified"=>nil,
+            "contactPoint"=>[],
+            "creator"=>[],
+            "contributor"=>[],
+            "publisher"=>[],
+            "subject"=>[],
+            "coverage"=>[],
+            "createdWith"=>[],
+            "accrualMethod"=>[],
+            "accrualPeriodicity"=>[],
+            "wasGeneratedBy"=>[],
+            "accessURL"=>"http://data.bioontology.org/",
+            "numberOfArtefacts"=>2,
+            "federated_portals"=>[{"name"=>"agroportal", "api"=>"http://data.agroportal.lirmm.fr", "ui"=>"http://agroportal.lirmm.fr", "color"=>"#3cb371"}],
+            "fundedBy"=>[{"img_src"=>"https://ontoportal.org/images/logo.png", "url"=>"https://ontoportal.org/"}],
+            "@id"=>"http://data.bioontology.org/",
+            "@type"=>"https://w3id.org/mod#SemanticArtefactCatalog"
+        }
+
+        assert_equal expected_data, catalog_data
     end
 
     
@@ -115,7 +119,7 @@ class TestArtefactsController < TestCase
         get route
         assert last_response.ok?
         dist_data = MultiJson.load(last_response.body)
-        assert_equal 2, dist_data["distributionId"]
+        assert_equal 1, dist_data["distributionId"]
     end
 
     def test_resources
