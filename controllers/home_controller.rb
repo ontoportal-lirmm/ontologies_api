@@ -59,11 +59,15 @@ class HomeController < ApplicationController
       return nil unless value
     
       parse_item = ->(item) {
-        parsed = JSON.parse(
-          item.gsub(/:(\w+)=>/, '"\1":').gsub('=>', ':').gsub('\"', '"')
-        )
-        yield(parsed) if block_given?
-        parsed
+        begin
+          parsed = JSON.parse(
+            item.gsub(/:(\w+)=>/, '"\1":').gsub('=>', ':').gsub('\"', '"')
+          )
+          yield(parsed) if block_given?
+          parsed
+        rescue JSON::ParserError => e
+          nil
+        end
       }
 
       if value.is_a?(Array)
