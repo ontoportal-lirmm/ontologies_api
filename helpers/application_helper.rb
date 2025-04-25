@@ -390,27 +390,28 @@ module Sinatra
         latest_submissions
       end
 
-      def get_ontology_and_submission
-        ont = Ontology.find(@params["ontology"])
+      def get_ontology_and_submission(ontology_acronym: nil)
+        acronym = ontology_acronym || @params["ontology"]
+        ont = Ontology.find(acronym)
                       .include(:acronym, :administeredBy, :acl, :viewingRestriction)
                       .include(submissions:
                                  [:submissionId, submissionStatus: [:code], ontology: [:acronym], metrics: :classes])
                       .first
-        error(404, "Ontology '#{@params["ontology"]}' not found.") if ont.nil?
+        error(404, "Ontology (artefact) '#{acronym}' not found.") if ont.nil?
         check_access(ont) if LinkedData.settings.enable_security # Security check
         submission = nil
         if @params.include? "ontology_submission_id"
           submission = ont.submission(@params[:ontology_submission_id])
           if submission.nil?
             error 404,
-                  "You must provide an existing submission ID for the #{@params["acronym"]} ontology"
+                  "You must provide an existing submission (distribution) ID for the #{acronym} ontology (artefact)"
           end
         else
           submission = ont.latest_submission(status: [:RDF])
         end
-        error 404, "Ontology #{@params["ontology"]} submission not found." if submission.nil?
+        error 404, "Ontology (artefact) #{acronym} submission (distribution) not found." if submission.nil?
         if !submission.ready?(status: [:RDF])
-          error 404, "Ontology #{@params["ontology"]} submission #{submission.submissionId} has not been parsed."
+          error 404, "Ontology (artefact) #{acronym} submission (distribution) #{submission.submissionId} has not been parsed."
         end
 
         save_submission_language(submission)
