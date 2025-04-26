@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: e48a2d13a65cc2dd1c12d116cfc9da9061106861
+  revision: 04680ed78dfd98cfe004d9a1d7019f3f06e9b667
   branch: development
   specs:
     goo (0.0.2)
@@ -29,7 +29,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: cc4cd9218db7181c4843772631b7f3a96c74a4aa
+  revision: 3cf75117e8023115cfdec1c8d5a3d78f273d19db
   branch: master
   specs:
     ncbo_cron (0.0.1)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: f67735fba1744b3aba25144e64634c30c2545f39
+  revision: 913ff00af28225c00133ba41cc2d51eb08cd90ff
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -103,7 +103,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: c918134b0a520cb80b8b4cc3ab222cb6bbd9c827
+  revision: 91cfb548c9e50a65324a9ce9e4ea5f10cd897027
   specs:
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -128,7 +128,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.2.2.1)
+    activesupport (8.0.2)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -140,6 +140,7 @@ GEM
       minitest (>= 5.1)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
+      uri (>= 0.13.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     airbrussh (1.5.3)
@@ -181,7 +182,7 @@ GEM
     ed25519 (1.3.0)
     et-orbi (1.2.11)
       tzinfo
-    faraday (2.13.0)
+    faraday (2.13.1)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -279,7 +280,7 @@ GEM
       mutex_m
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    json (2.11.2)
+    json (2.11.3)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
@@ -584,4 +585,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.6.3
+   2.4.22
