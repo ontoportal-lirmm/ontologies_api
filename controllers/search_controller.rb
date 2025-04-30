@@ -163,11 +163,43 @@ class SearchController < ApplicationController
           sort = "score desc, acronym_sort asc, name_sort asc"
         end
 
-        reply 200, search(LinkedData::Models::Agent,
+        resp = search(LinkedData::Models::Agent,
                           query,
                           fq: fq, qf: qf,
                           page: page, page_size: page_size,
                           sort: sort)
+
+        agents = resp.map do |doc|
+          affiliations = Array(doc["affiliations_txt"]).map do |aff_txt|
+            begin
+              parsed = JSON.parse(aff_txt)
+              LinkedData::Models::Agent.read_only(
+                id: parsed["id"],
+                name: parsed["name"],
+                acronym: parsed["acronym"],
+                email: parsed["email"],
+                agentType: parsed["agentType"]
+              )
+            rescue JSON::ParserError => e
+              puts "Invalid affiliation JSON: #{aff_txt}"
+              nil
+            end
+          end.compact
+          LinkedData::Models::Agent.read_only(
+            id:           doc["id"],
+            agentType:    doc["agentType_t"],
+            name:         doc["name_text"],
+            homepage:     doc["homepage_t"],
+            acronym:      doc["acronym_text"],
+            email:        doc["email_text"],
+            identifiers:  doc["identifiers"],
+            affiliations: affiliations,
+            creator:      doc["creator_t"],
+            usages: LinkedData::Models::Agent.find(doc["id"].split("/")[-1]).include(LinkedData::Models::Agent.attributes).first.usages
+          )
+        end
+
+        reply 200, page_object(agents, resp.aggregate)
       end
     end
 
