@@ -5,47 +5,6 @@ module Sinatra
 
     module HomeHelper
 
-      def routes_list
-        return @navigable_routes if @navigable_routes
-
-        routes = Sinatra::Application.routes['GET']
-        navigable_routes = []
-        routes.each do |route|
-          navigable_routes << route[0].to_s.split('?').first
-        end
-        @navigable_routes = navigable_routes
-        navigable_routes
-      end
-
-      def routes_by_class
-        {
-          '/agents' => LinkedData::Models::Agent,
-          '/annotator' => nil,
-          '/categories' => LinkedData::Models::Category,
-          '/groups' => LinkedData::Models::Group,
-          '/documentation' => nil,
-          '/mappings' => LinkedData::Models::Mapping,
-          '/metrics' => LinkedData::Models::Metric,
-          '/notes' => LinkedData::Models::Note,
-          '/ontologies' => LinkedData::Models::Ontology,
-          '/ontologies_full' => LinkedData::Models::Ontology,
-          '/analytics' => nil,
-          '/submissions' => LinkedData::Models::OntologySubmission,
-          '/projects' => LinkedData::Models::Project,
-          '/property_search' => nil,
-          '/provisional_classes' => LinkedData::Models::ProvisionalClass,
-          '/provisional_relations' => LinkedData::Models::ProvisionalRelation,
-          '/recommender' => nil,
-          '/replies' => LinkedData::Models::Notes::Reply,
-          '/reviews' => LinkedData::Models::Review,
-          '/search' => nil,
-          '/slices' => LinkedData::Models::Slice,
-          '/submission_metadata' => nil,
-          '/ontology_metadata' => nil,
-          '/users' => LinkedData::Models::User
-        }
-      end
-
       def resource_collection_link(cls)
         resource = @metadata[:cls].name.split("::").last
         return "" if resource.nil?
@@ -71,8 +30,6 @@ module Sinatra
           "Example: "\
             "<a href='/ontologies/NCIT/submissions?display=submissionId,version'>"\
             "/ontologies/NCIT/submissions?display=submissionId,version</a>"
-        when (routes_list().include? resource_path) == false
-          "Example: coming soon"
         else
           "Resource collection: <a href='#{resource_path}'>#{resource_path}</a>"
         end
@@ -96,13 +53,25 @@ module Sinatra
 
       def get_metadata_all
         return @metadata_all_info if @metadata_all_info
-
-        ld_classes = ObjectSpace.each_object(Class).select { |klass| klass < LinkedData::Hypermedia::Resource }
         info = {}
-
-        ld_classes.each do |cls|
-          next unless routes_by_class.value?(cls)
-
+        routes_cls = [
+          LinkedData::Models::Agent,
+          LinkedData::Models::Category,
+          LinkedData::Models::Group,
+          LinkedData::Models::Mapping,
+          LinkedData::Models::Metric,
+          LinkedData::Models::Note,
+          LinkedData::Models::Ontology,
+          LinkedData::Models::OntologySubmission,
+          LinkedData::Models::Project,
+          LinkedData::Models::ProvisionalClass,
+          LinkedData::Models::ProvisionalRelation,
+          LinkedData::Models::Notes::Reply,
+          LinkedData::Models::Review,
+          LinkedData::Models::Slice,
+          LinkedData::Models::User
+        ]
+        routes_cls.each do |cls|
           attributes = if cls.respond_to?(:attributes)
                          (cls.attributes(:all) + cls.hypermedia_settings[:serialize_methods]).uniq
                        else

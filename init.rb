@@ -21,7 +21,8 @@ Sinatra.register do
         http_verb = verb.to_s.downcase
         app.public_send(http_verb, "#{pattern}/") do
           pass unless request.path_info.end_with?('/')
-          redirect request.path_info.to_s, 301
+          redirect_path = request.path_info.chomp('/')
+          redirect redirect_path, 301
         end
       end
     end

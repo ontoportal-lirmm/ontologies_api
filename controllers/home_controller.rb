@@ -2,48 +2,18 @@ require 'haml'
 
 class HomeController < ApplicationController
 
-  CLASS_MAP = {
-    Property: 'LinkedData::Models::ObjectProperty'
-  }
-
   namespace '/' do
 
     get do
       expires 3600, :public
       last_modified @@root_last_modified ||= Time.now.httpdate
-      routes = routes_list
-
-      # TODO: delete when ccv will be on production
-      routes.delete('/ccv')
-
-      routes.delete('/resource_index') if LinkedData.settings.enable_resource_index == false
-
-      routes.delete('/Agents')
-
-      routes_hash = {}
-      context = {}
-
-      routes.each do |route|
-        next unless  routes_by_class.key?(route)
-
-        route_no_slash = route.gsub('/', '')
-        context[route_no_slash] = routes_by_class[route].type_uri.to_s if routes_by_class[route].respond_to?(:type_uri)
-        routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
-      end
 
       catalog_class = LinkedData::Models::SemanticArtefactCatalog
       catalog = catalog_class.all.first || create_catalog
       attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
       catalog.bring(*attributes_to_include)
-      if catalog.loaded_attributes.include?(:federated_portals)
-        catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
-        catalog.federated_portals.each { |item| item.delete('apikey') }
-      end
-      if catalog.loaded_attributes.include?(:fundedBy)
-        catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) } 
-      end
-      catalog.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
-      
+      catalog.federated_portals = safe_parse(catalog.federated_portals) { |item| item.delete('apikey') } if catalog.loaded_attributes.include?(:federated_portals)
+      catalog.fundedBy = safe_parse(catalog.fundedBy) if catalog.loaded_attributes.include?(:fundedBy) 
       reply catalog
     end
 
@@ -54,6 +24,7 @@ class HomeController < ApplicationController
       if catalog.valid?
         catalog.save
         status 200
+        reply catalog
       else
         error 422, catalog.errors
       end
@@ -74,7 +45,7 @@ class HomeController < ApplicationController
       catalog = nil
       catalogs = LinkedData::Models::SemanticArtefactCatalog.all
       if catalogs.nil? || catalogs.empty?
-          catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {"test_attr_to_persist" => "test_to_persist"})
+          catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {})
           if catalog.valid?
               catalog.save
           else
@@ -82,8 +53,29 @@ class HomeController < ApplicationController
           end
       end
       catalog
-  end
-  
+    end
+    
+    def safe_parse(value)
+      return nil unless value
+    
+      parse_item = ->(item) {
+        begin
+          parsed = JSON.parse(
+            item.gsub(/:(\w+)=>/, '"\1":').gsub('=>', ':').gsub('\"', '"')
+          )
+          yield(parsed) if block_given?
+          parsed
+        rescue JSON::ParserError => e
+          nil
+        end
+      }
+
+      if value.is_a?(Array)
+        value.map { |item| parse_item.call(item) }
+      else
+        parse_item.call(value)
+      end
+    end
 
   end
 end
