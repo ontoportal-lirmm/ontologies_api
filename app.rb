@@ -138,7 +138,7 @@ end
 if $SENTRY_DSN
   require 'sentry-ruby'
   Sentry.init do |config|
-    config.dsn = 'https://7107fa4c87da5eff9e2275c1f4169d0a@o4509215579701248.ingest.de.sentry.io/4509333176123472'
+    config.dsn = $SENTRY_DSN
 
     # Add data like request headers and IP for users,
     # see https://docs.sentry.io/platforms/ruby/data-management/data-collected/ for more info
