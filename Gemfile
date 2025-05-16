@@ -38,7 +38,7 @@ gem 'redis'
 gem 'redis-store'
 
 # Monitoring
-gem 'newrelic_rpm', group: [:default, :deployment]
+gem "sentry-ruby", "~> 5.24"
 
 # HTTP server
 gem 'unicorn'
@@ -91,3 +91,4 @@ group :test do
   gem 'webmock'
   gem 'webrick'
 end
+
