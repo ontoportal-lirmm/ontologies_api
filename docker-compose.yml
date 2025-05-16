@@ -155,8 +155,6 @@ services:
     ports:
       - 1111:1111
       - 8890:8890
-    profiles:
-      - vo
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf  http://localhost:8890/sparql  || exit 1" ]
       start_period: 10s

@@ -28,6 +28,7 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run unit tests
         run: |
+          cp .env.sample .env
           ci_env=`bash <(curl -s https://codecov.io/env)`
           GOO_SLICES=${{ matrix.goo-slice }} bundle exec rake test:docker:${{ matrix.triplestore }}
 
