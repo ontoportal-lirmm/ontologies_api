@@ -13,7 +13,4 @@ class SubmissionMetadataController < ApplicationController
     reply klass_metadata(LinkedData::Models::Ontology, "ontology_metadata")
   end
 
-  get "/catalog_metadata" do
-    reply klass_metadata(LinkedData::Models::SemanticArtefactCatalog, "catalog_metadata")
-  end
 end

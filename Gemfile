@@ -5,7 +5,7 @@ gem 'json-schema'
 gem 'multi_json'
 gem 'oj'
 gem 'parseconfig'
-gem 'rack'
+gem 'rack', '3.1.10'
 gem 'rake'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
 gem 'sinatra'

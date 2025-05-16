@@ -31,36 +31,15 @@ class HomeController < ApplicationController
         routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
       end
 
-      catalog_class = LinkedData::Models::SemanticArtefactCatalog
-      catalog = catalog_class.all.first || create_catalog
-      attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
-      catalog.bring(*attributes_to_include)
-      if catalog.loaded_attributes.include?(:federated_portals)
-        catalog.federated_portals = catalog.federated_portals.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) }
-        catalog.federated_portals.each { |item| item.delete('apikey') }
-      end
-      if catalog.loaded_attributes.include?(:fundedBy)
-        catalog.fundedBy = catalog.fundedBy.map { |item| JSON.parse(item.gsub('=>', ':').gsub('\"', '"')) } 
-      end
-      catalog.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
-      
-      reply catalog
-    end
+      config = LinkedData::Models::PortalConfig.current_portal_config
 
-    patch do
-      catalog = LinkedData::Models::SemanticArtefactCatalog.where.first
-      error 422, "There is no catalog configs in the triple store" if catalog.nil?
-      populate_from_params(catalog, params)
-      if catalog.valid?
-        catalog.save
-        status 200
-      else
-        error 422, catalog.errors
-      end
-    end
+      federated_portals = config.federated_portals
+      federated_portals.transform_values! { |v| v.delete(:apikey); v }
+      config.init_federated_portals_settings(federated_portals)
+      config.id = RDF::URI.new(LinkedData.settings.id_url_prefix)
+      config.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
 
-    get "doc/api" do
-      redirect "/documentation", 301
+      reply config
     end
 
     get "documentation" do
@@ -70,20 +49,7 @@ class HomeController < ApplicationController
 
     private
 
-    def create_catalog
-      catalog = nil
-      catalogs = LinkedData::Models::SemanticArtefactCatalog.all
-      if catalogs.nil? || catalogs.empty?
-          catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {"test_attr_to_persist" => "test_to_persist"})
-          if catalog.valid?
-              catalog.save
-          else
-              error 422, catalog.errors
-          end
-      end
-      catalog
-  end
-  
+
 
   end
 end
