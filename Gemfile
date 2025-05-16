@@ -17,7 +17,7 @@ end
 
 gem 'request_store'
 gem 'parallel'
-gem 'google-protobuf'
+gem 'google-protobuf', '~> 4.30.0'
 gem 'net-ftp'
 gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
@@ -38,7 +38,7 @@ gem 'redis'
 gem 'redis-store'
 
 # Monitoring
-gem 'newrelic_rpm', group: [:default, :deployment]
+gem "sentry-ruby", "~> 5.24"
 
 # HTTP server
 gem 'unicorn'
@@ -53,8 +53,8 @@ gem 'pandoc-ruby'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
-gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', ref: '54ca6e05268746412fe4021207629d1b5c69700c'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'master'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 group :development do
@@ -91,3 +91,4 @@ group :test do
   gem 'webmock'
   gem 'webrick'
 end
+
