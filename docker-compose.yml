@@ -9,9 +9,9 @@ x-app: &app
     REDIS_PORT: 6379
     SOLR_TERM_SEARCH_URL: http://solr-ut:8983/solr
     SOLR_PROP_SEARCH_URL: http://solr-ut:8983/solr
-    GOO_BACKEND_NAME: 4store
-    GOO_PORT: 9000
-    GOO_HOST: 4store-ut
+    GOO_BACKEND_NAME: virtuoso
+    GOO_PORT: 8890
+    GOO_HOST: virtuoso-ut
     MGREP_HOST: mgrep-ut
     MGREP_PORT: 55555
     REPOSITORY_FOLDER: /srv/ontoportal/data/repository
@@ -32,8 +32,6 @@ services:
       <<: *env
       BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
 
-    profiles:
-      - 4store
     depends_on:
       solr-ut:
         condition: service_healthy
@@ -41,7 +39,7 @@ services:
         condition: service_healthy
       mgrep-ut:
         condition: service_started
-      4store-ut:
+      virtuoso-ut:
         condition: service_started
       ncbo_cron:
         condition: service_started
@@ -61,8 +59,6 @@ services:
       <<: *env
       BUNDLE_APP_CONFIG: /srv/ontoportal/ncbo_cron/.bundle
     command: "bundle exec bin/ncbo_cron"
-    profiles:
-      - 4store
     volumes:
       - app_cron:/srv/ontoportal/ncbo_cron
       - repository:/srv/ontoportal/data/repository
@@ -77,7 +73,7 @@ services:
         condition: service_healthy
       mgrep-ut:
         condition: service_started
-      4store-ut:
+      virtuoso-ut:
         condition: service_started
 
 
