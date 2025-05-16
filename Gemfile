@@ -53,8 +53,8 @@ gem 'pandoc-ruby'
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
-gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'master'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', ref: '54ca6e05268746412fe4021207629d1b5c69700c'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'master'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
 
 group :development do
