@@ -81,9 +81,6 @@ class ArtefactsMetadataController < ApplicationController
         reply distros
       end
 
-    end
-
-    namespace "/records" do
       doc('Record', "Get information about a semantic artefact catalog record") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
         parameter('display', type: 'string', description: 'Attributes to display')
@@ -97,6 +94,9 @@ class ArtefactsMetadataController < ApplicationController
         record.bring(*LinkedData::Models::SemanticArtefactCatalogRecord.goo_attrs_to_load(includes_param))
         reply record
       end
+    end
+
+    namespace "/records" do
 
       doc('Record', "Get information about all semantic artefact catalog records") do
         parameter('page', type: 'integer', description: 'Page number', default: '1')
