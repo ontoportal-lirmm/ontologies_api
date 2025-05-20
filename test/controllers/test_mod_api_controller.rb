@@ -80,7 +80,7 @@ class TestArtefactsController < TestCase
 
     
     def test_all_artefacts
-        route = '/artefacts'
+        route = '/mod-api/artefacts'
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         artefacts_page_data = MultiJson.load(last_response.body)
@@ -91,7 +91,7 @@ class TestArtefactsController < TestCase
     end
 
     def test_one_artefact
-        route = "/artefacts/#{@@ontology_0_acronym}"
+        route = "/mod-api/artefacts/#{@@ontology_0_acronym}"
         get route
         assert last_response.ok?
         artefact_data = MultiJson.load(last_response.body)
@@ -99,7 +99,7 @@ class TestArtefactsController < TestCase
     end
 
     def test_all_distributions
-        route = "/artefacts/#{@@ontology_0_acronym}/distributions"
+        route = "/mod-api/artefacts/#{@@ontology_0_acronym}/distributions"
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         dists_page_data = MultiJson.load(last_response.body)
@@ -107,7 +107,7 @@ class TestArtefactsController < TestCase
     end
 
     def test_one_distribution
-        route = "/artefacts/#{@@ontology_0_acronym}/distributions/1"
+        route = "/mod-api/artefacts/#{@@ontology_0_acronym}/distributions/1"
         get route
         assert last_response.ok?
         dist_data = MultiJson.load(last_response.body)
@@ -115,7 +115,7 @@ class TestArtefactsController < TestCase
     end
 
     def test_latest_distribution
-        route = "/artefacts/#{@@ontology_0_acronym}/distributions/latest"
+        route = "/mod-api/artefacts/#{@@ontology_0_acronym}/distributions/latest"
         get route
         assert last_response.ok?
         dist_data = MultiJson.load(last_response.body)
@@ -124,7 +124,7 @@ class TestArtefactsController < TestCase
 
     def test_resources
         total_count = total_resources_count
-        route =  "/artefacts/#{@@ontology_0_acronym}/resources"
+        route =  "/mod-api/artefacts/#{@@ontology_0_acronym}/resources"
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         resources_page_data = MultiJson.load(last_response.body)
@@ -133,7 +133,7 @@ class TestArtefactsController < TestCase
 
     %w[classes individuals].each do |resource|
         define_method("test_#{resource}") do
-            route = "/artefacts/#{@@ontology_0_acronym}/resources/#{resource}"
+            route = "/mod-api/artefacts/#{@@ontology_0_acronym}/resources/#{resource}"
             get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
             assert last_response.ok?
             page_data = MultiJson.load(last_response.body)
@@ -148,7 +148,7 @@ class TestArtefactsController < TestCase
     
     %w[concepts schemes collections labels].each do |resource|
         define_method("test_#{resource}") do
-            route = "/artefacts/#{@@ontology_0_acronym}/resources/#{resource}"
+            route = "/mod-api/artefacts/#{@@ontology_0_acronym}/resources/#{resource}"
             get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
             assert last_response.ok?
             page_data = MultiJson.load(last_response.body)
@@ -162,7 +162,7 @@ class TestArtefactsController < TestCase
     end
     
     def test_properties
-        route = "/artefacts/#{@@ontology_0_acronym}/resources/properties" 
+        route = "/mod-api/artefacts/#{@@ontology_0_acronym}/resources/properties" 
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         properties_page_data = MultiJson.load(last_response.body)
@@ -171,7 +171,7 @@ class TestArtefactsController < TestCase
     end
     
     def test_records
-        route = "/records"
+        route = "/mod-api/records"
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         records_page_data = MultiJson.load(last_response.body)
@@ -182,12 +182,12 @@ class TestArtefactsController < TestCase
     end
     
     def test_one_record
-        get "/records/#{@@ontology_0_acronym}"
+        get "/mod-api/records/#{@@ontology_0_acronym}"
         assert last_response.ok?
         record_data_from_records = MultiJson.load(last_response.body)
         assert_equal @@ontology_0_acronym, record_data_from_records["acronym"]
         
-        get "/artefacts/#{@@ontology_0_acronym}/record"
+        get "/mod-api/artefacts/#{@@ontology_0_acronym}/record"
         assert last_response.ok?
         record_data_from_artefact = MultiJson.load(last_response.body)
         assert_equal @@ontology_0_acronym, record_data_from_artefact["acronym"]

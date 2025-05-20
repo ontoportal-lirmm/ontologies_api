@@ -4,6 +4,10 @@ class HomeController < ApplicationController
 
   namespace '/' do
 
+    doc('Catalog', 'Get the semantic artefact catalogue') do
+      parameter('display', type: 'string', description: 'Attributes to display', default: '')
+      response(200, "OK")
+    end
     get do
       expires 3600, :public
       last_modified @@root_last_modified ||= Time.now.httpdate

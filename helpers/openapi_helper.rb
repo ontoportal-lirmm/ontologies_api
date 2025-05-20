@@ -6,7 +6,8 @@ module Sinatra
       Parameter = Struct.new(:name, :in, :required, :type, :description, :default, :schema, keyword_init: true)
       Response = Struct.new(:description, :content, keyword_init: true)
 
-      def initialize(summary)
+      def initialize(tags, summary)
+        @tags = tags
         @summary = summary
         @parameters = []
         @responses = {}
@@ -14,6 +15,7 @@ module Sinatra
 
       def to_hash
         {
+          tags: @tags,
           summary: @summary,
           parameters: @parameters,
           responses: @responses
@@ -41,15 +43,15 @@ module Sinatra
       end
     end
 
-    def doc(summary, &block)
-      doc = OpenAPIDoc.new(summary)
+    def doc(tags = ["default"], summary, &block)
+      array_tags = [tags] unless tags.is_a?(Array)
+      doc = OpenAPIDoc.new(array_tags, summary)
       doc.instance_eval(&block)
       @pending_api_doc = doc.to_hash
     end
 
     def self.registered(app)
       app.before do
-        # Clear any pending documentation that wasn't used
         @pending_api_doc = nil
       end
     end

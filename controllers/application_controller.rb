@@ -23,61 +23,41 @@ class ApplicationController
     set :api_description, 'Ontoportal MOD-API documentation'
     set :base_url, LinkedData.settings.rest_url_prefix
 
-    # TODO: add them automatically
     set :api_schemas, {
-      artefacts: {
+      hydraPage: {
         type: 'object',
-        allOf: [
-          { '$ref' => '#/components/schemas/page' }
-        ],
+        required: ['@context', '@id', '@type', 'totalItems', 'itemsPerPage', 'member', 'view'],
         properties: {
-          collection: {
-            type: 'array',
-            items: { '$ref' => '#/components/schemas/modSemanticArtefact' }
-          }
-        }
-      },
-
-      distributions: {
-        type: 'object',
-        allOf: [
-          { '$ref' => '#/components/schemas/page' }
-        ],
-        properties: {
-          collection: {
-            type: 'array',
-            items: { '$ref' => '#/components/schemas/modSemanticArtefactDistribution' }
-          }
-        }
-      },
-
-      page:{
-        type: 'object',
-        properties: {
-          page: { type: 'integer' },
-          pageCount: { type: 'integer' },
-          totalCount: { type: 'integer' },
-          prevPage: { type: 'string', format: 'uri' },
-          nextPage: { type: 'string', format: 'uri' },
-          links: {
+          '@context': {
+            type: 'object'
+          },
+          '@id': { type: 'string', format: 'uri' },
+          '@type': { type: 'string', enum: ['hydra:Collection'] },
+          'totalItems': { type: 'integer' },
+          'itemsPerPage': { type: 'integer' },
+          'view': {
             type: 'object',
+            required: ['@id', '@type'],
             properties: {
-              nextPage: { type: 'string', format: 'uri' },
-              prevPage: { type: 'string', format: 'uri' }
+              '@id': { type: 'string', format: 'uri' },
+              '@type': { type: 'string', enum: ['hydra:PartialCollectionView'] },
+              'firstPage': { type: 'string', format: 'uri' },
+              'previousPage': { type: 'string', format: 'uri' },
+              'nextPage': { type: 'string', format: 'uri' },
+              'lastPage': { type: 'string', format: 'uri' }
             }
           },
-          collection: {
+          'member': {
             type: 'array',
-            items: { type: 'string' }
+            items: { type: 'object' }
           }
         }
       },
-
-      modSemanticArtefact: {
+        modSemanticArtefact: {
         type: 'object',
         properties: {
           '@id': { type: 'string', format: 'uri'},
-          '@type': { type: 'string', format: 'uri'},
+          '@type': { type: 'string',  const: 'https://w3id.org/mod#modSemanticArtefact' },
           links: { 
             type: 'object',
             properties: {
@@ -113,23 +93,9 @@ class ApplicationController
             }
           }
         }
-      },
-
-      error: {
-        type: 'object',
-        properties: {
-          errors: { 
-            type: 'array',
-            items: {
-              type: 'string'
-            }
-          },
-          status: { type: 'integer' }
-        }
       }
-
-
     }
+
   end
 
 end
