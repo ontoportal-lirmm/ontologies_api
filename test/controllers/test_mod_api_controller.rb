@@ -27,6 +27,7 @@ class TestArtefactsController < TestCase
         @@ontology_type = type == RDF::OWL[:Class] ? "OWL" : "SKOS"
         @@page = 2
         @@pagesize = 1
+        @@ontologies[0].latest_submission.index_all(Logger.new($stdout))
     end
 
     def test_home_controller

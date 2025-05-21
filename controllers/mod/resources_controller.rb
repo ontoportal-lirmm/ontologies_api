@@ -1,4 +1,4 @@
-class ArtefactsDataController < ApplicationController
+class ResourcesController < ApplicationController
   namespace "/mod-api" do
     namespace "/artefacts/:artefactID/resources" do
 
