@@ -185,11 +185,16 @@ class SearchController < ApplicationController
           sort = "score desc, acronym_sort asc, name_sort asc"
         end
 
-        reply 200, search(LinkedData::Models::Agent,
+        resp = search(LinkedData::Models::Agent,
                           query,
                           fq: fq, qf: qf,
                           page: page, page_size: page_size,
                           sort: sort)
+
+        agents = resp.map { |doc| build_agent_from_search_result(doc) }
+
+
+        reply 200, page_object(agents, resp.aggregate)
       end
     end
 

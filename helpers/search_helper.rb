@@ -509,7 +509,46 @@ module Sinatra
         query = params[:query] || params[:q]
         query
       end
+      def build_agent_from_search_result(doc)
+        affiliations = Array(doc["affiliations_txt"]).map do |aff_txt|
+          parse_affiliation(aff_txt)
+        end.compact
       
+        agent_id = doc["id"].split("/").last
+        usages = LinkedData::Models::Agent
+                  .find(agent_id)
+                  .include(LinkedData::Models::Agent.attributes)
+                  .first
+                  .usages
+      
+        LinkedData::Models::Agent.read_only(
+          id:           doc["id"],
+          agentType:    doc["agentType_t"],
+          name:         doc["name_text"],
+          homepage:     doc["homepage_t"],
+          acronym:      doc["acronym_text"],
+          email:        doc["email_text"],
+          identifiers:  doc["identifiers"],
+          affiliations: affiliations,
+          creator:      doc["creator_t"],
+          usages:       usages
+        )
+      end
+      def parse_affiliation(aff_txt)
+        begin
+          parsed =  MultiJson.load(aff_txt)
+          LinkedData::Models::Agent.read_only(
+            id: parsed["id"],
+            name: parsed["name"],
+            acronym: parsed["acronym"],
+            email: parsed["email"],
+            agentType: parsed["agentType"]
+          )
+        rescue JSON::ParserError => e
+          logger.error "Invalid affiliation JSON: #{aff_txt}"
+          nil
+        end
+      end
     end
   end
 end
