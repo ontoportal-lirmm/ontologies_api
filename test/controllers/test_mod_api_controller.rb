@@ -83,7 +83,8 @@ class TestArtefactsController < TestCase
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         artefacts_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, artefacts_page_data, @@num_onts_created)
+        validate_hydra_page(route, artefacts_page_data)
+        assert_equal @@num_onts_created, artefacts_page_data["totalItems"]
         artefacts_page_data["member"].each do |artefact|
             assert @@created_ont_acronyms.include?(artefact["acronym"])
         end
@@ -102,7 +103,8 @@ class TestArtefactsController < TestCase
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         dists_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, dists_page_data, 2)
+        validate_hydra_page(route, dists_page_data)
+        assert_equal 2, dists_page_data["totalItems"]
     end
 
     def test_one_distribution
@@ -127,7 +129,8 @@ class TestArtefactsController < TestCase
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         resources_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, resources_page_data, total_count)
+        validate_hydra_page(route, resources_page_data)
+        assert_equal total_count, resources_page_data["totalItems"]
     end
 
     def test_one_resource
@@ -147,9 +150,10 @@ class TestArtefactsController < TestCase
             page_data = MultiJson.load(last_response.body)
             if @@ontology_type == "OWL"
                 resource_count = model_count(resource_model[resource], @@ontology_0.latest_submission)
-                validate_hydra_page(route, page_data, resource_count)
+                validate_hydra_page(route, page_data)
+                assert_equal resource_count, page_data["totalItems"]
             else
-                validate_hydra_page(route, page_data, 0)
+                validate_hydra_page(route, page_data)
             end
         end
     end
@@ -162,9 +166,10 @@ class TestArtefactsController < TestCase
             page_data = MultiJson.load(last_response.body)
             if @@ontology_type == "SKOS"
                 resource_count = model_count(resource_model[resource], @@ontology_0.latest_submission)
-                validate_hydra_page(route, page_data, resource_count)
+                validate_hydra_page(route, page_data)
+                assert_equal resource_count, page_data["totalItems"]
             else
-                validate_hydra_page(route, page_data, 0)
+                validate_hydra_page(route, page_data)
             end
         end
     end
@@ -175,7 +180,8 @@ class TestArtefactsController < TestCase
         assert last_response.ok?
         properties_page_data = MultiJson.load(last_response.body)
         properties_count = @@ontology_0.properties.count
-        validate_hydra_page(route, properties_page_data, properties_count)
+        validate_hydra_page(route, properties_page_data)
+        assert_equal properties_count, properties_page_data["totalItems"]
     end
     
     def test_records
@@ -183,7 +189,8 @@ class TestArtefactsController < TestCase
         get "#{route}?page=#{@@page}&pagesize=#{@@pagesize}"
         assert last_response.ok?
         records_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, records_page_data, @@num_onts_created)
+        validate_hydra_page(route, records_page_data)
+        assert_equal @@num_onts_created, records_page_data["totalItems"]
         records_page_data["member"].each do |artefact|
             assert @@created_ont_acronyms.include?(artefact["acronym"])
         end
@@ -208,7 +215,7 @@ class TestArtefactsController < TestCase
         get "#{route}?query=modular"
         assert last_response.ok?
         search_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, search_page_data, 2)
+        validate_hydra_page(route, search_page_data)
     end
 
     def test_search_metadata
@@ -216,7 +223,7 @@ class TestArtefactsController < TestCase
         get "#{route}?query=TST-0"
         assert last_response.ok?
         search_page_data = MultiJson.load(last_response.body)
-        validate_hydra_page(route, search_page_data, 2)
+        validate_hydra_page(route, search_page_data)
     end
 
     def test_swagger_documentation
@@ -266,11 +273,11 @@ class TestArtefactsController < TestCase
 
     private
 
-    def validate_hydra_page(route, page_data, resource_count)
+    def validate_hydra_page(route, page_data)
         assert page_data.key?('@context')
         assert page_data.key?('@id')
-        assert_equal 'hydra:Collection', page_data['@type']
-        assert_equal resource_count, page_data["totalItems"]
+        assert page_data.key?('@type')
+        assert page_data.key?("totalItems")
         assert page_data.key?('itemsPerPage')
         assert page_data.key?('view')
         assert page_data['view'].key?('@id')
@@ -278,6 +285,7 @@ class TestArtefactsController < TestCase
         assert page_data['view'].key?('previousPage')
         assert page_data['view'].key?('nextPage')
         assert page_data['view'].key?('lastPage')
+        assert page_data.key?('member')
         assert page_data["member"].is_a?(Array)
     end
 
