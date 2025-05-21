@@ -534,10 +534,8 @@ module Sinatra
           usages:       usages
         )
       end
-      
       def parse_affiliation(aff_txt)
         begin
-          
           parsed =  MultiJson.load(aff_txt)
           LinkedData::Models::Agent.read_only(
             id: parsed["id"],
@@ -546,8 +544,11 @@ module Sinatra
             email: parsed["email"],
             agentType: parsed["agentType"]
           )
+        rescue JSON::ParserError => e
+          logger.error "Invalid affiliation JSON: #{aff_txt}"
+          nil
+        end
       end
-    end
     end
   end
 end
