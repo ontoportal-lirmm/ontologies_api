@@ -1,5 +1,5 @@
 class DocumentationController < ApplicationController
-  get '/mod-api/doc' do
+  get '/mod-api/doc/api' do
     content_type 'text/html'
     <<-HTML
           <!DOCTYPE html>

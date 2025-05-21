@@ -1,12 +1,10 @@
-class ArtefactsdataController < ApplicationController
+class ArtefactsDataController < ApplicationController
   namespace "/mod-api" do
     namespace "/artefacts/:artefactID/resources" do
 
       doc('Artefact', "Get a list of all the resources within an artefact") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get do
@@ -41,9 +39,7 @@ class ArtefactsdataController < ApplicationController
 
           doc('Artefact', "Get a list of all #{type} within an artefact") do
             path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-            parameter('page', type: 'integer', description: 'Page number', default: '1')
-            parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
-            parameter('display', type: 'string', description: 'Attributes to display', default: '')
+            default_params(display: true, pagination: true)
             response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
           end
           get "/#{type}" do
@@ -68,8 +64,7 @@ class ArtefactsdataController < ApplicationController
           doc('Artefact', "Get specific #{type} of a semantic artefact by it's uri") do
             path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
             path_parameter('uri', type: 'string', description: 'The uri of the resource', default: "FAKE_URI")
-            response(200, "OK")
-            response(404, "Not found")
+            default_responses(success: true, not_found: true)
           end
           get "/#{type}/:uri" do
             reply resolve_resource_by_uri
@@ -85,8 +80,7 @@ class ArtefactsdataController < ApplicationController
       doc('Artefact', "Get a specific resources from within an artefact") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
         path_parameter('uri', type: 'string', description: 'The uri of the resource', default: "FAKE_URI")
-        response(200, "OK")
-        response(404, "Not found")
+        default_responses(success: true, not_found: true)
       end
       get '/:uri' do
         reply resolve_resource_by_uri

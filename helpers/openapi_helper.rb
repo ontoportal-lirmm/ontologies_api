@@ -1,8 +1,10 @@
 require 'sinatra/base'
 require 'ostruct'
+
 module Sinatra
   module OpenAPIHelper
     class OpenAPIDoc
+      include Sinatra::OpenAPIHelper
       Parameter = Struct.new(:name, :in, :required, :type, :description, :default, :schema, keyword_init: true)
       Response = Struct.new(:description, :content, keyword_init: true)
 
@@ -44,10 +46,39 @@ module Sinatra
     end
 
     def doc(tags = ["default"], summary, &block)
-      array_tags = [tags] unless tags.is_a?(Array)
+      array_tags = tags.is_a?(Array) ? tags : [tags]
       doc = OpenAPIDoc.new(array_tags, summary)
       doc.instance_eval(&block)
       @pending_api_doc = doc.to_hash
+    end
+
+    def default_params(display: false, pagination: false, query: false)
+      display_param if display
+      pagination_params if pagination
+      query_param if query
+    end
+
+    def default_responses(success: false, created: false, no_content: false, bad_request: false, unauthorized: false, not_found: false, server_error: false)
+      response(200, "OK") if success
+      response(201, "Created") if created
+      response(204, "No Content") if no_content
+      response(400, "Bad Request") if bad_request
+      response(401, "Unauthorized") if unauthorized
+      response(404, "Not Found") if not_found
+      response(500, "Internal Server Error") if server_error
+    end
+
+    def display_param
+      parameter('display', type: 'string', description: 'Attributes to display', default: '')
+    end
+
+    def pagination_params
+      parameter('page', type: 'integer', description: 'Page number', default: '1')
+      parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
+    end
+
+    def query_param
+      parameter('q', type: 'string', description: 'Query text', default: 'plant')
     end
 
     def self.registered(app)

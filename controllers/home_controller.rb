@@ -5,8 +5,8 @@ class HomeController < ApplicationController
   namespace '/' do
 
     doc('Catalog', 'Get the semantic artefact catalogue') do
-      parameter('display', type: 'string', description: 'Attributes to display', default: '')
-      response(200, "OK")
+      default_params(display: true)
+      default_responses(success: true)
     end
     get do
       expires 3600, :public

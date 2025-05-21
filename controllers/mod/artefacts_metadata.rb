@@ -3,9 +3,7 @@ class ArtefactsMetadataController < ApplicationController
     namespace "/artefacts" do
 
       doc('Artefact', 'Get information about all semantic artefacts') do
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get do
@@ -19,9 +17,8 @@ class ArtefactsMetadataController < ApplicationController
 
       doc('Artefact', 'Get information about a semantic artefact') do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
-        response(200, "OK")
-        response(404, "Not found")
+        default_params(display: true)
+        default_responses(success: true, not_found: true)
       end
       get "/:artefactID" do
         artefact = find_artefact(params["artefactID"])
@@ -33,8 +30,8 @@ class ArtefactsMetadataController < ApplicationController
 
       doc('Artefact', "Get information about a semantic artefact's latest distribution") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
-        response(200, "OK")
+        default_params(display: true)
+        default_responses(success: true)
       end
       get "/:artefactID/distributions/latest" do
         artefact = find_artefact(params["artefactID"])
@@ -51,9 +48,8 @@ class ArtefactsMetadataController < ApplicationController
       doc('Artefact', "Get information about a semantic artefact's distribution") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
         path_parameter('distributionID', type: 'number', description: 'The id of the distribution', default: 5)
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
-        response(200, "OK")
-        response(404, "Not found")
+        default_params(display: true)
+        default_responses(success: true, not_found: true)
       end
       get '/:artefactID/distributions/:distributionID' do
         artefact = find_artefact(params["artefactID"])
@@ -66,11 +62,9 @@ class ArtefactsMetadataController < ApplicationController
 
       doc('Artefact', "Get information about a semantic artefact's distributions") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
-        response(404, "Not found")
+        default_responses(not_found: true)
       end
       get '/:artefactID/distributions' do
         artefact = find_artefact(params["artefactID"])
@@ -83,9 +77,8 @@ class ArtefactsMetadataController < ApplicationController
 
       doc('Record', "Get information about a semantic artefact catalog record") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('display', type: 'string', description: 'Attributes to display')
-        response(200, "OK")
-        response(404, "Not found")
+        default_params(display: true)
+        default_responses(success: true, not_found: true)
       end
       get "/:artefactID/record" do
         record = LinkedData::Models::SemanticArtefactCatalogRecord.find(params["artefactID"])
@@ -99,9 +92,7 @@ class ArtefactsMetadataController < ApplicationController
     namespace "/records" do
 
       doc('Record', "Get information about all semantic artefact catalog records") do
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '20')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get do
@@ -115,9 +106,8 @@ class ArtefactsMetadataController < ApplicationController
 
       doc('Record', "Get information about a semantic artefact catalog record") do
         path_parameter('artefactID', type: 'string', description: 'The acronym of the artefact', default: "STY")
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
-        response(200, "OK")
-        response(404, "Not found")
+        default_params(display: true)
+        default_responses(success: true, not_found: true)
       end
       get "/:artefactID" do
         record = LinkedData::Models::SemanticArtefactCatalogRecord.find(params["artefactID"])

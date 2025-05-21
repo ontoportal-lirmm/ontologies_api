@@ -1,12 +1,9 @@
-class ArtefactsMetadataController < ApplicationController
+class ArtefactsSearchController < ApplicationController
   namespace "/mod-api" do
     namespace "/search" do
       
       doc('Search', 'Search content/metadata of artefacts') do
-        parameter('q', type: 'string', description: 'Query text', default: 'plant')
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true, query: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get do
@@ -15,10 +12,7 @@ class ArtefactsMetadataController < ApplicationController
       end
 
       doc('Search', 'Search content of artefacts') do
-        parameter('q', type: 'string', description: 'Query text', default: 'plant')
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true, query: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get '/content' do
@@ -27,10 +21,7 @@ class ArtefactsMetadataController < ApplicationController
       end
 
       doc('Search', 'Search metadata of artefacts') do
-        parameter('q', type: 'string', description: 'Query text', default: 'STY')
-        parameter('page', type: 'integer', description: 'Page number', default: '1')
-        parameter('pagesize', type: 'integer', description: 'Number of items per page', default: '10')
-        parameter('display', type: 'string', description: 'Attributes to display', default: '')
+        default_params(display: true, pagination: true, query: true)
         response(200, "OK", content('$ref' => '#/components/schemas/hydraPage'))
       end
       get '/metadata' do
