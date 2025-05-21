@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: faaf44416bba3f8cdccb423c6759730a22c9bf1e
-  branch: fix/make_links_local_to_hydra_members
+  revision: a7fba21bad56859712d7cdcdd7b14adad194e6c8
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -177,7 +177,7 @@ GEM
     declarative (0.0.20)
     docile (1.4.1)
     domain_name (0.6.20240107)
-    drb (2.2.1)
+    drb (2.2.3)
     ed25519 (1.4.0)
     et-orbi (1.2.11)
       tzinfo
@@ -261,7 +261,7 @@ GEM
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
-    hashdiff (1.1.2)
+    hashdiff (1.2.0)
     htmlentities (4.3.4)
     http-accept (1.7.0)
     http-cookie (1.0.8)
@@ -301,7 +301,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0514)
+    mime-types-data (3.2025.0520)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
