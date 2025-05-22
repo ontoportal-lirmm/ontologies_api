@@ -1,12 +1,12 @@
 class DocumentationController < ApplicationController
-  get '/doc/api' do
+  get '/mod-api/doc/api' do
     content_type 'text/html'
     <<-HTML
           <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="utf-8" />
-            <title>API Documentation</title>
+            <title>MOD-API Documentation</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css" />
           </head>
           <body>
