@@ -9,18 +9,26 @@ class AdminController < ApplicationController
       end
     }
 
-    # TODO: remove this endpoint. It's termporary to test the update check functionality
-    # get "/latestversion" do
-    #   iid = params["iid"]
-    #   ver = params["version"]
-    #
-    #   latest_ver_info = {
-    #       update_version: "2.5RC3", #"2.6RC1",
-    #       update_available: true,
-    #       notes: "blah blah and more"
-    #   }
-    #   reply MultiJson.dump latest_ver_info
-    # end
+
+    get "/scheduled_jobs" do
+      reply MultiJson.dump scheduled_jobs_map
+    end
+
+    get "/scheduled_jobs/log" do
+      log_path = cron_daemon_options[:log_path]
+      stream_file(log_path)
+    end
+
+    get "/scheduled_jobs/:job/log" do
+      scheduled_jobs = scheduled_jobs_map
+      job_name = params["job"]
+      error 404, "You must provide a valid `job` to retrieve its log" unless scheduled_jobs.has_key?(job_name.to_sym)
+
+      log_dir_name = File.dirname(cron_daemon_options[:log_path])
+      log_file_name = "#{log_dir_name.chomp '/'}/scheduler-#{job_name.gsub '_', '-'}.log"
+
+      stream_file(log_file_name)
+    end
 
     get "/update_info" do
       um = NcboCron::Models::UpdateManager.new
