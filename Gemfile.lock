@@ -232,6 +232,12 @@ GEM
     google-protobuf (4.31.0)
       bigdecimal
       rake (>= 13)
+    google-protobuf (4.31.0-arm64-darwin)
+      bigdecimal
+      rake (>= 13)
+    google-protobuf (4.31.0-x86_64-darwin)
+      bigdecimal
+      rake (>= 13)
     googleapis-common-protos (1.8.0)
       google-protobuf (>= 3.18, < 5.a)
       googleapis-common-protos-types (~> 1.20)
