@@ -544,7 +544,7 @@ module Sinatra
             email: parsed["email"],
             agentType: parsed["agentType"]
           )
-        rescue JSON::ParserError => e
+        rescue MultiJson::ParseError => e
           logger.error "Invalid affiliation JSON: #{aff_txt}"
           nil
         end
