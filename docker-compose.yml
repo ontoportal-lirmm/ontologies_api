@@ -12,6 +12,9 @@ x-app: &app
     GOO_BACKEND_NAME: virtuoso
     GOO_PORT: 8890
     GOO_HOST: virtuoso-ut
+    GOO_PATH_DATA: /sparql/
+    GOO_PATH_QUERY: /sparql/
+    GOO_PATH_UPDATE: /sparql/
     MGREP_HOST: mgrep-ut
     MGREP_PORT: 55555
     REPOSITORY_FOLDER: /srv/ontoportal/data/repository

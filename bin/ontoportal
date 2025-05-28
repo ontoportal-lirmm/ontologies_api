@@ -119,7 +119,7 @@ provision() {
   )
   for cmd in "${commands[@]}"; do
     echo "[+] Run: $cmd"
-    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\" >/dev/null 2>&1" 
+    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\"" 
     if ! eval "$docker_cron_cmd"; then
         echo "Error: Failed to run provisioning .  $cmd"
         exit 1
