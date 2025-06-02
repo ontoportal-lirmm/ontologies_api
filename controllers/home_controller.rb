@@ -16,7 +16,7 @@ class HomeController < ApplicationController
       catalog = catalog_class.all.first || create_catalog
       attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
       catalog.bring(*attributes_to_include)
-      catalog.federated_portals = safe_parse(catalog.federated_portals) if catalog.loaded_attributes.include?(:federated_portals)
+      catalog.federated_portals = safe_parse(catalog.federated_portals) { |item| item.delete('apikey') unless current_user&.admin? } if catalog.loaded_attributes.include?(:federated_portals)
       catalog.fundedBy = safe_parse(catalog.fundedBy) if catalog.loaded_attributes.include?(:fundedBy) 
       reply catalog
     end
