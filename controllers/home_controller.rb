@@ -9,11 +9,10 @@ class HomeController < ApplicationController
       default_responses(success: true)
     end
     get do
-      expires 3600, :public
-      last_modified @@root_last_modified ||= Time.now.httpdate
-
       catalog_class = LinkedData::Models::SemanticArtefactCatalog
       catalog = catalog_class.all.first || create_catalog
+      check_last_modified(catalog)
+
       attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
       catalog.bring(*attributes_to_include)
       catalog.federated_portals = safe_parse(catalog.federated_portals) { |item| item.delete('apikey') unless current_user&.admin? } if catalog.loaded_attributes.include?(:federated_portals)
@@ -27,7 +26,6 @@ class HomeController < ApplicationController
       populate_from_params(catalog, params)
       if catalog.valid?
         catalog.save
-        @@root_last_modified = Time.now.httpdate
         status 200
         reply catalog
       else
