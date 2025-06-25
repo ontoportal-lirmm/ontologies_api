@@ -21,6 +21,7 @@ class HomeController < ApplicationController
     end
 
     patch do
+      error 401, "Unauthorized: Admin access required to update the catalog" unless current_user&.admin?
       catalog = LinkedData::Models::SemanticArtefactCatalog.where.first
       error 422, "There is no catalog configs in the triple store" if catalog.nil?
       populate_from_params(catalog, params)
