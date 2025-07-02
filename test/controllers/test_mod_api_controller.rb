@@ -121,7 +121,7 @@ class TestArtefactsController < TestCase
         get route
         assert last_response.ok?
         dist_data = MultiJson.load(last_response.body)
-        assert_equal 1, dist_data["distributionId"]
+        assert_equal 2, dist_data["distributionId"]
     end
 
     def test_resources

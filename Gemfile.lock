@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 8ce21d045c6fe829c6893c472e2293233d65d402
+  revision: 505fbb9f2d9ec23834cfcd5ffd2ba1249b2b254e
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -307,7 +307,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0624)
+    mime-types-data (3.2025.0701)
     mini_mime (1.1.5)
     minitest (5.25.5)
     minitest-fail-fast (0.1.0)
