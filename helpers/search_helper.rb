@@ -75,7 +75,7 @@ module Sinatra
           if !QUERYLESS_FIELDS_PARAMS.keys.any? { |k| params.key?(k) } ||
             params[EXACT_MATCH_PARAM] == "true" ||
             params[SUGGEST_PARAM] == "true"
-            raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>]"
+            raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
           else
             text = ''
             params['sort'] = 'prefLabelExact asc, submissionAcronym asc' if sort == 'prefLabel'
@@ -448,6 +448,183 @@ module Sinatra
         message = "The `include` query string parameter cannot accept #{leftover.join(", ")}, please use only #{allowed_includes_params.join(", ")}"
         error 400, message if invalid
       end
+
+
+      def get_ontology_metadata_search_options(params)
+        groups = params.fetch("groups", "").split(',')
+        categories = params.fetch("hasDomain", "").split(',')
+        languages = params.fetch("languages", "").split(',')
+        status = params.fetch("status", "").split(',')
+        format = params.fetch("hasOntologyLanguage", "").split(',')
+        is_of_type = params.fetch("isOfType", "").split(',')
+        has_format = params.fetch("hasFormat", "").split(',')
+        visibility = params["visibility"]
+        show_views = params["show_views"] == 'true'
+        sort = params.fetch("sort", "score desc, ontology_name_sort asc, ontology_acronym_sort asc")
+        page, page_size = page_params
+
+        fq = [
+          'resource_model:"ontology_submission"',
+          'submissionStatus_txt:ERROR_* OR submissionStatus_txt:"RDF" OR submissionStatus_txt:"UPLOADED"',
+          groups.map { |x| "ontology_group_txt:\"http://data.bioontology.org/groups/#{x.upcase}\"" }.join(' OR '),
+          categories.map { |x| "ontology_hasDomain_txt:\"http://data.bioontology.org/categories/#{x.upcase}\"" }.join(' OR '),
+          languages.map { |x| "naturalLanguage_txt:\"#{x.downcase}\"" }.join(' OR '),
+        ]
+
+        fq << "ontology_viewingRestriction_t:#{visibility}" unless visibility.blank?
+        fq << "!ontology_viewOf_t:*" unless show_views
+
+        fq << format.map { |x| "hasOntologyLanguage_t:\"http://data.bioontology.org/ontology_formats/#{x}\"" }.join(' OR ') unless format.blank?
+
+        fq << status.map { |x| "status_t:#{x}" }.join(' OR ') unless status.blank?
+        fq << is_of_type.map { |x| "isOfType_t:#{x}" }.join(' OR ') unless is_of_type.blank?
+        fq << has_format.map { |x| "hasFormalityLevel_t:#{x}" }.join(' OR ') unless has_format.blank?
+
+        fq.reject!(&:blank?)
+
+        if params[:qf]
+          qf = params[:qf]
+        else
+          qf = [
+            "ontologySuggestEdge^25 ontology_acronymSuggestEdge^25  ontology_nameSuggestEdge^15 descriptionSuggestEdge^10 ", # start of the word first
+            "ontology_t^15 ontology_acronym_text^15  ontology_name_text^10 description_text^5 ", # full word match
+            "ontologySuggestNgram^2 ontology_acronymSuggestNgram^2 ontology_nameSuggestNgram^1.5 descriptionSuggestNgram" # substring match last
+          ].join(' ')
+        end
+
+        options = {
+          fq: fq,
+          qf: qf,
+          page: page,
+          page_size: page_size,
+          sort: sort
+        }
+        options
+      end
+
+      def get_query(params)
+        if params[:query].nil? && params[:q].nil?
+          raise error 400, "The search query must be provided via /search?q=<query>[&page=<pagenum>&pagesize=<pagesize>] /search?query=<query>[&page=<pagenum>&pagesize=<pagesize>]"
+        end
+        query = params[:query] || params[:q]
+        query
+      end
+      def build_agent_from_search_result(doc)
+        affiliations = Array(doc["affiliations_txt"]).map do |aff_txt|
+          parse_affiliation(aff_txt)
+        end.compact
+      
+        agent_id = doc["id"].split("/").last
+        usages = LinkedData::Models::Agent
+                  .find(agent_id)
+                  .include(LinkedData::Models::Agent.attributes)
+                  .first
+                  .usages
+      
+        LinkedData::Models::Agent.read_only(
+          id:           doc["id"],
+          agentType:    doc["agentType_t"],
+          name:         doc["name_text"],
+          homepage:     doc["homepage_t"],
+          acronym:      doc["acronym_text"],
+          email:        doc["email_text"],
+          identifiers:  doc["identifiers"],
+          affiliations: affiliations,
+          creator:      doc["creator_t"],
+          usages:       usages
+        )
+      end
+      def parse_affiliation(aff_txt)
+        begin
+          parsed =  MultiJson.load(aff_txt)
+          LinkedData::Models::Agent.read_only(
+            id: parsed["id"],
+            name: parsed["name"],
+            acronym: parsed["acronym"],
+            email: parsed["email"],
+            agentType: parsed["agentType"]
+          )
+        rescue MultiJson::ParseError => e
+          logger.error "Invalid affiliation JSON: #{aff_txt}"
+          nil
+        end
+      end
+
+      def search(model, query, params = {})
+        query = query.blank? ? "*" : query
+
+        resp = model.search(query, search_params(**params))
+
+        total_found = resp["response"]["numFound"]
+        docs = resp["response"]["docs"]
+
+        page_object(docs, total_found)
+      end
+
+      def search_params(defType: "edismax", fq:, qf:, stopwords: "true", lowercaseOperators: "true", page:, page_size:, fl: '*,score', sort:)
+        {
+          defType: defType,
+          fq: fq,
+          qf: qf,
+          sort: sort,
+          start: (page - 1) * page_size,
+          rows: page_size,
+          fl: fl,
+          stopwords: stopwords,
+          lowercaseOperators: lowercaseOperators,
+        }
+      end
+
+      def process_search(params = nil)
+        params ||= @params
+        params['q'] ||= params['query']
+        params.delete('query')
+        text = params["q"]
+
+        query = get_term_search_query(text, params)
+        # puts "Edismax query: #{query}, params: #{params}"
+        set_page_params(params)
+
+        docs = Array.new
+        resp = LinkedData::Models::Class.search(query, params)
+        total_found = resp["response"]["numFound"]
+        add_matched_fields(resp, Sinatra::Helpers::SearchHelper::MATCH_TYPE_PREFLABEL)
+        ontology_rank = LinkedData::Models::Ontology.rank
+
+        resp["response"]["docs"].each do |doc|
+          doc = doc.symbolize_keys
+          # NCBO-974
+          doc[:matchType] = resp["match_types"][doc[:id]]
+          resource_id = doc[:resource_id]
+          doc.delete :resource_id
+          doc[:id] = resource_id
+          # TODO: The `rescue next` on the following line shouldn't be here
+          # However, at some point we didn't store the ontologyId in the index
+          # and these records haven't been cleared out so this is getting skipped
+          ontology_uri = doc[:ontologyId].sub(/\/submissions\/.*/, "") rescue next
+          ontology = LinkedData::Models::Ontology.read_only(id: ontology_uri, acronym: doc[:submissionAcronym])
+          submission = LinkedData::Models::OntologySubmission.read_only(id: doc[:ontologyId], ontology: ontology)
+          doc[:submission] = submission
+          doc[:ontology_rank] = (ontology_rank[doc[:submissionAcronym]] && !ontology_rank[doc[:submissionAcronym]].empty?) ? ontology_rank[doc[:submissionAcronym]][:normalizedScore] : 0.0
+          doc[:properties] = MultiJson.load(doc.delete(:propertyRaw)) if include_param_contains?(:properties)
+
+          doc = filter_attrs_by_language(doc)
+
+          instance = doc[:provisional] ? LinkedData::Models::ProvisionalClass.read_only(doc) : LinkedData::Models::Class.read_only(doc)
+          docs.push(instance)
+        end
+
+        unless params['sort']
+          if !text.nil? && text[-1] == '*'
+            docs.sort! { |a, b| [b[:score], a[:prefLabelExact].downcase, b[:ontology_rank]] <=> [a[:score], b[:prefLabelExact].downcase, a[:ontology_rank]] }
+          else
+            docs.sort! { |a, b| [b[:score], b[:ontology_rank]] <=> [a[:score], a[:ontology_rank]] }
+          end
+        end
+
+        page_object(docs, total_found)
+      end
+
     end
   end
 end

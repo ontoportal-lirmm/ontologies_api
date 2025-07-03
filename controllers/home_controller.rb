@@ -2,44 +2,36 @@ require 'haml'
 
 class HomeController < ApplicationController
 
-  CLASS_MAP = {
-    Property: 'LinkedData::Models::ObjectProperty'
-  }
-
   namespace '/' do
 
+    doc('Catalog', 'Get the semantic artefact catalogue') do
+      default_params(display: true)
+      default_responses(success: true)
+    end
     get do
-      expires 3600, :public
-      last_modified @@root_last_modified ||= Time.now.httpdate
-      routes = routes_list
+      catalog_class = LinkedData::Models::SemanticArtefactCatalog
+      catalog = catalog_class.all.first || create_catalog
+      check_last_modified(catalog)
 
-      # TODO: delete when ccv will be on production
-      routes.delete('/ccv')
+      attributes_to_include =  includes_param[0] == :all ? catalog_class.attributes(:all) : catalog_class.goo_attrs_to_load(includes_param)
+      catalog.bring(*attributes_to_include)
+      catalog.federated_portals = safe_parse(catalog.federated_portals) { |item| item.delete('apikey') unless current_user&.admin? } if catalog.loaded_attributes.include?(:federated_portals)
+      catalog.fundedBy = safe_parse(catalog.fundedBy) if catalog.loaded_attributes.include?(:fundedBy) 
+      reply catalog
+    end
 
-      routes.delete('/resource_index') if LinkedData.settings.enable_resource_index == false
-
-      routes.delete('/Agents')
-
-      routes_hash = {}
-      context = {}
-
-      routes.each do |route|
-        next unless  routes_by_class.key?(route)
-
-        route_no_slash = route.gsub('/', '')
-        context[route_no_slash] = routes_by_class[route].type_uri.to_s if routes_by_class[route].respond_to?(:type_uri)
-        routes_hash[route_no_slash] = LinkedData.settings.rest_url_prefix + route_no_slash
+    patch do
+      error 401, "Unauthorized: Admin access required to update the catalog" unless current_user&.admin?
+      catalog = LinkedData::Models::SemanticArtefactCatalog.where.first
+      error 422, "There is no catalog configs in the triple store" if catalog.nil?
+      populate_from_params(catalog, params)
+      if catalog.valid?
+        catalog.save
+        status 200
+        reply catalog
+      else
+        error 422, catalog.errors
       end
-
-      config = LinkedData::Models::PortalConfig.current_portal_config
-
-      federated_portals = config.federated_portals
-      federated_portals.transform_values! { |v| v.delete(:apikey); v }
-      config.init_federated_portals_settings(federated_portals)
-      config.id = RDF::URI.new(LinkedData.settings.id_url_prefix)
-      config.class.link_to *routes_hash.map { |key, url| LinkedData::Hypermedia::Link.new(key, url, context[key]) }
-
-      reply config
     end
 
     get "documentation" do
@@ -49,7 +41,41 @@ class HomeController < ApplicationController
 
     private
 
+    def create_catalog
+      catalog = nil
+      catalogs = LinkedData::Models::SemanticArtefactCatalog.all
+      if catalogs.nil? || catalogs.empty?
+          catalog = instance_from_params(LinkedData::Models::SemanticArtefactCatalog, {})
+          if catalog.valid?
+              catalog.save
+          else
+              error 422, catalog.errors
+          end
+      end
+      catalog
+    end
+    
+    def safe_parse(value)
+      return nil unless value
+    
+      parse_item = ->(item) {
+        begin
+          parsed = JSON.parse(
+            item.gsub(/:(\w+)=>/, '"\1":').gsub('=>', ':').gsub('\"', '"')
+          )
+          yield(parsed) if block_given?
+          parsed
+        rescue JSON::ParserError => e
+          nil
+        end
+      }
 
+      if value.is_a?(Array)
+        value.map { |item| parse_item.call(item) }
+      else
+        parse_item.call(value)
+      end
+    end
 
   end
 end
