@@ -516,8 +516,10 @@ GEM
     webrick (1.9.1)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin
   ruby
+  x86-linux
   x86_64-darwin
   x86_64-linux
 
@@ -533,7 +535,7 @@ DEPENDENCIES
   ed25519 (>= 1.2, < 2.0)
   ffi (~> 1.15.0)
   goo!
-  google-protobuf
+  google-protobuf (~> 4.30.0)
   haml (~> 5.2.2)
   json-ld (~> 3.2.0)
   json-schema
@@ -547,13 +549,12 @@ DEPENDENCIES
   ncbo_cron!
   ncbo_ontology_recommender!
   net-ftp
-  newrelic_rpm
   oj
   ontologies_linked_data!
   pandoc-ruby
   parallel
   parseconfig
-  rack
+  rack (= 3.1.10)
   rack-accept
   rack-attack
   rack-cache
@@ -572,6 +573,7 @@ DEPENDENCIES
   request_store
   rexml
   rubocop
+  sentry-ruby (~> 5.24)
   shotgun!
   simplecov
   simplecov-cobertura

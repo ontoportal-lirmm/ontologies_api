@@ -5,7 +5,7 @@ gem 'json-schema'
 gem 'multi_json'
 gem 'oj'
 gem 'parseconfig'
-gem 'rack'
+gem 'rack', '3.1.10'
 gem 'rake'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
 gem 'sinatra'
@@ -17,7 +17,7 @@ end
 
 gem 'request_store'
 gem 'parallel'
-gem 'google-protobuf'
+gem 'google-protobuf', '~> 4.30.0'
 gem 'net-ftp'
 gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
@@ -38,7 +38,7 @@ gem 'redis'
 gem 'redis-store'
 
 # Monitoring
-gem 'newrelic_rpm', group: [:default, :deployment]
+gem "sentry-ruby", "~> 5.24"
 
 # HTTP server
 gem 'unicorn'
@@ -91,3 +91,4 @@ group :test do
   gem 'webmock'
   gem 'webrick'
 end
+

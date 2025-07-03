@@ -78,7 +78,7 @@ build_docker_run_cmd() {
   local goo_path="$3"
   local sparql_client_path="$4"
 
-  local docker_run_cmd="docker compose -p ontoportal_docker run --rm -it --name api-service"
+  local docker_run_cmd="docker compose --profile vo -p ontoportal_docker run --rm -it --name api-service"
   local bash_cmd=""
 
   # Conditionally add bind mounts only if the paths are not empty
@@ -108,7 +108,7 @@ provision() {
   source .env
 
   echo "[+] Cleaning volumes"
-  docker compose -f docker-compose.yml --profile 4store down --volumes >/dev/null 2>&1
+  docker compose -f docker-compose.yml --profile vo down --volumes >/dev/null 2>&1
   docker compose -p ontoportal_docker down --volumes >/dev/null 2>&1
 
   commands=(
@@ -119,7 +119,7 @@ provision() {
   )
   for cmd in "${commands[@]}"; do
     echo "[+] Run: $cmd"
-    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\" >/dev/null 2>&1" 
+    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\"" 
     if ! eval "$docker_cron_cmd"; then
         echo "Error: Failed to run provisioning .  $cmd"
         exit 1
