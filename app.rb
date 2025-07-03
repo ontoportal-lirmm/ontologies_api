@@ -145,7 +145,7 @@ if $SENTRY_DSN
     config.send_default_pii = true
   end
 
-  use Rack::RewindableInput::Middleware
+  # use Rack::RewindableInput::Middleware
   use Sentry::Rack::CaptureExceptions
 end
 
