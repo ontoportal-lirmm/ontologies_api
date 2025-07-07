@@ -38,6 +38,9 @@ set :default_env, {
 set :keep_releases, 5
 set :config_folder_path, "#{fetch(:application)}/#{fetch(:stage)}"
 
+# set bundle options
+set :bundle_flags, ""
+
 # If you want to restart using `touch tmp/restart.txt`, add this to your config/deploy.rb:
 
 # SSH_JUMPHOST = ENV.include?('SSH_JUMPHOST') ? ENV['SSH_JUMPHOST'] : 'jumpbox.hostname.com'
