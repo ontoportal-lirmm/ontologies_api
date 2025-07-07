@@ -39,7 +39,7 @@ set :keep_releases, 5
 set :config_folder_path, "#{fetch(:application)}/#{fetch(:stage)}"
 
 # set bundle options
-set :bundle_flags, ""
+set :bundle_flags, "--verbose"
 
 # If you want to restart using `touch tmp/restart.txt`, add this to your config/deploy.rb:
 
