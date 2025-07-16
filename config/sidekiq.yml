@@ -14,5 +14,3 @@
 :pidfile: ./tmp/pids/sidekiq.pid
 
 :daemon: true
-:environment: development
-#:environment: production

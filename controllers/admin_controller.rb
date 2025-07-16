@@ -166,38 +166,11 @@ class AdminController < ApplicationController
         error 500, "model_name parameter not set" if params["model_name"].blank?
 
         model = Goo.model_by_name(params["model_name"].to_sym)
-        error 500, "#{params["model_name"]} is not indexable" if model.nil? || !model.index_enabled?
+        error 500, "#{params['model_name']} is not an indexable model. Only 'ontology', 'ontology_submission', and 'Agent' models can be indexed." if model.nil? || !model.index_enabled?
 
-        all_attrs = get_attributes_to_include([:all], model)
-
-        collections = model.where.include(all_attrs).all
-        indexed = []
-        not_indexed = []
-        collections.each do |m|
-          begin
-            response = m.index.dig("responseHeader", "status")
-            if response.eql?(0)
-              indexed << m.id
-            else
-              not_indexed << m.id
-            end
-          rescue StandardError
-            not_indexed << m.id
-          end
-        end
-
-        if !indexed.empty?
-          msg = "Batch indexing for #{model.model_name} completed for"
-
-          if not_indexed.empty?
-            msg +=  " all models"
-          else
-            msg +=  " #{indexed.join(', ')} and not for the following #{not_indexed.join(', ')}, see logs for more details"
-          end
-          reply(200, msg)
-        else
-          reply(500, "Batch indexing for #{model.model_name} failed")
-        end
+        LinkedData::Jobs::BatchIndexJob.perform_async(params["model_name"])
+        
+        reply(200, "Batch indexing job for #{params["model_name"]} started")
       end
     end
     private
