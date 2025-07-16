@@ -32,6 +32,36 @@ rescue NoMethodError
   puts "(CNFG) >> Goo.main_lang not available"
 end
 
+# Sidekiq configuration
+Sidekiq.configure_server do |config|
+  config.redis = { url: "redis://#{REDIS_PERSISTENT_HOST}:#{REDIS_PORT}" }
+end
+
+Sidekiq.configure_client do |config|
+  config.redis = { url: "redis://#{REDIS_PERSISTENT_HOST}:#{REDIS_PORT}"}
+end
+
+begin
+  Sidekiq::Cron.configure do |config|
+    config.cron_poll_interval = 30
+    config.cron_schedule_file = 'config/schedule.yml'
+  end
+rescue StandardError
+  puts 'Sidekiq Crom configuration failed'
+end
+
+begin
+  Sidekiq::Web.use Rack::Session::Cookie, secret: SecureRandom.hex(64)
+  # Add HTTP Basic Authentication
+  Sidekiq::Web.use Rack::Auth::Basic, "Restricted Area" do |username, password|
+    username == ENV.fetch('SIDEKIQ_USERNAME', 'admin') &&
+    password == ENV.fetch('SIDEKIQ_PASSWORD', 'sidekiq_pass')
+  end
+  
+rescue StandardError
+  puts 'Sidekiq Web configuration failed'
+end
+
 LinkedData.config do |config|
   config.goo_backend_name              = GOO_BACKEND_NAME.to_s
   config.goo_host                      = GOO_HOST.to_s
