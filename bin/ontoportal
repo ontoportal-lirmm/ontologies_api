@@ -108,6 +108,14 @@ run_container_with_shared_setup() {
   local sparql_client_path="$6"
   local detached="$7" 
   
+  # Automatically stop and remove existing container if it exists
+  if docker ps -a --format "table {{.Names}}" | grep -q "^${container_name}$"; then
+    echo "Container '$container_name' already exists. Removing it..."
+    docker stop "$container_name" 2>/dev/null || true
+    docker rm "$container_name" 2>/dev/null || true
+    echo "Container '$container_name' removed."
+  fi
+  
   # Prepare shared mounts and bundler config
   build_volume_mounts_and_bash_config "$old_path" "$goo_path" "$sparql_client_path"
 
@@ -248,7 +256,7 @@ run_command() {
 dev() {
   echo "Starting OntoPortal API development server..."
 
-  local custom_command="bundle exec shotgun --host 0.0.0.0  --env=development --port 9393"
+  local custom_command="" # to do : remove this variable
   run_command "$custom_command" "$@"
 }
 
