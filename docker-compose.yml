@@ -7,6 +7,9 @@ x-app: &app
     COVERAGE: 'true' # enable simplecov code coverage
     REDIS_HOST: redis-ut
     REDIS_PORT: 6379
+    REDIS_GOO_CACHE_HOST: redis-ut
+    REDIS_HTTP_CACHE_HOST: redis-ut
+    REDIS_PERSISTENT_HOST: redis-ut
     SOLR_TERM_SEARCH_URL: http://solr-ut:8983/solr
     SOLR_PROP_SEARCH_URL: http://solr-ut:8983/solr
     GOO_BACKEND_NAME: virtuoso
@@ -151,17 +154,18 @@ services:
       - ag
 
   virtuoso-ut:
-    image: tenforce/virtuoso:virtuoso7.2.5
+    image: openlink/virtuoso-opensource-7:7.2.15
     platform: linux/amd64
     environment:
       - SPARQL_UPDATE=true
+      - DBA_PASSWORD=dba
     ports:
       - 1111:1111
       - 8890:8890
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf  http://localhost:8890/sparql  || exit 1" ]
-      start_period: 10s
-      interval: 60s
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8890/sparql || exit 1"]
+      start_period: 20s
+      interval: 20s
       timeout: 5s
       retries: 3
 
