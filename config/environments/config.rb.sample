@@ -9,6 +9,7 @@ GOO_PATH_DATA    = ENV.include?("GOO_PATH_DATA")    ? ENV["GOO_PATH_DATA"]    : 
 GOO_PATH_QUERY   = ENV.include?("GOO_PATH_QUERY")   ? ENV["GOO_PATH_QUERY"]   : "/sparql/"
 GOO_PATH_UPDATE  = ENV.include?("GOO_PATH_UPDATE")  ? ENV["GOO_PATH_UPDATE"]  : "/update/"
 GOO_PORT         = ENV.include?("GOO_PORT")         ? ENV["GOO_PORT"]         : 9000
+USE_DIGEST_AUTH  = ENV.include?("USE_DIGEST_AUTH")  ? ENV["USE_DIGEST_AUTH"]  : "false"
 MGREP_HOST       = ENV.include?("MGREP_HOST")       ? ENV["MGREP_HOST"]       : "localhost"
 MGREP_PORT       = ENV.include?("MGREP_PORT")       ? ENV["MGREP_PORT"]       : 55555
 MGREP_DICTIONARY_FILE = ENV.include?("MGREP_DICTIONARY_FILE") ? ENV["MGREP_DICTIONARY_FILE"] : "./test/data/dictionary.txt"

@@ -14,10 +14,11 @@ x-app: &app
     SOLR_PROP_SEARCH_URL: http://solr-ut:8983/solr
     GOO_BACKEND_NAME: virtuoso
     GOO_PORT: 8890
-    GOO_HOST: virtuoso-ut
-    GOO_PATH_DATA: /sparql/
-    GOO_PATH_QUERY: /sparql/
-    GOO_PATH_UPDATE: /sparql/
+    GOO_HOST: dba:dba@virtuoso-ut
+    GOO_PATH_DATA: /sparql-auth/
+    GOO_PATH_QUERY: /sparql-auth/
+    GOO_PATH_UPDATE: /sparql-auth/
+    USE_DIGEST_AUTH: true
     MGREP_HOST: mgrep-ut
     MGREP_PORT: 55555
     REPOSITORY_FOLDER: /srv/ontoportal/data/repository

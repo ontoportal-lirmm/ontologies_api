@@ -55,7 +55,7 @@ gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branc
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
 gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
-gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
+gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'feature/digest-authentification'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42

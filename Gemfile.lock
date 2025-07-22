@@ -77,10 +77,11 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: 736b7650e28db3ce5e3e49511ac30f958a29e8f1
-  branch: development
+  revision: 67477e861e38b71d90ceeaecdeba76adfe967497
+  branch: feature/digest-authentification
   specs:
     sparql-client (3.2.2)
+      net-http-digest_auth (~> 1.4, >= 1.4.0)
       net-http-persistent (~> 4.0, >= 4.0.2)
       rdf (~> 3.2, >= 3.2.11)
 
@@ -314,6 +315,7 @@ GEM
       time
     net-http (0.6.0)
       uri
+    net-http-digest_auth (1.4.1)
     net-http-persistent (4.0.6)
       connection_pool (~> 2.2, >= 2.2.4)
     net-imap (0.5.9)
