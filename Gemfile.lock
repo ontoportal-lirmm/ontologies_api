@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 04680ed78dfd98cfe004d9a1d7019f3f06e9b667
-  branch: development
+  revision: f2dfa4c919315f9bbb06866365cabe39ebe76348
+  branch: feature/digest-authentification
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -77,7 +77,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: 67477e861e38b71d90ceeaecdeba76adfe967497
+  revision: 535763a8adae26e6129c38e53f40686dd4d24e23
   branch: feature/digest-authentification
   specs:
     sparql-client (3.2.2)

@@ -54,7 +54,7 @@ gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.g
 gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
 gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
+gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'feature/digest-authentification'
 gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'feature/digest-authentification'
 
 group :development do
