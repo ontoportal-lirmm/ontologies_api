@@ -3,65 +3,73 @@
 # Function to display script usage information
 show_help() {
   cat << EOL
-Usage: $0 {dev|test|run|help} [--reset-cache] [--api-url API_URL] [--api-key API_KEY] [--old-path OLD_PATH] [--goo-path GOO_PATH] [--sparql-client-path SPARQL_CLIENT_PATH] [--with-provision]
-  dev            : Start the Ontoportal API development server.
-                  Example: $0 dev --api-url http://localhost:9393
-                  Use --reset-cache to remove volumes: $0 dev --reset-cache
-                  Use --with-provision to parse ontology for use
-  test           : Run tests. Specify either a test file or use 'all'.
-                  Example: $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
-                  Example (run all tests): $0 test all -v
-  run            : Run a command in the Ontoportal API Docker container.
-  help           : Show this help message.
+Usage:
+  $0 <command> [options]
+Commands:
+  dev       Start the OntoPortal API development server.
+            Examples:
+              $0 dev [shotgun|rackup]
+              $0 dev --api-url http://localhost:9393
+              $0 dev --reset-cache
+              $0 dev --provision-user-only
+              $0 dev --provision-ontology
+              $0 dev --linked-data-path ONTOLOGIES_LINKED_DATA_PATH
+              $0 dev --goo-path GOO_PATH
+              $0 dev  --sparql-client-path SPARQL_CLIENT_PATH
 
-Description:
-  This script provides convenient commands for managing an Ontoportal API
-  application using Docker Compose. It includes options for starting the development server,
-  running tests, and executing commands within the Ontoportal API Docker container.
+  test      Run tests (all or a specific file).
+            Examples:
+              $0 test all -v
+              $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
+
+  run       Run a command inside the OntoPortal API Docker container.
+  help      Show this help message.
+
+Arguments:
+  [shotgun|rackup]          Specify the server that used in the dev env (default: shotgun)
 
 Options:
-  --reset-cache             : Remove Docker volumes (used with 'dev').
-  --with-provision          : Parse ontology for use.
-  --api-url API_URL         : Specify the API URL.
-  --api-key API_KEY         : Specify the API key.
-  --old-path OLD_PATH       : Specify the path for ontologies_linked_data.
-  --goo-path GOO_PATH       : Specify the path for goo.
-  --sparql-client-path      : Specify the path for sparql-client.
-  test_file | all           : Specify either a test file or  all the tests will be run.
-  -v                        : Enable verbosity.
-  --name=name_of_the_test   : Specify the name of the test.
+  --api-url URL             Set the API URL (default: http://localhost:9393).
+  --reset-cache             Remove Docker volumes (use with 'dev').
+  --provision-user-only     Create only the admin user (no ontology parsing).
+  --provision-ontology      Create admin user and parse ontology for use.
+  --linked-data-path PATH   Path for ontologies_linked_data.
+  --goo-path PATH           Path for goo.
+  --sparql-client-path PATH Path for sparql-client.
+  --name=TEST_NAME          Run only the test with the given name.
 
-Goals:
-  - Simplify common tasks related to Ontoportal API development using Docker.
-  - Provide a consistent and easy-to-use interface for common actions.
+Notes:
+  - 'dev' is for local development with Docker Compose.
+  - 'test' supports both individual test files and the 'all' shortcut.
+  - 'run' lets you execute arbitrary commands inside the container.
 EOL
 }
 
 
-# Function to update or create the .env file with API_URL and API_KEY
+# Function to update or create the .env file with API_URL
 update_env_file() {
-  # Update the .env file with the provided values
-  local api_url="$1"
-  local old_path="$2"
-  local goo_path="$3"
-  local sparql_client_path="$4"
+  # Default values
+  local api_url=${api_url:-http://localhost:9393}
+  local linked_data_path=${linked_data_path:-}
+  local goo_path=${goo_path:-}
+  local sparql_client_path=${sparql_client_path:-}
 
   # Update  the .env file with the provided values
   file_content=$(<.env)
 
-  # Make changes to the variable
+  # Update .env
   while IFS= read -r line; do
-        if [[ "$line" == "API_URL="* && -n "$api_url" ]]; then
-          echo "API_URL=$api_url"
-        elif [[ "$line" == "ONTOLOGIES_LINKED_DATA_PATH="* ]]; then
-          echo "ONTOLOGIES_LINKED_DATA_PATH=$old_path"
-        elif [[ "$line" == "GOO_PATH="* ]]; then
-          echo "GOO_PATH=$goo_path"
-        elif [[ "$line" == "SPARQL_CLIENT_PATH="* ]]; then
-          echo "SPARQL_CLIENT_PATH=$sparql_client_path"
-        else
-          echo "$line"
-        fi
+    if [[ "$line" == "API_URL="* ]]; then
+      echo "API_URL=$api_url"
+    elif [[ "$line" == "ONTOLOGIES_LINKED_DATA_PATH="* ]]; then
+      echo "ONTOLOGIES_LINKED_DATA_PATH=$linked_data_path"
+    elif [[ "$line" == "GOO_PATH="* ]]; then
+      echo "GOO_PATH=$goo_path"
+    elif [[ "$line" == "SPARQL_CLIENT_PATH="* ]]; then
+      echo "SPARQL_CLIENT_PATH=$sparql_client_path"
+    else
+      echo "$line"
+    fi
   done <<< "$file_content" > .env
 }
 
@@ -74,7 +82,7 @@ create_config_files() {
 # Function to build Docker run command with conditionally added bind mounts
 build_docker_run_cmd() {
   local custom_command="$1"
-  local old_path="$2"
+  local linked_data_path="$2"
   local goo_path="$3"
   local sparql_client_path="$4"
 
@@ -82,12 +90,12 @@ build_docker_run_cmd() {
   local bash_cmd=""
 
   # Conditionally add bind mounts only if the paths are not empty
-  for path_var in "old_path:ontologies_linked_data" "goo_path:goo" "sparql_client_path:sparql-client"; do
+  for path_var in "linked_data_path:ontologies_linked_data" "goo_path:goo" "sparql_client_path:sparql-client"; do
     IFS=':' read -r path value <<< "$path_var"
 
     if [ -n "${!path}" ]; then
       host_path="$(realpath "$(dirname "${!path}")")/$value"
-      echo "Run: bundle config local.$value ${!path}"
+      echo "[+] Run: bundle config local.$value ${!path}"
       container_path="/srv/ontoportal/$value"
       docker_run_cmd+=" -v $host_path:$container_path"
       bash_cmd+="(git config --global --add safe.directory $container_path && bundle config local.$value $container_path) &&"
@@ -99,34 +107,57 @@ build_docker_run_cmd() {
   bash_cmd+=" (bundle check || bundle install || bundle update) && $custom_command"
   docker_run_cmd+=" --service-ports api bash -c \"$bash_cmd\""
 
+  echo "[+] Run docker command $docker_run_cmd"
   eval "$docker_run_cmd"
 }
 
 
-provision() {
-  echo "[+] Running Cron provisioning"
+run_cron_docker_cmd() {
+  local cmd="$1"
+  echo "[+] Run: $cmd"
+  local docker_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run --remove-orphans --rm --name cron-service --service-ports ncbo_cron bash -c \"$cmd\""
+  if ! eval "$docker_cmd"; then
+    echo "[-] Error: Failed to run provisioning: $cmd"
+    exit 1
+  fi
+}
+
+provision_user() {
+  echo "[+] Running Cron provisioning user"
+  source .env
+
+  local commands=(
+    "bundle exec rake user:create[admin,admin@nodomain.org,password]"
+    "bundle exec rake user:adminify[admin]"
+  )
+
+  for cmd in "${commands[@]}"; do
+    run_cron_docker_cmd "$cmd"
+  done
+
+  echo "[+] Provision user setup completed successfully!"
+}
+
+provision_ontology() {
+  echo "[+] Running Cron provisioning with ontology"
   source .env
 
   echo "[+] Cleaning volumes"
   docker compose -f docker-compose.yml --profile vo down --volumes >/dev/null 2>&1
   docker compose -p ontoportal_docker down --volumes >/dev/null 2>&1
 
-  commands=(
-      "bundle exec rake user:create[admin,admin@nodomain.org,password]"
-      "bundle exec rake user:adminify[admin]"
-      "bundle exec bin/ncbo_ontology_import --admin-user admin --ontologies $STARTER_ONTOLOGY --from-apikey $OP_API_KEY --from $OP_API_URL"
-      "bundle exec bin/ncbo_ontology_process -o ${STARTER_ONTOLOGY}"
+  provision_user
+
+  local commands=(
+    "bundle exec bin/ncbo_ontology_import --admin-user admin --ontologies $STARTER_ONTOLOGY --from-apikey $OP_API_KEY --from $OP_API_URL"
+    "bundle exec bin/ncbo_ontology_process -o $STARTER_ONTOLOGY"
   )
+
   for cmd in "${commands[@]}"; do
-    echo "[+] Run: $cmd"
-    docker_cron_cmd="docker compose -f docker-compose.yml -p ontoportal_docker run  --remove-orphans --rm --name cron-service  --service-ports ncbo_cron bash -c \"$cmd\"" 
-    if ! eval "$docker_cron_cmd"; then
-        echo "Error: Failed to run provisioning .  $cmd"
-        exit 1
-    fi
+    run_cron_docker_cmd "$cmd"
   done
 
-  echo "CRON Setup completed successfully!"
+  echo "[+] CRON Setup completed successfully!"
 }
 
 # Function to handle the "dev" and "test" options
@@ -135,10 +166,11 @@ run_command() {
 
   local reset_cache=false
   local api_url=""
-  local old_path=""
+  local linked_data_path=""
   local goo_path=""
   local sparql_client_path=""
-  local with_provision=""
+  local provision_user_only_arg=""
+  local provision_ontology_arg=""
 
   shift
   # Check for command line arguments
@@ -152,8 +184,8 @@ run_command() {
         api_url="$2"
         shift 2
         ;;
-      --old-path)
-        old_path="$2"
+      --linked-data-path)
+        linked_data_path="$2"
         shift 2
         ;;
       --goo-path)
@@ -164,12 +196,16 @@ run_command() {
         sparql_client_path="$2"
         shift 2
         ;;
-      --with-provision)
-        with_provision="$1"
+      --provision-user-only)
+        provision_user_only_arg="$1"
+        shift 1
+        ;;
+      --provision-ontology)
+        provision_ontology_arg="$1"
         shift 1
         ;;
       *)
-        echo "Unknown option: $1"
+        echo "[-] Unknown option: $1"
         show_help
         exit 1
         ;;
@@ -178,60 +214,87 @@ run_command() {
 
   # Check if --reset-cache is present and execute docker compose down --volumes
   if [ "$reset_cache" = true ]; then
-    echo "Resetting cache. Running: docker compose down --volumes"
+    echo "[+] Resetting cache. Running: docker compose down --volumes"
     docker compose down --volumes
     docker compose -p ontoportal_docker down --volumes
   fi
 
   # Check if arguments are provided
-  update_env_file "$api_url" "$old_path" "$goo_path" "$sparql_client_path"
+  update_env_file "$api_url" "$linked_data_path" "$goo_path" "$sparql_client_path"
 
 
 
   # If no arguments, fetch values from the .env file
   source .env
   api_url="$API_URL"
-  old_path="$ONTOLOGIES_LINKED_DATA_PATH"
+  linked_data_path="$ONTOLOGIES_LINKED_DATA_PATH"
   goo_path="$GOO_PATH"
   sparql_client_path="$SPARQL_CLIENT_PATH"
 
 
   if [ -z "$api_url" ] ; then
-    echo "Error: Missing required arguments. Please provide both --api-url or update them in your .env"
+    echo "[-] Error: Missing required arguments. Please provide both --api-url or update them in your .env"
     exit 1
   fi
 
 
   # run provision
-  if [ "$with_provision" == "--with-provision"  ]; then
-    provision
+  if [ "$provision_ontology_arg" == "--provision-ontology"  ]; then
+    provision_ontology
   else
-    echo "[+] Skipping Cron provisioning"
+    if [ "$provision_user_only_arg" == "--provision-user-only"  ]; then
+      provision_user
+    else
+      echo "[+] Skipping Cron provisioning user and ontology"
+    fi
   fi
 
   # Build the Docker run command
-  echo "Run: $custom_command"
-  build_docker_run_cmd "$custom_command" "$old_path" "$goo_path" "$sparql_client_path"
+  echo "[+] Run: $custom_command"
+  echo "Running server running at $api_url"
+  build_docker_run_cmd "$custom_command" "$linked_data_path" "$goo_path" "$sparql_client_path"
 }
 
 # Function to handle the "dev" option
 dev() {
-  echo "Starting OntoPortal API development server..."
+  echo "[+] Starting OntoPortal API development server..."
 
-  local custom_command="bundle exec shotgun --host 0.0.0.0  --env=development --port 9393"
+  # default to shotgun if not specified
+  local server_cmd=${1:-shotgun}
+  shift || true  # drop the server arg if it was provided
+
+  local custom_command
+
+  case "$server_cmd" in
+    shotgun)
+      echo "[+] Using shotgun server"
+      custom_command="bundle exec shotgun --host 0.0.0.0 --env=development --port 9393"
+      ;;
+    rackup)
+      echo "[+] Using rackup server"
+      custom_command="bundle exec rackup --host 0.0.0.0 --env=development --port 9393"
+      ;;
+    *)
+      echo "[-] Invalid server option: $server_cmd"
+      show_help
+      exit 1
+      ;;
+  esac
+
   run_command "$custom_command" "$@"
 }
 
+
 # Function to handle the "test" option
 test() {
-  echo "Running tests..."
+  echo "[+] Running tests..."
   local test_path=""
   local test_options=""
   local all_arguments=()
   # Check for command line arguments
   while [ "$#" -gt 0 ]; do
      case "$1" in
-         --api-url | --reset-cache | --old-path | --goo-path | --sparql-client-path)
+         --api-url | --reset-cache | --linked-data-path | --goo-path | --sparql-client-path)
           all_arguments+=("$1" "$2")
           shift 2
           ;;
@@ -247,13 +310,13 @@ test() {
   done
 
   local custom_command="bundle exec rake test TEST='$test_path' TESTOPTS='$test_options'"
-  echo "run :  $custom_command"
+  echo "[+] run :  $custom_command"
   run_command "$custom_command" "${all_arguments[@]}"
 }
 
 # Function to handle the "run" option
 run() {
-  echo "Run: $*"
+  echo "[+] Run: $*"
   docker compose run --rm -it api bash -c "$*"
 }
 
