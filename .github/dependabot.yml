@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Ruby gems
+  - package-ecosystem: "bundler"
+    directory: "/"
+    schedule:
+      interval: "weekly"  # could be daily, weekly, or monthly
+    open-pull-requests-limit: 5
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
