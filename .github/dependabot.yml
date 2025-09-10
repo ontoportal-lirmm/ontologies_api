@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
-      interval: "weekly"  # could be daily, weekly, or monthly
+      interval: "weekly"
     open-pull-requests-limit: 5
 
   # GitHub Actions
@@ -12,3 +12,4 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 5
