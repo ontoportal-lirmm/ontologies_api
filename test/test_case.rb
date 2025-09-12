@@ -169,7 +169,7 @@ class TestCase < AppUnit
     schema_agencies = LinkedData::Models::AgentIdentifier::IDENTIFIER_SCHEMES.keys
     users = LinkedData::Models::User.all
     users = [LinkedData::Models::User.new(username: "tim", email: "tim@example.org", password: "password").save] if users.empty?
-    test_identifiers = 5.times.map { |i| { notation: rand.to_s[2..11], schemaAgency: schema_agencies.sample.to_s } }
+    test_identifiers = generate_test_identifier(schema_agencies)
     user = users.sample.id.to_s
 
     i = rand.to_s[2..11]
@@ -259,6 +259,33 @@ class TestCase < AppUnit
   end
 
   private
+
+  def generate_test_identifier(schema_agencies)
+    test_identifiers = 5.times.map do
+      agency = schema_agencies.sample.to_s
+
+      notation =
+        case agency
+        when "ROR"
+          # 9-character base32 (digits + lowercase letters)
+          Array.new(9) { [*'0'..'9', *'a'..'z'].sample }.join
+        when "ORCID"
+          # 4-4-4-3digit+check
+          "#{rand(1000..9999)}-#{rand(1000..9999)}-#{rand(1000..9999)}-#{format('%04d', rand(0..9999))}"[0..18]
+        when "ISNI"
+          # 16 digits, last char may be X
+          body = Array.new(15) { rand(0..9) }.join
+          check = [rand(0..9).to_s, "X"].sample
+          body + check
+        when "GRID"
+          # grid.NNNN.x or xx (hex suffix)
+          "grid.#{rand(1000..9999)}.#{rand(16).to_s(16)}"
+        end
+
+      { notation: notation, schemaAgency: agency }
+    end
+    return test_identifiers
+  end
 
   def port_in_use?(port)
     server = TCPServer.new(port)
