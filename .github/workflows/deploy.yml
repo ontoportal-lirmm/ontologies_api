@@ -49,10 +49,10 @@ jobs:
           # workflow_dispatch default input doesn't get set on push so we need to set defaults
           # via shell parameter expansion
           # https://dev.to/mrmike/github-action-handling-input-default-value-5f2g
-          USER_INPUT_BRANCH=${{ inputs.branch }}
-          echo "BRANCH=${USER_INPUT_BRANCH:github.head_ref:-master}" >> $GITHUB_ENV
+          USER_INPUT_BRANCH="${{ inputs.BRANCH }}"
+          echo "BRANCH=${USER_INPUT_BRANCH:-${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}}" >> $GITHUB_ENV
 
-          USER_INPUT_ENVIRONMENT=${{ inputs.environment }}
+          USER_INPUT_ENVIRONMENT="${{ inputs.ENVIRONMENT }}"
           echo "TARGET=${USER_INPUT_ENVIRONMENT:-staging}" >> $GITHUB_ENV
 
           CONFIG_REPO=${{ secrets.CONFIG_REPO }}
