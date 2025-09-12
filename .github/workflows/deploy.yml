@@ -25,12 +25,7 @@ on:
   workflow_dispatch:
     inputs:
       BRANCH:
-        description: "Branch/tag to deploy"
-        type: choice
-        options:
-          - test
-          - development
-          - master
+        description: "Branch/tag to deploy (test, development, master)"
         default: development
         required: true
       environment:
@@ -79,7 +74,7 @@ jobs:
           token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
           path: deploy_config
       - name: copy-deployment-config
-        run: cp -r deploy_config/ontologies_api/${{ inputs.environment }}/* .
+        run: cp -r deploy_config/ontologies_api/${{ env.TARGET }}/* .
         # add ssh hostkey so that capistrano doesn't complain
       - name: Add jumphost's hostkey to Known Hosts
         run: |
