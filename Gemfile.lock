@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 0e16d50c74d0ced6a314944dc29080c165506c1f
-  branch: master
+  revision: 7467cf268b578b531ef3546557790fc61666700c
+  branch: development
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 4f5f8f035aeec61a0a231fdc872aeec50084d09e
+  revision: 471a9f10b2404ff643ce61369817bc985faffa19
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -272,7 +272,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.1)
-    json (2.13.2)
+    json (2.14.1)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
