@@ -103,7 +103,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: 5e1598501eb23a8673d61034df7be7d50c228400
+  revision: fa99a21461d4f1f5337b9b9d7a38a1b51c8f4e55
   specs:
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
@@ -150,6 +150,8 @@ GEM
     bcp47_spec (0.2.1)
     bcrypt (3.1.20)
     bcrypt_pbkdf (1.1.1)
+    bcrypt_pbkdf (1.1.1-arm64-darwin)
+    bcrypt_pbkdf (1.1.1-x86_64-darwin)
     benchmark (0.4.1)
     bigdecimal (3.2.3)
     builder (3.3.0)
@@ -189,16 +191,16 @@ GEM
       net-http (>= 0.5.0)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
-    ffi (1.15.5)
+    ffi (1.15.0)
     fugit (1.11.2)
       et-orbi (~> 1, >= 1.2.11)
       raabro (~> 1.4)
-    gapic-common (1.2.0)
+    gapic-common (1.1.0)
       faraday (>= 1.9, < 3.a)
       faraday-retry (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
-      google-protobuf (~> 4.26)
+      google-protobuf (>= 3.25, < 5.a)
       googleapis-common-protos (~> 1.6)
       googleapis-common-protos-types (~> 1.15)
       googleauth (~> 1.12)
@@ -208,8 +210,8 @@ GEM
     google-analytics-data (0.7.2)
       google-analytics-data-v1beta (>= 0.11, < 2.a)
       google-cloud-core (~> 1.6)
-    google-analytics-data-v1beta (0.18.0)
-      gapic-common (~> 1.2)
+    google-analytics-data-v1beta (0.17.0)
+      gapic-common (~> 1.0)
       google-cloud-errors (~> 1.0)
     google-apis-analytics_v3 (0.17.0)
       google-apis-core (>= 0.15.0, < 2.a)
@@ -229,15 +231,16 @@ GEM
       faraday (>= 1.0, < 3.a)
     google-cloud-errors (1.5.0)
     google-logging-utils (0.2.0)
-    google-protobuf (4.30.2-x86_64-linux)
-      bigdecimal
-      rake (>= 13)
-    googleapis-common-protos (1.9.0)
-      google-protobuf (~> 4.26)
-      googleapis-common-protos-types (~> 1.21)
+    google-protobuf (3.25.3)
+    google-protobuf (3.25.3-arm64-darwin)
+    google-protobuf (3.25.3-x86_64-darwin)
+    google-protobuf (3.25.3-x86_64-linux)
+    googleapis-common-protos (1.8.0)
+      google-protobuf (>= 3.18, < 5.a)
+      googleapis-common-protos-types (~> 1.20)
       grpc (~> 1.41)
-    googleapis-common-protos-types (1.21.0)
-      google-protobuf (~> 4.26)
+    googleapis-common-protos-types (1.20.0)
+      google-protobuf (>= 3.18, < 5.a)
     googleauth (1.15.0)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
@@ -246,13 +249,22 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    grpc (1.75.0)
+    grpc (1.70.1)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.70.1-arm64-darwin)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.70.1-x86_64-darwin)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.70.1-x86_64-linux)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
-    hashdiff (1.2.0)
+    hashdiff (1.2.1)
     htmlentities (4.3.4)
     http-accept (1.7.0)
     http-cookie (1.0.8)
@@ -269,7 +281,7 @@ GEM
       multi_json (~> 1.15)
       rack (>= 2.2, < 4)
       rdf (~> 3.2, >= 3.2.10)
-    json-schema (5.1.1)
+    json-schema (5.2.2)
       addressable (~> 2.8)
       bigdecimal (~> 3.1)
     jwt (3.1.2)
@@ -307,7 +319,7 @@ GEM
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.17.0)
-    mustermann (3.0.3)
+    mustermann (3.0.4)
       ruby2_keywords (~> 0.0.1)
     net-ftp (0.3.8)
       net-protocol
@@ -341,12 +353,12 @@ GEM
     pandoc-ruby (2.1.10)
     parallel (1.27.0)
     parseconfig (1.1.2)
-    parser (3.3.8.0)
+    parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
       mail (>= 2.0)
-    prism (1.4.0)
+    prism (1.5.1)
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -365,7 +377,7 @@ GEM
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
-    rack-mini-profiler (4.0.0)
+    rack-mini-profiler (4.0.1)
       rack (>= 1.2.0)
     rack-session (2.1.1)
       base64 (>= 0.1.0)
@@ -406,7 +418,7 @@ GEM
       redis-store (>= 1.6, < 2)
     redis-store (1.11.0)
       redis (>= 4, < 6)
-    regexp_parser (2.10.0)
+    regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
     representable (3.2.0)
@@ -425,7 +437,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.77.0)
+    rubocop (1.80.2)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -433,10 +445,10 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.45.1, < 2.0)
+      rubocop-ast (>= 1.46.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.45.1)
+    rubocop-ast (1.46.0)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     ruby-progressbar (1.13.0)
@@ -446,7 +458,7 @@ GEM
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     securerandom (0.4.1)
-    sentry-ruby (5.26.0)
+    sentry-ruby (5.27.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     signet (0.21.0)
@@ -458,10 +470,10 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
-    simplecov-cobertura (2.1.0)
+    simplecov-cobertura (3.1.0)
       rexml
       simplecov (~> 0.19)
-    simplecov-html (0.13.1)
+    simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
     sinatra (4.1.1)
       logger (>= 1.6.0)
@@ -478,8 +490,8 @@ GEM
       net-ssh (>= 2.8.0)
       ostruct
     systemu (2.6.5)
-    temple (0.10.3)
-    tilt (2.6.0)
+    temple (0.10.4)
+    tilt (2.6.1)
     time (0.4.1)
       date
     timeout (0.4.3)
@@ -487,9 +499,9 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
-    unicode-display_width (3.1.4)
-      unicode-emoji (~> 4.0, >= 4.0.4)
-    unicode-emoji (4.0.4)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.1.0)
     unicorn (6.1.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
@@ -506,6 +518,9 @@ GEM
     webrick (1.9.1)
 
 PLATFORMS
+  arm64-darwin
+  ruby
+  x86_64-darwin
   x86_64-linux
 
 DEPENDENCIES
@@ -518,9 +533,10 @@ DEPENDENCIES
   capistrano-rbenv
   crack (= 0.4.5)
   ed25519 (>= 1.2, < 2.0)
-  ffi (~> 1.15.0)
+  ffi (= 1.15.0)
   goo!
-  google-protobuf (~> 4.30.0)
+  google-protobuf (= 3.25.3)
+  grpc (= 1.70.1)
   haml (~> 5.2.2)
   json-ld (~> 3.2.0)
   json-schema
@@ -571,4 +587,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.6.3
+   2.6.7
