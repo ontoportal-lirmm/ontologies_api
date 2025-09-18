@@ -127,8 +127,10 @@ provision_user() {
   source .env
 
   local commands=(
-    "bundle exec rake user:create[admin,admin@nodomain.org,password]"
+    "bundle exec rake user:create[admin,admin@nodomain.org,admin]"
     "bundle exec rake user:adminify[admin]"
+    "bundle exec rake user:create['ontoportal_ui','ontoportal_ui@nodomain.org']"
+    "bundle exec rake user:apikey:reset['ontoportal_ui','1de0a270-29c5-4dda-b043-7c3580628cd5']"
   )
 
   for cmd in "${commands[@]}"; do
