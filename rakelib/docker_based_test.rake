@@ -61,11 +61,15 @@ namespace :test do
     desc "run tests with docker Virtuoso backend"
     task :vo do
       ENV["GOO_BACKEND_NAME"]="virtuoso"
+      ENV["GOO_HOST"] = "localhost"
       ENV["GOO_PORT"]="8890"
-      ENV["GOO_PATH_QUERY"]="/sparql"
-      ENV["GOO_PATH_DATA"]="/sparql"
-      ENV["GOO_PATH_UPDATE"]="/sparql"
+      ENV["GOO_PATH_QUERY"]="/sparql-auth"
+      ENV["GOO_PATH_DATA"]="/sparql-auth"
+      ENV["GOO_PATH_UPDATE"]="/sparql-auth"
       ENV["COMPOSE_PROFILES"]="vo"
+      ENV["USE_DIGEST_AUTH"]= "true"
+      ENV["DB_USER"]="dba"
+      ENV["DB_PASSWORD"]="dba"
       Rake::Task["test:docker:up"].invoke
       #
       unless system("curl -sf  http://localhost:8890/sparql  || exit 1")

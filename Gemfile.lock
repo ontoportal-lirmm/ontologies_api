@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ontoportal-lirmm/goo.git
-  revision: 04680ed78dfd98cfe004d9a1d7019f3f06e9b667
-  branch: development
+  revision: f2dfa4c919315f9bbb06866365cabe39ebe76348
+  branch: feature/digest-authentification
   specs:
     goo (0.0.2)
       addressable (~> 2.8)
@@ -77,10 +77,11 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/sparql-client.git
-  revision: 736b7650e28db3ce5e3e49511ac30f958a29e8f1
-  branch: development
+  revision: 535763a8adae26e6129c38e53f40686dd4d24e23
+  branch: feature/digest-authentification
   specs:
     sparql-client (3.2.2)
+      net-http-digest_auth (~> 1.4, >= 1.4.0)
       net-http-persistent (~> 4.0, >= 4.0.2)
       rdf (~> 3.2, >= 3.2.11)
 
@@ -326,6 +327,7 @@ GEM
       time
     net-http (0.6.0)
       uri
+    net-http-digest_auth (1.4.1)
     net-http-persistent (4.0.6)
       connection_pool (~> 2.2, >= 2.2.4)
     net-imap (0.5.10)
