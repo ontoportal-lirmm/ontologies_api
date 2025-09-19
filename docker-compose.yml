@@ -58,7 +58,7 @@ services:
 
   ncbo_cron:
     <<: *app
-    image: agroportal/ncbo_cron:master
+    image: agroportal/ncbo_cron:development
     env_file:
       .env
     environment:

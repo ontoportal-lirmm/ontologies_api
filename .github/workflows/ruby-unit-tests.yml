@@ -26,6 +26,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          cache-version: v1-${{ hashFiles('Gemfile.lock') }} # invalidate the cache based on the Gemfile.lock hash
       - name: Run unit tests
         run: |
           cp .env.sample .env
