@@ -67,6 +67,14 @@ class UsersController < ApplicationController
       reply user
     end
 
+    # Display a single user
+    get '/:username/ontologies' do
+      user = User.find(params[:username]).first
+      error 404, "Cannot find user with username `#{params['username']}`" if user.nil?
+      check_last_modified(user)
+      reply user.createdOntologies
+    end
+
     # Create user
     post do
       create_user
