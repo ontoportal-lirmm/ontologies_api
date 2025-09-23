@@ -35,8 +35,9 @@ module Sinatra
           end
 
           # Get if it is an extracted metadata
-          if klass.attribute_settings(attr)[:extractedMetadata]
-            attr_settings[:extracted] = true
+          extracted = klass.attribute_settings(attr)[:extractedMetadata]
+          if extracted
+            attr_settings[:extracted] = extracted == "once" ? "once" : true
           else
             attr_settings[:extracted] = false
           end
