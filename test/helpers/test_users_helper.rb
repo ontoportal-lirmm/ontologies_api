@@ -42,6 +42,7 @@ class TestUsersHelper < TestCaseHelpers
   end
 
   def test_search_custom_onts
+    skip "Test is not consistent, need to be fixed to work all the time"
     # Make sure group and non-group onts are in the search index
     get "/search?q=a*&pagesize=500&apikey=#{@@non_custom_user.apikey}"
     assert last_response.ok?

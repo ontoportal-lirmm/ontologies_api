@@ -7,6 +7,9 @@ x-app: &app
     COVERAGE: 'true' # enable simplecov code coverage
     REDIS_HOST: redis-ut
     REDIS_PORT: 6379
+    REDIS_GOO_CACHE_HOST: redis-ut
+    REDIS_HTTP_CACHE_HOST: redis-ut
+    REDIS_PERSISTENT_HOST: redis-ut
     SOLR_TERM_SEARCH_URL: http://solr-ut:8983/solr
     SOLR_PROP_SEARCH_URL: http://solr-ut:8983/solr
     GOO_BACKEND_NAME: virtuoso
@@ -55,7 +58,7 @@ services:
 
   ncbo_cron:
     <<: *app
-    image: agroportal/ncbo_cron:master
+    image: agroportal/ncbo_cron:development
     env_file:
       .env
     environment:

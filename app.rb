@@ -88,6 +88,9 @@ if [:development, :console].include?(settings.environment)
   set :raise_errors, true
   set :dump_errors, false
   set :show_exceptions, false
+  # use Rack::DowncaseHeaders to ensure headers are downcased for rack > 3.0 compatibility
+  require_relative 'lib/rack/downcase_headers'
+  use Rack::DowncaseHeaders
 end
 
 use Rack::Cors do
