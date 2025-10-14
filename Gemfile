@@ -17,13 +17,14 @@ end
 
 gem 'request_store'
 gem 'parallel'
-gem 'google-protobuf', '~> 4.30.0'
+gem 'google-protobuf', '3.25.3'
+gem 'grpc', '1.70.1'
 gem 'net-ftp'
 gem 'json-ld', '~> 3.2.0'
 gem 'rdf-raptor', github:'ruby-rdf/rdf-raptor', ref: '6392ceabf71c3233b0f7f0172f662bd4a22cd534' # use version 3.3.0 when available
 
 # Rack middleware
-gem 'ffi', '~> 1.15.0'
+gem 'ffi', '1.15.0'
 gem 'rack-accept'
 gem 'rack-attack', require: 'rack/attack'
 gem 'rack-cache'
@@ -51,7 +52,7 @@ gem 'pandoc-ruby'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
 gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
-gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'master'
+gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'development'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
 gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
 gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
