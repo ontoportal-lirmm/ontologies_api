@@ -12,35 +12,70 @@ bin/ontoportal help
 ```
 
 ```
-Usage: bin/ontoportal {dev|test|run|help} [--reset-cache] [--api-url API_URL] [--api-key API_KEY]
-  dev            : Start the Ontoportal API development server.
-                  Example: bin/ontoportal dev --api-url http://localhost:9393
-                  Use --reset-cache to remove volumes: bin/ontoportal dev --reset-cache
-  test           : Run tests.
-  run            : Run a command in the Ontoportal API Docker container.
-  help           : Show this help message.
+Usage:
+  ./bin/ontoportal <command> [options]
+Commands:
+  dev       Start the OntoPortal API development server.
+            Examples:
+              ./bin/ontoportal dev [shotgun|rackup]
+              ./bin/ontoportal dev --api-url http://localhost:9393
+              ./bin/ontoportal dev --reset-cache
+              ./bin/ontoportal dev --provision-user-only
+              ./bin/ontoportal dev --provision-ontology
+              ./bin/ontoportal dev --linked-data-path ONTOLOGIES_LINKED_DATA_PATH
+              ./bin/ontoportal dev --goo-path GOO_PATH
+              ./bin/ontoportal dev  --sparql-client-path SPARQL_CLIENT_PATH
 
-Description:
-  This script provides convenient commands for managing an Ontoportal API
-  application using Docker Compose. It includes options for starting the development server,
-  running tests, and executing commands within the Ontoportal API Docker container.
+  test      Run tests (all or a specific file).
+            Examples:
+              ./bin/ontoportal test all
+              ./bin/ontoportal test test/controllers/test_users_controller.rb --name=name_of_the_test
+            Options:
+              --name=TEST_NAME          Run only the test with the given name.
+              --backend [vo|fs|ag|gb]   Run the test with specific backend type
 
-Goals:
-  - Simplify common tasks related to Ontoportal API development using Docker.
-  - Provide a consistent and easy-to-use interface for common actions.
 
+  run       Run a command inside the OntoPortal API Docker container.
+  help      Show this help message.
 
+Arguments:
+  [shotgun|rackup]          Specify the server that used in the dev env (default: shotgun)
+
+Options (dev, test, run):
+  --api-url URL             Set the API URL (default: http://localhost:9393).
+  --reset-cache             Remove Docker volumes (use with 'dev').
+  --provision-user-only     Create only the admin user (no ontology parsing).
+  --provision-ontology      Create admin user and parse ontology for use.
+  --linked-data-path PATH   Path for ontologies_linked_data.
+  --goo-path PATH           Path for goo.
+  --sparql-client-path PATH Path for sparql-client.
+
+Notes:
+  - 'dev' is for local development with Docker Compose.
+  - 'test' supports both individual test files and the 'all' shortcut.
+  - 'run' lets you execute arbitrary commands inside the container.
 ```
 
 
 ### Run dev
 ```bash 
 bin/ontoportal dev 
+bin/ontoportal dev [shotgun|rackup]
+bin/ontoportal dev --api-url http://localhost:9393
+bin/ontoportal dev --reset-cache
+bin/ontoportal dev --provision-user-only
+bin/ontoportal dev --provision-ontology
+bin/ontoportal dev --linked-data-path ONTOLOGIES_LINKED_DATA_PATH
+bin/ontoportal dev --goo-path GOO_PATH
+bin/ontoportal dev  --sparql-client-path SPARQL_CLIENT_PATH
 ```
 
 ### Run test with a local OntoPortal API
 ```bash 
-bin/ontoportal test 
+bin/ontoportal test all # Run all tests
+bin/ontoportal test <path_to_the_test_file> # Run all tests in the test file
+bin/ontoportal test <path_to_the_test_file> --name=name_of_the_test # Run single test in the test file
+bin/ontoportal test all --backend ag # You can specify the backend type to use for tests
 ```
 
 
