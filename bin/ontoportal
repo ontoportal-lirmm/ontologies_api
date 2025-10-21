@@ -19,8 +19,12 @@ Commands:
 
   test      Run tests (all or a specific file).
             Examples:
-              $0 test all -v
-              $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
+              $0 test all
+              $0 test test/controllers/test_users_controller.rb --name=name_of_the_test
+            Options:
+              --name=TEST_NAME          Run only the test with the given name.
+              --backend [vo|fs|ag|gb]   Run the test with specific backend type
+
 
   run       Run a command inside the OntoPortal API Docker container.
   help      Show this help message.
@@ -28,7 +32,7 @@ Commands:
 Arguments:
   [shotgun|rackup]          Specify the server that used in the dev env (default: shotgun)
 
-Options:
+Options (dev, test, run):
   --api-url URL             Set the API URL (default: http://localhost:9393).
   --reset-cache             Remove Docker volumes (use with 'dev').
   --provision-user-only     Create only the admin user (no ontology parsing).
@@ -36,7 +40,6 @@ Options:
   --linked-data-path PATH   Path for ontologies_linked_data.
   --goo-path PATH           Path for goo.
   --sparql-client-path PATH Path for sparql-client.
-  --name=TEST_NAME          Run only the test with the given name.
 
 Notes:
   - 'dev' is for local development with Docker Compose.
@@ -293,25 +296,38 @@ test() {
   local test_path=""
   local test_options=""
   local all_arguments=()
+  local backend="vo"
   # Check for command line arguments
   while [ "$#" -gt 0 ]; do
-     case "$1" in
-         --api-url | --reset-cache | --linked-data-path | --goo-path | --sparql-client-path)
-          all_arguments+=("$1" "$2")
+    case "$1" in
+      --backend)
+        if [ -n "$2" ]; then
+          backend="$2"
           shift 2
-          ;;
-       *)
-         if [ -z "$test_path" ]; then
-           test_path="$1"
-         else
-           test_options="$test_options $1"
-         fi
-         ;;
-     esac
-     shift
+        fi
+        ;;
+      --api-url | --reset-cache | --linked-data-path | --goo-path | --sparql-client-path)
+        all_arguments+=("$1" "$2")
+        shift 2
+        ;;
+      *)
+        if [ -z "$test_path" ]; then
+          test_path="$1"
+        else
+          test_options="$test_options $1"
+        fi
+        shift
+        ;;
+    esac
   done
 
-  local custom_command="bundle exec rake test TEST='$test_path' TESTOPTS='$test_options'"
+  local custom_command=""
+  if [ "$test_path" = "all" ]; then
+    custom_command="bundle exec rake test test:docker:$backend"
+  else
+    # Run specific test file or pattern
+    custom_command+="bundle exec rake test test:docker:$backend TEST='$test_path' TESTOPTS='$test_options'"
+  fi
   echo "[+] run :  $custom_command"
   run_command "$custom_command" "${all_arguments[@]}"
 }
