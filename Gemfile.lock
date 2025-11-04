@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 060dca39f8b9eeb770923cf169ca4326c958c082
+  revision: 8dc52640e79ec8720ad51ce9741833bb8757558a
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -319,7 +319,7 @@ GEM
     mlanett-redis-lock (0.2.7)
       redis
     multi_json (1.17.0)
-    mustermann (3.0.4)
+    mustermann (3.0.3)
       ruby2_keywords (~> 0.0.1)
     net-ftp (0.3.8)
       net-protocol
@@ -418,7 +418,7 @@ GEM
       redis-store (>= 1.6, < 2)
     redis-store (1.11.0)
       redis (>= 4, < 6)
-    regexp_parser (2.11.3)
+    regexp_parser (2.10.0)
     reline (0.6.2)
       io-console (~> 0.5)
     representable (3.2.0)

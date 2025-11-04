@@ -91,6 +91,17 @@ class TestOntologiesController < TestCase
     assert ont["acronym"] = ontology
   end
 
+  def test_user_ontology
+    get "/users/#{@@user}/ontologies"
+    assert last_response.ok?
+
+    ont = MultiJson.load(last_response.body)
+    assert ont.size, 2
+    assert ont.map { |o| o["acronym"] }.sort.include?(@@acronym)
+    assert ont.map { |o| o["acronym"] }.sort.include?(@@view_acronym)
+  end
+
+
   def test_create_ontology
     self.class._delete_onts
     put "/ontologies/#{@@acronym}", @@file_params
