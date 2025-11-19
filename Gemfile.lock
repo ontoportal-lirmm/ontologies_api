@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 8dc52640e79ec8720ad51ce9741833bb8757558a
+  revision: ae7774b9dc0f98eaa9f865f43b23d9a6ecefa509
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -128,7 +128,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (7.2.2.2)
+    activesupport (7.2.3)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -152,7 +152,7 @@ GEM
     bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
-    benchmark (0.4.1)
+    benchmark (0.5.0)
     bigdecimal (3.3.1)
     builder (3.3.0)
     capistrano (3.19.2)
@@ -173,7 +173,7 @@ GEM
     crack (0.4.5)
       rexml
     dante (0.2.0)
-    date (3.4.1)
+    date (3.5.0)
     declarative (0.0.20)
     docile (1.4.1)
     domain_name (0.6.20240107)
@@ -187,8 +187,8 @@ GEM
       logger
     faraday-follow_redirects (0.3.0)
       faraday (>= 1, < 3)
-    faraday-net_http (3.4.1)
-      net-http (>= 0.5.0)
+    faraday-net_http (3.4.2)
+      net-http (~> 0.5)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
     ffi (1.15.0)
@@ -265,14 +265,14 @@ GEM
       temple (>= 0.8.0)
       tilt
     hashdiff (1.2.1)
-    htmlentities (4.3.4)
+    htmlentities (4.4.1)
     http-accept (1.7.0)
     http-cookie (1.1.0)
       domain_name (~> 0.5)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     io-console (0.8.1)
-    json (2.15.1)
+    json (2.16.0)
     json-canonicalization (0.4.0)
     json-ld (3.2.5)
       htmlentities (~> 4.3)
@@ -294,7 +294,8 @@ GEM
     logger (1.7.0)
     macaddr (1.7.2)
       systemu (~> 2.6.5)
-    mail (2.8.1)
+    mail (2.9.0)
+      logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -305,7 +306,7 @@ GEM
       mime-types-data (~> 3.2025, >= 3.2025.0507)
     mime-types-data (3.2025.0924)
     mini_mime (1.1.5)
-    minitest (5.26.0)
+    minitest (5.26.2)
     minitest-fail-fast (0.1.0)
       minitest (~> 5)
     minitest-hooks (1.5.2)
@@ -324,8 +325,8 @@ GEM
     net-ftp (0.3.8)
       net-protocol
       time
-    net-http (0.6.0)
-      uri
+    net-http (0.8.0)
+      uri (>= 0.11.1)
     net-http-persistent (4.0.6)
       connection_pool (~> 2.2, >= 2.2.4)
     net-imap (0.5.12)
@@ -343,7 +344,7 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     netrc (0.11.0)
-    oj (3.16.11)
+    oj (3.16.12)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     omni_logger (0.1.4)
@@ -365,7 +366,7 @@ GEM
     public_suffix (6.0.2)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.2.3)
+    rack (3.2.4)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-attack (6.7.0)
@@ -419,7 +420,7 @@ GEM
     redis-store (1.11.0)
       redis (>= 4, < 6)
     regexp_parser (2.10.0)
-    reline (0.6.2)
+    reline (0.6.3)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -454,7 +455,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
     ruby2_keywords (0.0.5)
-    rubyzip (3.2.0)
+    rubyzip (3.2.2)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     securerandom (0.4.1)
@@ -494,7 +495,7 @@ GEM
     tilt (2.6.1)
     time (0.4.1)
       date
-    timeout (0.4.3)
+    timeout (0.4.4)
     trailblazer-option (0.1.2)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -508,7 +509,7 @@ GEM
     unicorn-worker-killer (0.4.5)
       get_process_mem (~> 0)
       unicorn (>= 4, < 7)
-    uri (1.0.4)
+    uri (1.1.1)
     uuid (2.3.9)
       macaddr (~> 1.0)
     webmock (3.25.1)
