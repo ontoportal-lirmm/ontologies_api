@@ -272,12 +272,7 @@ class OntologiesController < ApplicationController
 
           entries << entry if !filter_enabled || allowed.include?(entry[:severity])
         end
-
-        # Group by severity, sort within each group by timestamp DESC, then flatten in severity priority order
-        valid_severities.flat_map do |sev|
-          group = entries.select { |e| e[:severity] == sev }
-          group.sort_by { |e| e[:timestamp] ? Time.parse(e[:timestamp]) : Time.at(0) }.reverse
-        end
+        entries
       end
 
       def clean_message(raw)
