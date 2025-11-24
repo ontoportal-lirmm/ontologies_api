@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 7467cf268b578b531ef3546557790fc61666700c
-  branch: development
+  revision: 5e326aa50034e9f26e0004d19516dd1bbca9e612
+  branch: fix/ontology-user-administration
   specs:
     ncbo_cron (0.0.1)
       dante
@@ -179,21 +179,21 @@ GEM
     domain_name (0.6.20240107)
     drb (2.2.3)
     ed25519 (1.4.0)
-    et-orbi (1.3.0)
+    et-orbi (1.4.0)
       tzinfo
     faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-follow_redirects (0.3.0)
+    faraday-follow_redirects (0.4.0)
       faraday (>= 1, < 3)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
     ffi (1.15.0)
-    fugit (1.11.2)
-      et-orbi (~> 1, >= 1.2.11)
+    fugit (1.12.1)
+      et-orbi (~> 1.4)
       raabro (~> 1.4)
     gapic-common (1.1.0)
       faraday (>= 1.9, < 3.a)
@@ -241,7 +241,7 @@ GEM
       grpc (~> 1.41)
     googleapis-common-protos-types (1.20.0)
       google-protobuf (>= 3.18, < 5.a)
-    googleauth (1.15.0)
+    googleauth (1.15.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
