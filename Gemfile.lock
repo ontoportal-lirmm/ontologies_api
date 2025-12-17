@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: 6c29c8fa1d702db4357f1bc33237c9be491197df
-  branch: feat/add-last-login
+  revision: ace853fd20bb9fd4ec1233acb7c8243cae6e66e2
+  branch: development
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
