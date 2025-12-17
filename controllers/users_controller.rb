@@ -11,7 +11,10 @@ class UsersController < ApplicationController
       else
         user = login_password_authenticate(params)
       end
-      user.show_apikey = true unless user.nil?
+      unless user.nil?
+        user.update_last_login
+        user.show_apikey = true 
+      end
       reply user
     end
 
