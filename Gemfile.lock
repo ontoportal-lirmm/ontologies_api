@@ -29,8 +29,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ncbo_cron.git
-  revision: 339401544c3b10d33e18556d951dab99e67c5519
-  branch: master
+  revision: 2eb5cfd12e6e8fd9d3b0a6610d836a358cdfc409
+  branch: development
   specs:
     ncbo_cron (0.0.1)
       dante
