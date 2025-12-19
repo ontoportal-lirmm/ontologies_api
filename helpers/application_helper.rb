@@ -456,16 +456,16 @@ module Sinatra
         redis.setex process_id, timeout, MultiJson.dump("processing")
 
         worker = Proc.new do
-          result = {}
+          error = {}
           begin
-            result = block.call(args) || {}
+            block.call(args) || {}
           rescue Exception => e
             msg = "Error #{args[:message]} - #{e.class}: #{e.message}"
             puts "#{msg}\n#{e.backtrace.join("\n\t")}"
-            result = { errors: [msg] }
+            error = { errors: [msg] }
           end
           # Store the result (either {errors: [...]} or a success payload)
-          redis.setex process_id, timeout, MultiJson.dump(result.empty? ? "done" : result)
+          redis.setex process_id, timeout, MultiJson.dump(error.empty? ? "done" : error)
         end
 
         # Use a fork like AdminController; set to false for testing if needed
@@ -483,6 +483,15 @@ module Sinatra
       def redis
         Redis.new(host: Annotator.settings.annotator_redis_host, port: Annotator.settings.annotator_redis_port, timeout: 30)
       end
+
+      def redis_goo
+        Redis.new(host: LinkedData.settings.goo_redis_host, port: LinkedData.settings.goo_redis_port, timeout: 30)
+      end
+
+      def redis_http
+        Redis.new(host: LinkedData.settings.http_redis_host, port: LinkedData.settings.http_redis_port, timeout: 30)
+      end
+      
 
       private
 

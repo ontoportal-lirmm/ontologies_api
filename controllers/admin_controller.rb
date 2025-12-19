@@ -200,15 +200,6 @@ class AdminController < ApplicationController
         end
       end
     end
-    private
-
-    def redis_goo
-      Redis.new(host: LinkedData.settings.goo_redis_host, port: LinkedData.settings.goo_redis_port, timeout: 30)
-    end
-
-    def redis_http
-      Redis.new(host: LinkedData.settings.http_redis_host, port: LinkedData.settings.http_redis_port, timeout: 30)
-    end
 
   end
 end
