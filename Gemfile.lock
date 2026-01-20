@@ -57,13 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-<<<<<<< HEAD
-  revision: e0e4547b49290ace0849b4d5bf294a7809196943
-  branch: development
-=======
   revision: b650403da3cfe7813c258f53e06897e16c46d75f
   branch: sidekiq
->>>>>>> sideqik-integration
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -108,7 +103,7 @@ GIT
 
 GIT
   remote: https://github.com/sinatra/sinatra.git
-  revision: 4062e3669c7dff0f59ca1d0b0bfa67f7eef444af
+  revision: 9e5c4ec8ade92c7375f44acf4c6e1103d32d6c12
   specs:
     rack-protection (4.2.1)
       base64 (>= 0.1.0)
@@ -158,7 +153,7 @@ GEM
     bcrypt_pbkdf (1.1.2-arm64-darwin)
     bcrypt_pbkdf (1.1.2-x86_64-darwin)
     benchmark (0.5.0)
-    bigdecimal (3.3.1)
+    bigdecimal (4.0.1)
     builder (3.3.0)
     capistrano (3.20.0)
       airbrussh (>= 1.0.0)
@@ -190,11 +185,11 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-follow_redirects (0.4.0)
+    faraday-follow_redirects (0.5.0)
       faraday (>= 1, < 3)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
-    faraday-retry (2.3.2)
+    faraday-retry (2.4.0)
       faraday (~> 2.0)
     ffi (1.15.0)
     fugit (1.12.1)
@@ -237,7 +232,9 @@ GEM
     google-cloud-errors (1.5.0)
     google-logging-utils (0.2.0)
     google-protobuf (3.25.3)
+    google-protobuf (3.25.3-aarch64-linux)
     google-protobuf (3.25.3-arm64-darwin)
+    google-protobuf (3.25.3-x86-linux)
     google-protobuf (3.25.3-x86_64-darwin)
     google-protobuf (3.25.3-x86_64-linux)
     googleapis-common-protos (1.8.0)
@@ -246,7 +243,7 @@ GEM
       grpc (~> 1.41)
     googleapis-common-protos-types (1.20.0)
       google-protobuf (>= 3.18, < 5.a)
-    googleauth (1.16.0)
+    googleauth (1.16.1)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -257,7 +254,13 @@ GEM
     grpc (1.70.1)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
+    grpc (1.70.1-aarch64-linux)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
     grpc (1.70.1-arm64-darwin)
+      google-protobuf (>= 3.25, < 5.0)
+      googleapis-common-protos-types (~> 1.0)
+    grpc (1.70.1-x86-linux)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
     grpc (1.70.1-x86_64-darwin)
@@ -286,9 +289,8 @@ GEM
       multi_json (~> 1.15)
       rack (>= 2.2, < 4)
       rdf (~> 3.2, >= 3.2.10)
-    json-schema (5.2.2)
+    json-schema (5.1.0)
       addressable (~> 2.8)
-      bigdecimal (~> 3.1)
     jwt (3.1.2)
       base64
     kgio (2.11.4)
@@ -312,8 +314,8 @@ GEM
     mime-types-data (3.2026.0113)
     mini_mime (1.1.5)
     minitest (5.27.0)
-    minitest-fail-fast (0.1.0)
-      minitest (~> 5)
+    minitest-fail-fast (0.2.0)
+      minitest (>= 5.0, < 7)
     minitest-hooks (1.5.3)
       minitest (> 5.3)
     minitest-reporters (1.7.1)
@@ -359,12 +361,12 @@ GEM
     pandoc-ruby (2.1.10)
     parallel (1.27.0)
     parseconfig (1.1.2)
-    parser (3.3.10.0)
+    parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
     pony (1.13.1)
       mail (>= 2.0)
-    prism (1.7.0)
+    prism (1.8.0)
     pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -397,13 +399,9 @@ GEM
     rainbow (3.1.1)
     raindrops (0.20.1)
     rake (13.3.1)
-    rdf (3.3.4)
+    rdf (3.3.1)
       bcp47_spec (~> 0.2)
-      bigdecimal (~> 3.1, >= 3.1.5)
       link_header (~> 0.0, >= 0.0.8)
-      logger (~> 1.5)
-      ostruct (~> 0.6)
-      readline (~> 0.0)
     rdf-rdfxml (3.3.0)
       builder (~> 3.2, >= 3.2.4)
       htmlentities (~> 4.3)
@@ -414,8 +412,6 @@ GEM
     rdf-xsd (3.3.0)
       rdf (~> 3.3)
       rexml (~> 3.2)
-    readline (0.0.4)
-      reline
     redis (5.4.1)
       redis-client (>= 0.22.0)
     redis-client (0.26.3)
@@ -444,7 +440,7 @@ GEM
     rsolr (2.6.0)
       builder (>= 2.1.2)
       faraday (>= 0.9, < 3, != 2.0.0)
-    rubocop (1.82.0)
+    rubocop (1.82.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -455,9 +451,9 @@ GEM
       rubocop-ast (>= 1.48.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.48.0)
+    rubocop-ast (1.49.0)
       parser (>= 3.3.7.2)
-      prism (~> 1.4)
+      prism (~> 1.7)
     ruby-progressbar (1.13.0)
     ruby-xxHash (0.4.0.2)
     ruby2_keywords (0.0.5)
@@ -468,17 +464,13 @@ GEM
     sentry-ruby (5.28.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
-<<<<<<< HEAD
-    signet (0.21.0)
-=======
-    sidekiq (7.3.9)
+    sidekiq (7.3.10)
       base64
-      connection_pool (>= 2.3.0)
+      connection_pool (>= 2.3.0, < 3)
       logger
-      rack (>= 2.2.4)
-      redis-client (>= 0.22.2)
-    signet (0.20.0)
->>>>>>> sideqik-integration
+      rack (>= 2.2.4, < 3.3)
+      redis-client (>= 0.23.0, < 1)
+    signet (0.21.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 4.0)
@@ -508,7 +500,7 @@ GEM
       ostruct
     systemu (2.6.5)
     temple (0.10.4)
-    tilt (2.6.1)
+    tilt (2.7.0)
     time (0.4.2)
       date
     timeout (0.6.0)
@@ -535,8 +527,10 @@ GEM
     webrick (1.9.2)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin
   ruby
+  x86-linux
   x86_64-darwin
   x86_64-linux
 
@@ -605,4 +599,4 @@ DEPENDENCIES
   webrick
 
 BUNDLED WITH
-   2.6.7
+   2.6.9
