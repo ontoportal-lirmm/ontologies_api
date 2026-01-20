@@ -57,8 +57,13 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
+<<<<<<< HEAD
   revision: e0e4547b49290ace0849b4d5bf294a7809196943
   branch: development
+=======
+  revision: b650403da3cfe7813c258f53e06897e16c46d75f
+  branch: sidekiq
+>>>>>>> sideqik-integration
   specs:
     ontologies_linked_data (0.0.1)
       activesupport
@@ -463,7 +468,17 @@ GEM
     sentry-ruby (5.28.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
+<<<<<<< HEAD
     signet (0.21.0)
+=======
+    sidekiq (7.3.9)
+      base64
+      connection_pool (>= 2.3.0)
+      logger
+      rack (>= 2.2.4)
+      redis-client (>= 0.22.2)
+    signet (0.20.0)
+>>>>>>> sideqik-integration
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
       jwt (>= 1.5, < 4.0)
@@ -578,6 +593,7 @@ DEPENDENCIES
   rubocop
   sentry-ruby (~> 5.24)
   shotgun!
+  sidekiq (~> 7.3.9)
   simplecov
   simplecov-cobertura
   sinatra

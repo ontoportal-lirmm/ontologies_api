@@ -86,6 +86,11 @@ create_config_files() {
   [ -f ".env" ] || cp .env.sample .env
   [ -f "config/environments/development.rb" ] || cp config/environments/config.rb.sample config/environments/development.rb
 }
+# Helper function to build the shared volume mounts and bash setup
+build_volume_mounts_and_bash_config() {
+  local old_path="$1"
+  local goo_path="$2"
+  local sparql_client_path="$3"
 
 # Function to build Docker run command with conditionally added bind mounts
 build_docker_run_cmd() {
@@ -106,15 +111,53 @@ build_docker_run_cmd() {
       host_path="$(realpath "$(dirname "${!path}")")/$value"
       echo "[+] Run: bundle config local.$value ${!path}"
       container_path="/srv/ontoportal/$value"
-      docker_run_cmd+=" -v $host_path:$container_path"
-      bash_cmd+="(git config --global --add safe.directory $container_path && bundle config local.$value $container_path) &&"
+      docker_volumes+=" -v $host_path:$container_path"
+      bash_config+="(git config --global --add safe.directory $container_path && bundle config local.$value $container_path) &&"
     else
-      bash_cmd+=" (bundle config unset local.$value) &&"
+      bash_config+=" (bundle config unset local.$value) &&"
     fi
   done
 
-  bash_cmd+=" (bundle check || bundle install || bundle update) && $custom_command"
-  docker_run_cmd+=" --service-ports api bash -c \"$bash_cmd\""
+  # Export variables for the caller
+  export COMMON_DOCKER_VOLUMES="$docker_volumes"
+  export COMMON_BASH_CONFIG="$bash_config"
+}
+
+# Run a container with shared config
+run_container_with_shared_setup() {
+  local container_name="$1"
+  local service_name="$2"
+  local custom_command="$3"
+  local old_path="$4"
+  local goo_path="$5"
+  local sparql_client_path="$6"
+  local detached="$7" 
+  
+  # Automatically stop and remove existing container if it exists
+  if docker ps -a --format "table {{.Names}}" | grep -q "^${container_name}$"; then
+    echo "Container '$container_name' already exists. Removing it..."
+    docker stop "$container_name" 2>/dev/null || true
+    docker rm "$container_name" 2>/dev/null || true
+    echo "Container '$container_name' removed."
+  fi
+  
+  # Prepare shared mounts and bundler config
+  build_volume_mounts_and_bash_config "$old_path" "$goo_path" "$sparql_client_path"
+
+  # Final bash command
+  local full_bash_cmd="${COMMON_BASH_CONFIG} (bundle check || bundle install || bundle update) && $custom_command"
+
+  # Docker run
+  local docker_run_cmd="docker compose --profile vo -p ontoportal_docker run --rm -it --name $container_name"
+  
+  if [ "$detached" == "true" ]; then
+    docker_run_cmd+=" -d"
+  else
+    docker_run_cmd+=" -it"
+  fi
+
+  docker_run_cmd+=" $COMMON_DOCKER_VOLUMES"
+  docker_run_cmd+=" --service-ports $service_name bash -c \"$full_bash_cmd\""
 
   echo "[+] Run docker command $docker_run_cmd"
   eval "$docker_run_cmd"
@@ -265,11 +308,15 @@ run_command() {
       echo "[+] Skipping Cron provisioning user and ontology"
     fi
   fi
+  custom_command_api="bundle exec shotgun --host 0.0.0.0  --env=development --port 9393"
+  custom_command_sidekiq="bundle exec sidekiq -C ./config/sidekiq.yml  -r /srv/ontoportal/ontologies_api/app.rb  --env=development"
+  # Run sidekiq container
+  run_container_with_shared_setup "sidekiq" "sidekiq" "$custom_command_sidekiq" "$old_path" "$goo_path" "$sparql_client_path" true
 
-  # Build the Docker run command
-  echo "[+] Run: $custom_command"
+  # Run API container
+  echo "[+] Run: $custom_command_api"
   echo "Running server running at $api_url"
-  build_docker_run_cmd "$custom_command" "$linked_data_path" "$goo_path" "$sparql_client_path" "$ncbo_path"
+  run_container_with_shared_setup "api-service" "api" "$custom_command_api" "$old_path" "$goo_path" "$sparql_client_path" 
 }
 
 # Function to handle the "dev" option
@@ -298,6 +345,7 @@ dev() {
       ;;
   esac
 
+  local custom_command="" # to do : remove this variable
   run_command "$custom_command" "$@"
 }
 

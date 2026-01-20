@@ -49,12 +49,28 @@ services:
         condition: service_started
       ncbo_cron:
         condition: service_started
+      sidekiq:
+        condition: service_started
     ports:
       - "9393:9393"
     volumes:
       # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
       - app_api:/srv/ontoportal/ontologies_api
       - repository:/srv/ontoportal/data/repository
+  sidekiq:
+    <<: *app
+    env_file:
+      .env
+    environment:
+      <<: *env
+      BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
+
+    command: bundle exec sidekiq -C /srv/ontoportal/ontologies_api/config/sidekiq.yml  -r /srv/ontoportal/ontologies_api/app.rb  --env=development
+    volumes:
+      - app_api:/srv/ontoportal/ontologies_api
+    depends_on:
+      redis-ut:
+        condition: service_healthy
 
   ncbo_cron:
     <<: *app
