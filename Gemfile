@@ -38,6 +38,11 @@ gem 'redis-rack-cache'
 gem 'redis'
 gem 'redis-store'
 
+# Relational database
+gem 'activerecord', '~> 7.1'
+gem 'pg', '~> 1.5'
+gem 'sinatra-activerecord', '~> 2.0'
+
 # Monitoring
 gem "sentry-ruby", "~> 5.24"
 

@@ -29,6 +29,13 @@ class UsersController < ApplicationController
       user = send_reset_token(email, username)
 
       if user.valid?
+        # Notify user that a password reset was requested
+        Notification.create!(
+          source: 'system',
+          target: username.to_s,
+          title: 'Password Reset Requested',
+          body: "A password reset was requested for your account on #{Time.now.strftime('%Y-%m-%d at %H:%M:%S UTC')}. If you did not request this, you can ignore this notification."
+        )
         halt 204
       else
         error 422, user.errors
@@ -91,10 +98,24 @@ class UsersController < ApplicationController
     # Update an existing submission of an user
     patch '/:username' do
       user = User.find(params[:username]).include(User.attributes).first
+      error 404, "Cannot find user with username `#{params[:username]}`" if user.nil?
+      
+      password_changed = params.key?("password") && !params["password"].to_s.empty?
+      
       params.delete("role") unless current_user.admin?
       populate_from_params(user, params)
       if user.valid?
         user.save
+        
+        # Create notification when password is changed
+        if password_changed
+          Notification.create!(
+            source: current_user&.username || 'system',
+            target: user.username.to_s,
+            title: 'Password Changed',
+            body: "Your password was changed on #{Time.now.strftime('%Y-%m-%d at %H:%M:%S UTC')}. If you did not make this change, please contact support immediately."
+          )
+        end
       else
         error 422, user.errors
       end

@@ -1,0 +1,28 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("DB_POOL", 5) %>
+
+development:
+  <<: *default
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+  database: <%= ENV.fetch("DATABASE_NAME", "ontologies_api_development") %>
+  username: <%= ENV.fetch("DATABASE_USER", "ontoportal") %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", "ontoportal") %>
+
+test:
+  <<: *default
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+  database: <%= ENV.fetch("DATABASE_NAME", "ontologies_api_test") %>
+  username: <%= ENV.fetch("DATABASE_USER", "ontoportal") %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", "ontoportal") %>
+
+production:
+  <<: *default
+  host: <%= ENV["DATABASE_HOST"] %>
+  port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+  database: <%= ENV["DATABASE_NAME"] %>
+  username: <%= ENV["DATABASE_USER"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>

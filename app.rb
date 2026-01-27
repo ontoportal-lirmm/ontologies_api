@@ -41,6 +41,9 @@ require_relative 'config/inflections'
 
 require 'request_store'
 
+# Postgtres Database connection
+require_relative 'config/relationalDatabase'
+RelationalDatabase.connect!
 # Protection settings
 set :protection, except: :path_traversal
 

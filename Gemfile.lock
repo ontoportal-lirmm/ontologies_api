@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/ontoportal-lirmm/ontologies_linked_data.git
-  revision: b650403da3cfe7813c258f53e06897e16c46d75f
+  revision: c05fefaffe91fac14cb3cd079d1e4dfa32dc3549
   branch: sidekiq
   specs:
     ontologies_linked_data (0.0.1)
@@ -128,6 +128,12 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    activemodel (7.2.3)
+      activesupport (= 7.2.3)
+    activerecord (7.2.3)
+      activemodel (= 7.2.3)
+      activesupport (= 7.2.3)
+      timeout (>= 0.4.0)
     activesupport (7.2.3)
       base64
       benchmark (>= 0.3)
@@ -364,6 +370,13 @@ GEM
     parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
+    pg (1.6.3)
+    pg (1.6.3-aarch64-linux)
+    pg (1.6.3-aarch64-linux-musl)
+    pg (1.6.3-arm64-darwin)
+    pg (1.6.3-x86_64-darwin)
+    pg (1.6.3-x86_64-linux)
+    pg (1.6.3-x86_64-linux-musl)
     pony (1.13.1)
       mail (>= 2.0)
     prism (1.8.0)
@@ -414,7 +427,7 @@ GEM
       rexml (~> 3.2)
     redis (5.4.1)
       redis-client (>= 0.22.0)
-    redis-client (0.26.3)
+    redis-client (0.26.4)
       connection_pool
     redis-rack-cache (2.2.1)
       rack-cache (>= 1.10, < 2)
@@ -491,6 +504,9 @@ GEM
       rack-protection (= 4.2.1)
       rack-session (>= 2.0.0, < 3)
       tilt (~> 2.0)
+    sinatra-activerecord (2.0.28)
+      activerecord (>= 4.1)
+      sinatra (>= 1.0)
     sshkit (1.25.0)
       base64
       logger
@@ -528,13 +544,16 @@ GEM
 
 PLATFORMS
   aarch64-linux
+  aarch64-linux-musl
   arm64-darwin
   ruby
   x86-linux
   x86_64-darwin
   x86_64-linux
+  x86_64-linux-musl
 
 DEPENDENCIES
+  activerecord (~> 7.1)
   activesupport
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bigdecimal
@@ -566,6 +585,7 @@ DEPENDENCIES
   pandoc-ruby
   parallel
   parseconfig
+  pg (~> 1.5)
   rack
   rack-accept
   rack-attack
@@ -591,6 +611,7 @@ DEPENDENCIES
   simplecov
   simplecov-cobertura
   sinatra
+  sinatra-activerecord (~> 2.0)
   sinatra-contrib!
   sparql-client!
   unicorn

@@ -1,8 +1,9 @@
 x-app: &app
   image: agroportal/ontologies_api:development
-  environment: &env
+  environment:
     # default bundle config resolves to /usr/local/bundle/config inside of the container
     # we are setting it to local app directory if we need to use 'bundle config local'
+    &env
     BUNDLE_PATH: /srv/ontoportal/bundle
     COVERAGE: 'true' # enable simplecov code coverage
     REDIS_HOST: redis-ut
@@ -27,16 +28,18 @@ x-app: &app
   tty: true
   command: /bin/bash
 
-
-
 services:
   api:
     <<: *app
-    env_file:
-      .env
+    env_file: .env
     environment:
       <<: *env
       BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
+      DATABASE_HOST: postgres-ut
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ontologies_api_development
+      DATABASE_USER: ontoportal
+      DATABASE_PASSWORD: ontoportal
 
     depends_on:
       solr-ut:
@@ -51,16 +54,19 @@ services:
         condition: service_started
       sidekiq:
         condition: service_started
+      postgres-ut:
+        condition: service_healthy
     ports:
       - "9393:9393"
     volumes:
       # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
-      - app_api:/srv/ontoportal/ontologies_api
+      - .:/srv/ontoportal/ontologies_api
       - repository:/srv/ontoportal/data/repository
+    command: >
+      bash -c "bundle exec rake db:migrate && bundle exec rackup -p 9393 --host 0.0.0.0"
   sidekiq:
     <<: *app
-    env_file:
-      .env
+    env_file: .env
     environment:
       <<: *env
       BUNDLE_APP_CONFIG: /srv/ontoportal/ontologies_api/.bundle
@@ -71,12 +77,10 @@ services:
     depends_on:
       redis-ut:
         condition: service_healthy
-
   ncbo_cron:
     <<: *app
     image: agroportal/ncbo_cron:development
-    env_file:
-      .env
+    env_file: .env
     environment:
       <<: *env
       BUNDLE_APP_CONFIG: /srv/ontoportal/ncbo_cron/.bundle
@@ -98,7 +102,6 @@ services:
       virtuoso-ut:
         condition: service_started
 
-
   mgrep-ut:
     image: ontoportal/mgrep-ncbo:0.1
     ports:
@@ -114,6 +117,22 @@ services:
       interval: 10s
       timeout: 3s
       retries: 10
+
+  postgres-ut:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ontoportal
+      POSTGRES_PASSWORD: ontoportal
+      POSTGRES_DB: ontologies_api_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ontoportal -d ontologies_api_development" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   4store-ut:
     image: bde2020/4store
@@ -155,11 +174,7 @@ services:
       - agdata:/agraph/data
       #      - ./agraph/etc:/agraph/etc
     command: >
-      bash -c "/agraph/bin/agraph-control --config /agraph/etc/agraph.cfg start
-      ; agtool repos create ontoportal_test --supersede
-      ; agtool users add anonymous
-      ; agtool users grant anonymous root:ontoportal_test:rw
-      ; tail -f /agraph/data/agraph.log"
+      bash -c "/agraph/bin/agraph-control --config /agraph/etc/agraph.cfg start ; agtool repos create ontoportal_test --supersede ; agtool users add anonymous ; agtool users grant anonymous root:ontoportal_test:rw ; tail -f /agraph/data/agraph.log"
     # healthcheck:
     #   test: ["CMD-SHELL", "curl -sf http://127.0.0.1:10035/repositories/ontoportal_test/status | grep -iqE '(^running|^lingering)' || exit 1"]
     #   start_period: 10s
@@ -211,6 +226,7 @@ volumes:
   4store:
   repository:
   solr_data:
+  postgres_data:
   reports:
   mgrep:
   logs:
