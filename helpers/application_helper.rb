@@ -523,6 +523,10 @@ module Sinatra
         RequestStore.store[:requested_lang] = submissions_language if submissions_language
       end
 
+      def update_current_user(user)
+        Thread.current[:remote_user] = user
+        env.update("REMOTE_USER" => user)
+      end
     end
   end
 end

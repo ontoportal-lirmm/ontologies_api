@@ -14,6 +14,7 @@ class UsersController < ApplicationController
       unless user.nil?
         user.update_last_login
         user.show_apikey = true 
+        update_current_user(user)
       end
       reply user
     end
