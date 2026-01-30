@@ -68,7 +68,7 @@ class TestUsersController < TestCase
     get "/users/#{@@username}"
     assert last_response.ok?
     assert MultiJson.load(last_response.body)["username"].eql?(@@username) 
-    assert_equal "test_user@example.org", MultiJson.load(last_response.body)["email"]
+    assert_equal nil, MultiJson.load(last_response.body)["email"]
   end
 
   def test_reset_password
@@ -99,7 +99,7 @@ class TestUsersController < TestCase
     assert_equal 404, last_response.status
     post "/users/reset_password", {username: username, email: "#{username}@example.org", token: user.resetToken}
     assert_equal 200, last_response.status
-    assert_equal "#{username}@example.org", MultiJson.load(last_response.body)["email"]
+    assert_equal nil, MultiJson.load(last_response.body)["email"]
     user = User.find(username).include(User.attributes).first
     assert_nil user.resetToken
   end
