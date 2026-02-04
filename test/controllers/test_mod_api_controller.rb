@@ -71,6 +71,7 @@ class TestArtefactsController < TestCase
             "numberOfArtefacts"=>2,
             "federated_portals"=>[{"name"=>"agroportal", "api"=>"http://data.agroportal.lirmm.fr", "ui"=>"http://agroportal.lirmm.fr", "color"=>"#3cb371"}],
             "fundedBy"=>[{"img_src"=>"https://ontoportal.org/images/logo.png", "url"=>"https://ontoportal.org/"}],
+            "sampleQueries"=>[],
             "@id"=>"http://data.bioontology.org/",
             "@type"=>"https://w3id.org/mod#SemanticArtefactCatalog"
         }

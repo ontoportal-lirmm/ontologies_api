@@ -16,11 +16,16 @@ Commands:
               $0 dev --linked-data-path ONTOLOGIES_LINKED_DATA_PATH
               $0 dev --goo-path GOO_PATH
               $0 dev  --sparql-client-path SPARQL_CLIENT_PATH
+              $0 dev  --ncbo-path NCBO_PATH
 
   test      Run tests (all or a specific file).
             Examples:
-              $0 test all -v
-              $0 test test/controllers/test_users_controller.rb -v --name=name_of_the_test
+              $0 test all
+              $0 test test/controllers/test_users_controller.rb --name=name_of_the_test
+            Options:
+              --name=TEST_NAME          Run only the test with the given name.
+              --backend [vo|fs|ag|gb]   Run the test with specific backend type
+
 
   run       Run a command inside the OntoPortal API Docker container.
   help      Show this help message.
@@ -28,7 +33,7 @@ Commands:
 Arguments:
   [shotgun|rackup]          Specify the server that used in the dev env (default: shotgun)
 
-Options:
+Options (dev, test, run):
   --api-url URL             Set the API URL (default: http://localhost:9393).
   --reset-cache             Remove Docker volumes (use with 'dev').
   --provision-user-only     Create only the admin user (no ontology parsing).
@@ -36,7 +41,7 @@ Options:
   --linked-data-path PATH   Path for ontologies_linked_data.
   --goo-path PATH           Path for goo.
   --sparql-client-path PATH Path for sparql-client.
-  --name=TEST_NAME          Run only the test with the given name.
+  --ncbo-path PATH Path for ncbo_cron.
 
 Notes:
   - 'dev' is for local development with Docker Compose.
@@ -53,6 +58,7 @@ update_env_file() {
   local linked_data_path=${linked_data_path:-}
   local goo_path=${goo_path:-}
   local sparql_client_path=${sparql_client_path:-}
+  local ncbo_path=${ncbo_path:-}
 
   # Update  the .env file with the provided values
   file_content=$(<.env)
@@ -67,6 +73,8 @@ update_env_file() {
       echo "GOO_PATH=$goo_path"
     elif [[ "$line" == "SPARQL_CLIENT_PATH="* ]]; then
       echo "SPARQL_CLIENT_PATH=$sparql_client_path"
+    elif [[ "$line" == "NCBO_PATH="* ]]; then
+      echo "NCBO_PATH=$ncbo_path"
     else
       echo "$line"
     fi
@@ -85,12 +93,13 @@ build_docker_run_cmd() {
   local linked_data_path="$2"
   local goo_path="$3"
   local sparql_client_path="$4"
+  local ncbo_path="$5"
 
   local docker_run_cmd="docker compose --profile vo -p ontoportal_docker run --rm -it --name api-service"
   local bash_cmd=""
 
   # Conditionally add bind mounts only if the paths are not empty
-  for path_var in "linked_data_path:ontologies_linked_data" "goo_path:goo" "sparql_client_path:sparql-client"; do
+  for path_var in "linked_data_path:ontologies_linked_data" "goo_path:goo" "sparql_client_path:sparql-client" "ncbo_path:ncbo_cron" ; do
     IFS=':' read -r path value <<< "$path_var"
 
     if [ -n "${!path}" ]; then
@@ -171,6 +180,7 @@ run_command() {
   local linked_data_path=""
   local goo_path=""
   local sparql_client_path=""
+  local ncbo_path=""
   local provision_user_only_arg=""
   local provision_ontology_arg=""
 
@@ -198,6 +208,10 @@ run_command() {
         sparql_client_path="$2"
         shift 2
         ;;
+      --ncbo-path)
+        ncbo_path="$2"
+        shift 2
+        ;;
       --provision-user-only)
         provision_user_only_arg="$1"
         shift 1
@@ -222,7 +236,7 @@ run_command() {
   fi
 
   # Check if arguments are provided
-  update_env_file "$api_url" "$linked_data_path" "$goo_path" "$sparql_client_path"
+  update_env_file "$api_url" "$linked_data_path" "$goo_path" "$sparql_client_path" "$ncbo_path"
 
 
 
@@ -232,6 +246,7 @@ run_command() {
   linked_data_path="$ONTOLOGIES_LINKED_DATA_PATH"
   goo_path="$GOO_PATH"
   sparql_client_path="$SPARQL_CLIENT_PATH"
+  ncbo_path="$NCBO_PATH"
 
 
   if [ -z "$api_url" ] ; then
@@ -254,7 +269,7 @@ run_command() {
   # Build the Docker run command
   echo "[+] Run: $custom_command"
   echo "Running server running at $api_url"
-  build_docker_run_cmd "$custom_command" "$linked_data_path" "$goo_path" "$sparql_client_path"
+  build_docker_run_cmd "$custom_command" "$linked_data_path" "$goo_path" "$sparql_client_path" "$ncbo_path"
 }
 
 # Function to handle the "dev" option
@@ -293,25 +308,38 @@ test() {
   local test_path=""
   local test_options=""
   local all_arguments=()
+  local backend="vo"
   # Check for command line arguments
   while [ "$#" -gt 0 ]; do
-     case "$1" in
-         --api-url | --reset-cache | --linked-data-path | --goo-path | --sparql-client-path)
-          all_arguments+=("$1" "$2")
+    case "$1" in
+      --backend)
+        if [ -n "$2" ]; then
+          backend="$2"
           shift 2
-          ;;
-       *)
-         if [ -z "$test_path" ]; then
-           test_path="$1"
-         else
-           test_options="$test_options $1"
-         fi
-         ;;
-     esac
-     shift
+        fi
+        ;;
+      --api-url | --reset-cache | --linked-data-path | --goo-path | --sparql-client-path)
+        all_arguments+=("$1" "$2")
+        shift 2
+        ;;
+      *)
+        if [ -z "$test_path" ]; then
+          test_path="$1"
+        else
+          test_options="$test_options $1"
+        fi
+        shift
+        ;;
+    esac
   done
 
-  local custom_command="bundle exec rake test TEST='$test_path' TESTOPTS='$test_options'"
+  local custom_command=""
+  if [ "$test_path" = "all" ]; then
+    custom_command="bundle exec rake test test:docker:$backend"
+  else
+    # Run specific test file or pattern
+    custom_command+="bundle exec rake test test:docker:$backend TEST='$test_path' TESTOPTS='$test_options'"
+  fi
   echo "[+] run :  $custom_command"
   run_command "$custom_command" "${all_arguments[@]}"
 }

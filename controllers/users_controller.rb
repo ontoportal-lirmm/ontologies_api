@@ -11,7 +11,11 @@ class UsersController < ApplicationController
       else
         user = login_password_authenticate(params)
       end
-      user.show_apikey = true unless user.nil?
+      unless user.nil?
+        user.update_last_login
+        user.show_apikey = true 
+        update_current_user(user)
+      end
       reply user
     end
 
@@ -65,6 +69,14 @@ class UsersController < ApplicationController
       check_last_modified(user)
       user.bring(*User.goo_attrs_to_load(includes_param))
       reply user
+    end
+
+    # Display a single user
+    get '/:username/ontologies' do
+      user = User.find(params[:username]).first
+      error 404, "Cannot find user with username `#{params['username']}`" if user.nil?
+      check_last_modified(user)
+      reply user.createdOntologies
     end
 
     # Create user
