@@ -55,6 +55,7 @@ services:
       # bundle volume for hosting gems installed by bundle; it speeds up gem install in local development
       - app_api:/srv/ontoportal/ontologies_api
       - repository:/srv/ontoportal/data/repository
+      - bundle:/srv/ontoportal/bundle
 
   ncbo_cron:
     <<: *app
@@ -72,6 +73,7 @@ services:
       - reports:/srv/ontoportal/data/reports
       - mgrep:/srv/ontoportal/data/mgrep
       - logs:/srv/ontoportal/ncbo_cron/logs
+      - bundle:/srv/ontoportal/bundle
     depends_on:
       solr-ut:
         condition: service_healthy
@@ -199,3 +201,4 @@ volumes:
   mgrep:
   logs:
   history:
+  bundle:
