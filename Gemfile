@@ -10,6 +10,7 @@ gem 'rake'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
 gem 'sinatra'
 gem 'rackup'
+gem 'pony'
 
 github 'sinatra/sinatra' do
   gem 'sinatra-contrib'

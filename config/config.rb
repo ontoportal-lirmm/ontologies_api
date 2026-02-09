@@ -27,6 +27,14 @@ module LinkedData::OntologiesAPI
     @settings.enable_unicorn_workerkiller ||= false
     @settings.req_per_second_per_ip       ||= 15
     @settings.ontology_report_path        ||= "../ontologies_report.json"
+    
+    # @settings.enable_notifications        ||= true
+    # @settings.smtp_host                   ||= "localhost"
+    # @settings.smtp_port                   ||= 25
+    # @settings.smtp_domain                 ||= "localhost"
+    # @settings.smtp_auth_type              ||= :none
+    # @settings.smtp_user                   ||= nil
+    # @settings.smtp_password               ||= nil
 
     if @settings.enable_monitoring
       puts "(API) >> Slow queries log enabled: #{@settings.slow_request_log}"

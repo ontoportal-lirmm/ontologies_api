@@ -87,12 +87,24 @@ class UsersController < ApplicationController
 
     # Create user
     post do
-      create_user
+      user = create_user
+      if not user.valid?
+        error 422, user.errors
+      end
+      user.save
+      Notifier.send_welcome_email(user)
+      reply 201, user
     end
 
     # Users get created via put because clients can assign an id (POST is only used where servers assign ids)
     put '/:username' do
-      create_user
+      user = create_user
+      if not user.valid?
+        error 422, user.errors
+      end
+      user.save
+      Notifier.send_welcome_email(user)
+      reply 201, user
     end
 
     # Update an existing submission of an user
@@ -138,12 +150,6 @@ class UsersController < ApplicationController
       error 409, "User with username `#{params["username"]}` already exists" unless user.nil?
       params.delete("role") unless current_user.admin?
       user = instance_from_params(User, params)
-      if user.valid?
-        user.save(send_notifications: send_notifications)
-      else
-        error 422, user.errors
-      end
-      reply 201, user
     end
   end
 end

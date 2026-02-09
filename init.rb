@@ -8,6 +8,8 @@ require_relative 'controllers/application_controller'
 require_dir('lib')
 require_dir('helpers')
 require_dir('models')
+require_dir('notifiers')
+require_dir('workers')
 require_dir('controllers')
 
 # Add optional trailing slash to routes

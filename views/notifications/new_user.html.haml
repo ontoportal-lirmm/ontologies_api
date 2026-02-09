@@ -1,0 +1,10 @@
+- site_name = LinkedData.settings.ui_name
+%p
+  A new user has been created on #{site_name}:
+%br
+%p
+  Username: 
+  %b= username
+%p
+  Email: 
+  %a{href: "mailto:#{email}"}= email
