@@ -198,12 +198,8 @@ class OntologiesController < ApplicationController
       if ont.valid?
         ont.save
         # Send an email to the administrator to warn him about the newly created ontology
-        begin
-          if !LinkedData.settings.admin_emails.nil? && !LinkedData.settings.admin_emails.empty?
-            LinkedData::Utils::Notifications.new_ontology(ont)
-          end
-        rescue Exception => e
-        end
+        Notifier.notify_new_ontology(ont, current_user)
+ 
       else
         error 422, ont.errors
       end

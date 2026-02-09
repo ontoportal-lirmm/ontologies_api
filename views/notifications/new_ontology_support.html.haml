@@ -1,0 +1,17 @@
+- ui_name = LinkedData.settings.ui_name 
+%p
+  A new ontology has been created on 
+  %b #{ui_name}:
+%div{style: "background: #f5f5f5; padding: 15px; border-left: 4px solid #{Notifier::PORTAL_COLOR}; margin: 20px 0;"}
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Creator: 
+    = context[:creator]
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Acronym: 
+    = context[:acronym]
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Name: 
+    = context[:name]
+%p
+  Access it here:
+  %a{href: "#{context[:ont_url]}"}= "#{context[:ont_url]}"

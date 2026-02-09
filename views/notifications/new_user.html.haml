@@ -1,10 +1,15 @@
 - site_name = LinkedData.settings.ui_name
 %p
-  A new user has been created on #{site_name}:
-%br
+  A new user account has been created on 
+  %b #{site_name}.
 %p
-  Username: 
-  %b= username
+  Account details:
+%div{style: "background: #f5f5f5; padding: 15px; border-left: 4px solid #{Notifier::PORTAL_COLOR}; margin: 20px 0;"}
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Username: 
+    = username
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Email: 
+    %a{href: "mailto:#{email}"}= email
 %p
-  Email: 
-  %a{href: "mailto:#{email}"}= email
+  This user can now access the platform with these credentials.
