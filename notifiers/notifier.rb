@@ -1,7 +1,7 @@
 require 'haml'
 
 class Notifier
-  PORTAL_COLOR = LinkedData::Models::SemanticArtefactCatalog.all.first.bring_remaining.color || "#1da40bff"
+  PORTAL_COLOR = LinkedData::Models::SemanticArtefactCatalog.all.first&.bring_remaining&.color || "#1da40bff"
   def self.send_welcome_email(user)
     
     body = render('welcome_email', {name: user.username}, true)
