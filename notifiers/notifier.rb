@@ -46,8 +46,9 @@ class Notifier
       "ontology_acronym" => note.relatedOntology.first.acronym,
       "note_id" => note.id.to_s.split("/").last,
     }
-    NewNoteNotificationJob.new.perform(options)
+    NewNoteNotificationJob.perform_async(options)
   end  
+
   def self.render(template_name, locals = {}, add_signature = false)
     template_path = File.read("views/notifications/#{template_name}.html.haml")
     content = Haml::Engine.new(template_path).render(Object.new, locals)
