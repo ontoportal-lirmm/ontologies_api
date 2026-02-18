@@ -51,6 +51,7 @@ class NotesController < ApplicationController
 
       if note.valid?
         note.save
+        Notifier.notify_new_note(note)
       else
         error 422, note.errors
       end

@@ -1,7 +1,6 @@
-require_relative 'base'  # Explicitly require the base class
 require 'pony'
 
-class EmailNotificationJob < Jobs::Base
+class EmailNotificationJob < LinkedData::Jobs::Base
   sidekiq_options queue: 'mailers'
 
   def perform(options = {})

@@ -11,7 +11,7 @@ require_dir('models')
 require_dir('notifiers')
 require_dir('workers')
 require_dir('controllers')
-
+require_dir('jobs')
 # Add optional trailing slash to routes
 Sinatra.register do
   def self.registered(app)

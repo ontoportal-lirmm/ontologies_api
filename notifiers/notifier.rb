@@ -28,13 +28,7 @@ class Notifier
 
   def self.notify_new_ontology(ontology, user)
     body = render('new_ontology_user', context: {acronym: ontology.acronym})
-    Notification.create!(
-      target: user.username,
-      title: "New ontology created",
-      body: body,
-      channels: Notification::CHANNEL_IN_APP,
-    )
-
+    
     # Notify the support team about the new ontology
     context = {
       creator: user.username,
@@ -42,21 +36,27 @@ class Notifier
       name: ontology.name,
       ont_url: LinkedData::Hypermedia.generate_links(ontology)['ui']
     }
-    body = render('new_ontology_support', {context: context}, true)
+    body = render('new_ontology_support', {context: context}, add_signature: true)
 
-    Notifier.notify_support("New ontology created", body)
+    Notifier.notify_support("New ontology created on #{LinkedData.settings.ui_name}", body)
   end
-  private
-  
-    def self.render(template_name, locals = {}, add_signature = false)
-      template_path = File.read("views/notifications/#{template_name}.html.haml")
-      content = Haml::Engine.new(template_path).render(Object.new, locals)
-      signature = ""
-      if add_signature
-        sig_path = File.read("views/notifications/_email_signature.html.haml")
-        signature = Haml::Engine.new(sig_path).render
-      end
-      "#{content}#{signature}"
+  def self.notify_new_note(note)
+
+    options = {
+      "ontology_acronym" => note.relatedOntology.first.acronym,
+      "note_id" => note.id.to_s.split("/").last,
+    }
+    NewNoteNotificationJob.new.perform(options)
+  end  
+  def self.render(template_name, locals = {}, add_signature = false)
+    template_path = File.read("views/notifications/#{template_name}.html.haml")
+    content = Haml::Engine.new(template_path).render(Object.new, locals)
+    signature = ""
+    if add_signature
+      sig_path = File.read("views/notifications/_email_signature.html.haml")
+      signature = Haml::Engine.new(sig_path).render
     end
+    "#{content}#{signature}"
+  end
   
 end

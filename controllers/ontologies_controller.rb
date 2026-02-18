@@ -197,7 +197,6 @@ class OntologiesController < ApplicationController
 
       if ont.valid?
         ont.save
-        # Send an email to the administrator to warn him about the newly created ontology
         Notifier.notify_new_ontology(ont, current_user)
  
       else

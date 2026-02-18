@@ -1,0 +1,15 @@
+- ui_name = LinkedData.settings.ui_name
+%p
+  A new note was added to 
+  = context[:ontology_acronym]
+  by 
+  %b= context[:username]
+%div{style: "background: #f5f5f5; padding: 15px; border-left: 4px solid #{Notifier::PORTAL_COLOR}; margin: 20px 0;"}
+  %p{style: "margin: 0 0 10px 0;"}
+    %strong Subject: 
+    =context[:subject]
+  %p{style: "margin: 0;"}
+    =context[:body]
+%p
+  You can respond by visiting: 
+  %a{href: "#{context[:note_url]}"}= ui_name
