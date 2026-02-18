@@ -20,8 +20,9 @@ class NewNoteNotificationJob < LinkedData::Jobs::Base
     inapp_body = Notifier.render('new_note_inapp', {context: context})
     title = "New note on #{ontology.acronym}"      
 
+    Notifier.notify_support(title, email_body)
     subscribers = Subscription.where(ontology: ontology.acronym)
-
+    
     subscribers.each do |subscriber|
       next unless subscriber.notes?
 
