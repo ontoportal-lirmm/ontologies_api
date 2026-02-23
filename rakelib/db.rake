@@ -4,8 +4,7 @@ require_relative '../config/relationalDatabase'
 namespace :db do
   desc "Create the RelationalDatabase"
   task :create do
-    RelationalDatabase.connect!
-    puts "RelationalDatabase created (or already exists via Docker)"
+    RelationalDatabase.create!
   end
 
   desc "Run migrations"

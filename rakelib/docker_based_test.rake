@@ -19,6 +19,15 @@ namespace :test do
         printf("\n")
       end
     end
+
+    def db_setup
+      # Switch to test environment for database setup
+      original_rack_env = ENV["RACK_ENV"]
+      ENV["RACK_ENV"] = "test"
+      Rake::Task["db:create"].invoke
+      Rake::Task["db:migrate"].invoke
+      ENV["RACK_ENV"] = original_rack_env
+    end
     task :down do
       #system("docker compose --profile fs --profile ag stop")
       #system("docker compose --profile fs --profile ag kill")
@@ -44,7 +53,9 @@ namespace :test do
         end
       end
       puts
+      puts
       system("docker compose ps") # TODO: remove after GH actions troubleshooting is complete
+      db_setup
       Rake::Task["test"].invoke
       Rake::Task["test:docker:down"].invoke
     end
@@ -54,6 +65,7 @@ namespace :test do
       ENV["GOO_PORT"]="9000"
       ENV["COMPOSE_PROFILES"]='fs'
       Rake::Task["test:docker:up"].invoke
+      db_setup
       Rake::Task["test"].invoke
       Rake::Task["test:docker:down"].invoke
     end
@@ -81,6 +93,7 @@ namespace :test do
           end
         end
       end
+      db_setup
       Rake::Task["test"].invoke
       Rake::Task["test:docker:down"].invoke
     end
@@ -112,6 +125,7 @@ namespace :test do
           end
         end
       end
+      db_setup
       Rake::Task["test"].invoke
       Rake::Task["test:docker:down"].invoke
     end
