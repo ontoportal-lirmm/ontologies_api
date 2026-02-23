@@ -105,3 +105,11 @@ NcboCron.config do |config|
   config.graphs_counts_report_path = './test/ontologies_report.json'
 #  config.ontology_report_path = REPORT_PATH
 end
+
+Sidekiq.configure_client do |config|
+  config.redis = { url: "redis://#{REDIS_PERSISTENT_HOST}:#{REDIS_PORT}" }
+end
+
+Sidekiq.configure_server do |config|
+  config.redis = { url: "redis://#{REDIS_PERSISTENT_HOST}:#{REDIS_PORT}" }
+end

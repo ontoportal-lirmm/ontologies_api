@@ -3,18 +3,20 @@ require 'haml'
 class Notifier
   PORTAL_COLOR = LinkedData::Models::SemanticArtefactCatalog.all.first&.bring_remaining&.color || "#1da40bff"
   def self.send_welcome_email(user)
+    username = user.respond_to?(:username) && user.username ? user.username : user.id.to_s.split("/").last
     
-    body = render('welcome_email', {name: user.username}, true)
+    body = render('welcome_email', {name: username}, true)
 
     Notification.create!(
-      target: user.username,
+      source: "System",
+      target: username,
       title: "Welcome to AgroPortal",
       body: body,
       channels: Notification::CHANNEL_IN_APP | Notification::CHANNEL_EMAIL,
     )
 
     # noitfy the support team
-    body = render('new_user', {username: user.username, email: user.email}, true)
+    body = render('new_user', {username: username, email: user.email}, true)
     Notifier.notify_support("New user created", body)
   end
 
