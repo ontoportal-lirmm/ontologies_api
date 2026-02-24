@@ -75,7 +75,7 @@ after_fork do |server, worker|
   # Unix forking works, we need to make sure we aren't using any of the parent's
   # sockets, e.g. db connection
 
-  defined?(ActiveRecord::Base) and ActiveRecord::Base.establish_connection
+  defined?(ActiveRecord::Base) and RelationalDatabase.connect!
   # Redis and Memcached would go here but their connections are established
   # on demand, so the master never opens a socket
 end

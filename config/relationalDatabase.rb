@@ -5,8 +5,19 @@ require 'erb'
 module RelationalDatabase
   class << self
     def connect!
-      ActiveRecord::Base.establish_connection(load_config[environment])
-      puts "(API) >> Connected to PostgreSQL database: #{ActiveRecord::Base.connection_db_config.database}"
+      env = environment
+      config = load_config
+      
+      ActiveRecord::Base.configurations = config
+      
+      begin
+        ActiveRecord::Base.establish_connection(env.to_sym)
+        puts "(API) >> Connected to PostgreSQL database: #{ActiveRecord::Base.connection_db_config.database} (env: #{env})"
+      rescue => e
+        puts "(API) >> ERROR: Failed to connect to database for env '#{env}': #{e.message}"
+        puts "(API) >> Available configs: #{ActiveRecord::Base.configurations.configs_for.map(&:env_name).inspect}"
+        raise e
+      end
     end
 
     def create!
@@ -34,10 +45,12 @@ module RelationalDatabase
     private
 
     def load_config
-      @load_config ||= YAML.safe_load(
-        ERB.new(File.read(config_file)).result,
-        aliases: true
-      )
+      @load_config ||= begin
+        YAML.safe_load(
+          ERB.new(File.read(config_file)).result,
+          aliases: true
+        )
+      end
     end
 
     def environment
