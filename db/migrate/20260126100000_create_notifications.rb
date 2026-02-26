@@ -6,7 +6,6 @@ class CreateNotifications < ActiveRecord::Migration[7.1]
       t.string :title, null: false
       t.text :body
       t.integer :channels, null: false, default: 1 
-      t.boolean :notify_support, default: false
 
       t.datetime :created_at, null: false
       t.datetime :seen_at
