@@ -4,7 +4,7 @@
   - default
   - mailers
   - critical
-
+  - submissions
 #:timeout: 25
 
 :verbose: true

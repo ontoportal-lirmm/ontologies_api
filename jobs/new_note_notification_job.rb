@@ -22,8 +22,10 @@ class NewNoteNotificationJob < LinkedData::Jobs::Base
 
     Notifier.notify_support(title, email_body)
     subscribers = Subscription.where(ontology: ontology.acronym)
+    creator_id = note.creator.bring(:username).username
     
     subscribers.each do |subscriber|
+      next if subscriber.user == creator_id
       next unless subscriber.notes?
 
       EmailNotificationJob.perform_async({

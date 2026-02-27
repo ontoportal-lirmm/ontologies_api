@@ -30,6 +30,8 @@ jobs:
       - name: Run unit tests
         run: |
           cp .env.sample .env
+          # Create test database in the postgres container
+          docker compose exec -T postgres-ut psql -U ontoportal -d ontologies_api_development -c "CREATE DATABASE ontologies_api_test;" 2>/dev/null || true
           ci_env=`bash <(curl -s https://codecov.io/env)`
           GOO_SLICES=${{ matrix.goo-slice }} bundle exec rake test:docker:${{ matrix.triplestore }}
 

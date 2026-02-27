@@ -52,7 +52,7 @@ class OntologiesController < ApplicationController
     # on demand ontology pull
     post "/:acronym/pull" do
       LOGGER.info "Forcing the pull and processing of ontology #{params['acronym']}"
-      actions = NcboCron::Models::OntologySubmissionParser::ACTIONS.dup
+      actions = SubmissionProcessJob::PROCESS_ACTIONS.dup
       actions[:remote_pull] = true
       ont = Ontology.find(params["acronym"]).first
       error 404, "You must provide a valid `acronym` to retrieve an ontology" if ont.nil?
@@ -63,7 +63,10 @@ class OntologiesController < ApplicationController
       check_last_modified(latest)
       latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
       error 404, "Ontology #{params["acronym"]} is not configured to be remotely pulled" unless latest.remote_pulled?
-      NcboCron::Models::OntologySubmissionParser.new.queue_submission(latest, actions)
+      SubmissionProcessJob.perform_async({
+        "submission_id" => latest.id.to_s,
+        "actions" => actions.transform_keys(&:to_s)
+      })
       LOGGER.info "Ontology #{params['acronym']} has been queued for pull and processing"
       halt 204
     end
@@ -84,8 +87,10 @@ class OntologiesController < ApplicationController
       if submission.valid?
         submission.save
         if (params.keys & REQUIRES_REPROCESS).length > 0 || request_has_file?
-          cron = NcboCron::Models::OntologySubmissionParser.new
-          cron.queue_submission(submission, {all: true})
+          SubmissionProcessJob.perform_async({
+            "submission_id" => submission.id.to_s,
+            "actions" => { "all" => true }
+          })
         end
       else
         error 422, submission.errors

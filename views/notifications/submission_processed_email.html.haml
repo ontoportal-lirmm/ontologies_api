@@ -1,0 +1,14 @@
+- ui_name = LinkedData.settings.ui_name
+%p
+  %b= context[:ontology_name]
+  (#{context[:ontology_acronym]}) was processed for use in #{ui_name}. Here are the results:
+%div{style: "background: #f5f5f5; padding: 15px; border-left: 4px solid #{Notifier::PORTAL_COLOR}; margin: 20px 0;"}
+  - context[:statuses].each do |status|
+    %p{style: "margin: 0 0 5px 0;"}= status
+%p
+  Please contact
+  %a{href: "mailto:#{LinkedData.settings.email_sender}"}= LinkedData.settings.email_sender
+  if you have questions.
+%p
+  The ontology can be
+  %a{href: context[:ontology_location]} browsed in #{ui_name}
