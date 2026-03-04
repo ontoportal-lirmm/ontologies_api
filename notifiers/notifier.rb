@@ -49,6 +49,28 @@ class Notifier
 
     Notifier.notify_support("New ontology created on #{LinkedData.settings.ui_name}", body)
   end
+
+  def self.notify_new_project(project, user)
+    body = render('new_project_user', context: {acronym: project.acronym})
+
+    # Notify users who are subscribed to new projects
+    NewProjectNotificationJob.perform_async({
+      "project_acronym" => project.acronym,
+      "creator_username" => user.username,
+      "proj_url" => LinkedData::Hypermedia.generate_links(project)['ui']
+    })
+
+    # Notify the support team about the new project
+    context = {
+      creator: user.username,
+      acronym: project.acronym,
+      name: project.name,
+      proj_url: LinkedData::Hypermedia.generate_links(project)['ui']
+    }
+    body = render('new_project_support', {context: context}, add_signature: true)
+
+    Notifier.notify_support("New project created on #{LinkedData.settings.ui_name}", body)
+  end
   def self.notify_new_note(note)
 
     options = {

@@ -81,6 +81,7 @@ class ProjectsController < ApplicationController
       m = instance_from_params(MODEL, params)
       if m.valid?
         m.save
+        Notifier.notify_new_project(m, current_user)
         reply 201, m
       else
         error 422, m.errors
