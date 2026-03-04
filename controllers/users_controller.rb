@@ -85,6 +85,15 @@ class UsersController < ApplicationController
       reply user.createdOntologies
     end
 
+    # Display subscriptions for a single user
+    get '/:username/subscriptions' do
+      user = current_user
+      error 401, "You must be logged in to retrieve notifications" if user.username.nil?
+      user = current_user.username.to_s
+      subscriptions = Subscription.where(user: user)
+      page_object(subscriptions, subscriptions.count).to_json
+    end
+
     # Create user
     post do
       user = create_user
