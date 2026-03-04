@@ -31,6 +31,13 @@ class Notifier
   def self.notify_new_ontology(ontology, user)
     body = render('new_ontology_user', context: {acronym: ontology.acronym})
     
+    # Notify users who are subscribed to new ontologies
+    NewOntologyNotificationJob.perform_async({
+      "ontology_acronym" => ontology.acronym,
+      "creator_username" => user.username,
+      "ont_url" => LinkedData::Hypermedia.generate_links(ontology)['ui']
+    })
+
     # Notify the support team about the new ontology
     context = {
       creator: user.username,
