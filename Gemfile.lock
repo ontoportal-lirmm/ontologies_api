@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/agroportal/ontologies_linked_data.git
-  revision: b00e80e8dfa50049a5780467e0effe692d827c58
+  revision: e34ef6d84858c7235a6a28be77aca4a528e84b32
   branch: development
   specs:
     ontologies_linked_data (0.0.1)
@@ -346,7 +346,7 @@ GEM
       net-protocol
     net-ssh (7.3.0)
     netrc (0.11.0)
-    oj (3.16.15)
+    oj (3.16.16)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     omni_logger (0.1.4)
