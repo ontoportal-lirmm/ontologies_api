@@ -51,12 +51,12 @@ gem 'rack-contrib'
 gem 'pandoc-ruby'
 
 # NCBO gems (can be from a local dev path or from rubygems/git)
-gem 'ncbo_annotator', git: 'https://github.com/ontoportal-lirmm/ncbo_annotator.git', branch: 'development'
-gem 'ncbo_cron', git: 'https://github.com/ontoportal-lirmm/ncbo_cron.git', branch: 'development'
-gem 'ncbo_ontology_recommender', git: 'https://github.com/ontoportal-lirmm/ncbo_ontology_recommender.git', branch: 'development'
-gem 'ontologies_linked_data', github: 'ontoportal-lirmm/ontologies_linked_data', branch: 'development'
-gem 'goo', github: 'ontoportal-lirmm/goo', branch: 'development'
-gem 'sparql-client', github: 'ontoportal-lirmm/sparql-client', branch: 'development'
+gem 'ncbo_annotator', git: 'https://github.com/agroportal/ncbo_annotator.git', branch: 'development'
+gem 'ncbo_cron', git: 'https://github.com/agroportal/ncbo_cron.git', branch: 'development'
+gem 'ncbo_ontology_recommender', git: 'https://github.com/agroportal/ncbo_ontology_recommender.git', branch: 'development'
+gem 'ontologies_linked_data', github: 'agroportal/ontologies_linked_data', branch: 'development'
+gem 'goo', github: 'agroportal/goo', branch: 'development'
+gem 'sparql-client', github: 'agroportal/sparql-client', branch: 'development'
 
 group :development do
   # bcrypt_pbkdf and ed35519 is required for capistrano deployments when using ed25519 keys; see https://github.com/miloserdow/capistrano-deploy/issues/42

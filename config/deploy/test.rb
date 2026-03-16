@@ -4,8 +4,8 @@
 # server in each group is considered to be the first
 # unless any hosts have the primary property set.
 # Don't declare `role :all`, it's a meta role
-role :app, %w{testportal.lirmm.fr}
-role :db, %w{testportal.lirmm.fr} # sufficient to run db:migrate only on one system
+role :app, %w{test.agroportal.eu}
+role :db, %w{test.agroportal.eu} # sufficient to run db:migrate only on one system
 # Extended Server Syntax
 # ======================
 # This can be used to drop a more detailed server
