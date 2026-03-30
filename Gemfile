@@ -10,6 +10,7 @@ gem 'rake'
 gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding rexml gem to the Gemfile
 gem 'sinatra'
 gem 'rackup'
+gem 'sidekiq', '7.3.9'
 
 github 'sinatra/sinatra' do
   gem 'sinatra-contrib'
@@ -54,7 +55,7 @@ gem 'pandoc-ruby'
 gem 'ncbo_annotator', git: 'https://github.com/agroportal/ncbo_annotator.git', branch: 'development'
 gem 'ncbo_cron', git: 'https://github.com/agroportal/ncbo_cron.git', branch: 'development'
 gem 'ncbo_ontology_recommender', git: 'https://github.com/agroportal/ncbo_ontology_recommender.git', branch: 'development'
-gem 'ontologies_linked_data', github: 'agroportal/ontologies_linked_data', branch: 'development'
+gem 'ontologies_linked_data', github: 'agroportal/ontologies_linked_data', branch: 'feat/sidekiq-integration'
 gem 'goo', github: 'agroportal/goo', branch: 'development'
 gem 'sparql-client', github: 'agroportal/sparql-client', branch: 'development'
 

@@ -29,6 +29,10 @@ require_relative 'lib/rack/param_translator'
 require_relative 'lib/rack/slice_detection'
 require_relative 'lib/rack/request_lang'
 
+# sidekiq requirements
+require 'sidekiq/web'
+require 'sidekiq'
+
 # Logging setup
 require_relative 'config/logging'
 
