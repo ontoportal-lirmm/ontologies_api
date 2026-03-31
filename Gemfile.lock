@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/agroportal/ontologies_linked_data.git
-  revision: 3c3ff6749e7332521de5f9e43a22d1c47050d485
+  revision: bc036b27e82e338fd926f1824a893ba3dff8b2ac
   branch: feat/sidekiq-integration
   specs:
     ontologies_linked_data (0.0.1)
