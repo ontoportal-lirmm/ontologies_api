@@ -33,12 +33,7 @@ require_relative 'lib/rack/request_lang'
 require 'sidekiq/web'
 require 'sidekiq'
 
-# We need to require deterministic - that is why we have the sort.
-jobs = Dir.glob("jobs/**/*.rb").sort
 
-jobs.each do |job|
-  require_relative job
-end
 # Logging setup
 require_relative 'config/logging'
 

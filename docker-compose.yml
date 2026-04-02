@@ -66,6 +66,7 @@ services:
     volumes:
       - app_api:/srv/ontoportal/ontologies_api
       - repository:/srv/ontoportal/data/repository
+      - reports:/srv/ontoportal/data/reports
     depends_on:
       redis-ut:
         condition: service_healthy

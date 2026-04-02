@@ -103,5 +103,5 @@ NcboCron.config do |config|
   config.redis_host = REDIS_PERSISTENT_HOST.to_s
   config.redis_port = REDIS_PORT.to_i
   config.graphs_counts_report_path = './test/ontologies_report.json'
-#  config.ontology_report_path = REPORT_PATH
+  config.ontology_report_path = './test/ontologies_report.json'
 end

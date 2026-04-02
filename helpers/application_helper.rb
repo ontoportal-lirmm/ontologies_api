@@ -425,6 +425,22 @@ module Sinatra
         env["REMOTE_USER"] || LinkedData::Models::User.new
       end
 
+      def set_current_user(username)
+        return if username.nil? || username.to_s.strip.empty?
+
+        user = LinkedData::Models::User.find(username).first
+        return unless user
+
+        user.bring_remaining
+
+                Thread.current[:remote_user] = user
+      end
+
+      def clear_current_user
+        Thread.current[:current_user] = nil
+        Thread.current[:env] = nil
+      end
+
       def include_param_contains?(str)
         str = str.to_s unless str.is_a?(String)
         class_params_include = params["include_for_class"] && params["include_for_class"].include?(str.to_sym)

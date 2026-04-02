@@ -1,6 +1,8 @@
 require 'logger'
 
 class SubmissionProcessJob < LinkedData::Jobs::Base
+  include Sinatra::Helpers::ApplicationHelper
+  
   sidekiq_options queue: 'submissions'
 
   PROCESS_ACTIONS = {
@@ -17,6 +19,7 @@ class SubmissionProcessJob < LinkedData::Jobs::Base
   }.freeze
 
   def perform(options = {})
+    set_current_user(options["username"])
     submission_id = options["submission_id"]
     actions = normalize_actions(options["actions"] || { "all" => true })
 
@@ -74,8 +77,8 @@ class SubmissionProcessJob < LinkedData::Jobs::Base
     end
 
     NcboCron::Models::OntologiesReport.new(multi_logger).refresh_report([sub.ontology.acronym])
-
-    Notifier.notify_submission_processed(sub)
+  
+    clear_current_user
   end
 
   private

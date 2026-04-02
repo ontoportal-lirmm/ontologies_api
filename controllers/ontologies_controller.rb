@@ -64,6 +64,7 @@ class OntologiesController < ApplicationController
       latest.bring(*OntologySubmission.goo_attrs_to_load(includes_param))
       error 404, "Ontology #{params["acronym"]} is not configured to be remotely pulled" unless latest.remote_pulled?
       SubmissionProcessJob.perform_async({
+        "username" => current_user ? current_user.username.to_s : nil,
         "submission_id" => latest.id.to_s,
         "actions" => actions.transform_keys(&:to_s)
       })
@@ -88,6 +89,7 @@ class OntologiesController < ApplicationController
         submission.save
         if (params.keys & REQUIRES_REPROCESS).length > 0 || request_has_file?
           SubmissionProcessJob.perform_async({
+            "username" => current_user ? current_user.username.to_s : nil,
             "submission_id" => submission.id.to_s,
             "actions" => { "all" => true }
           })

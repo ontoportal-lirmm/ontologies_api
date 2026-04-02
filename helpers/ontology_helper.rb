@@ -46,7 +46,8 @@ module Sinatra
 
         if ont_submission.valid?
           ont_submission.save
-          SubmissionProcessJob.perform_async({
+          SubmissionProcessJob.new.perform({
+            "username" => current_user ? current_user.username.to_s : nil,
             "submission_id" => ont_submission.id.to_s,
             "actions" => { "all" => true },
             "params" => ::JSON.parse(params.to_json)

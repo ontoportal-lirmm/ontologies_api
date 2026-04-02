@@ -82,6 +82,7 @@ class OntologySubmissionsController < ApplicationController
         submission.save
         if (params.keys & REQUIRES_REPROCESS).length > 0 || request_has_file?
           SubmissionProcessJob.perform_async({
+            "username" => current_user ? current_user.username.to_s : nil,
             "submission_id" => submission.id.to_s,
             "actions" => { "all" => true }
           })

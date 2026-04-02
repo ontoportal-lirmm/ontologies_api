@@ -7,6 +7,7 @@ end
 require_relative 'controllers/application_controller'
 require_dir('lib')
 require_dir('helpers')
+require_dir('jobs')
 require_dir('models')
 require_dir('controllers')
 

@@ -70,6 +70,7 @@ class AdminController < ApplicationController
       check_last_modified(latest)
       latest.bring(*submission_include_params)
       SubmissionProcessJob.perform_async({
+        "username" => current_user ? current_user.username.to_s : nil,
         "submission_id" => latest.id.to_s,
         "actions" => actions.transform_keys(&:to_s)
       })
