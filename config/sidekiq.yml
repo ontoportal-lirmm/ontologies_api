@@ -3,7 +3,7 @@
 :queues:
   - default
   - mailers
-  - critical
+  - submissions
 
 #:timeout: 25
 

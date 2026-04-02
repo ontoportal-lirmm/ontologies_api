@@ -54,7 +54,7 @@ class AdminController < ApplicationController
     end
 
     put "/ontologies/:acronym" do
-      actions = NcboCron::Models::OntologySubmissionParser::ACTIONS.dup
+      actions = SubmissionProcessJob::PROCESS_ACTIONS.dup
       actions[:all] = false
       error_message = "You must provide valid action(s) for ontology processing. Valid actions: ?actions=#{actions.keys.join(",")}"
       actions_param = params["actions"]
@@ -69,7 +69,10 @@ class AdminController < ApplicationController
       error 404, "Ontology #{params["acronym"]} contains no submissions" if latest.nil?
       check_last_modified(latest)
       latest.bring(*submission_include_params)
-      NcboCron::Models::OntologySubmissionParser.new.queue_submission(latest, actions)
+      SubmissionProcessJob.perform_async({
+        "submission_id" => latest.id.to_s,
+        "actions" => actions.transform_keys(&:to_s)
+      })
       halt 204
     end
 
