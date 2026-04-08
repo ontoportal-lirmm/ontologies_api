@@ -31,8 +31,9 @@ require_relative 'lib/rack/request_lang'
 
 # sidekiq requirements
 require 'sidekiq'
+require 'sidekiq-cron'
 require 'sidekiq/web'
-
+require 'sidekiq/cron/web'
 # Logging setup
 require_relative 'config/logging'
 
