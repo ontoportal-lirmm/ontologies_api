@@ -30,9 +30,8 @@ require_relative 'lib/rack/slice_detection'
 require_relative 'lib/rack/request_lang'
 
 # sidekiq requirements
-require 'sidekiq/web'
 require 'sidekiq'
-
+require 'sidekiq/web'
 
 # Logging setup
 require_relative 'config/logging'
