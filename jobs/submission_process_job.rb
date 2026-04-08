@@ -76,7 +76,7 @@ class SubmissionProcessJob < LinkedData::Jobs::Base
       multi_logger.error "Submission #{submission_id} parsing failed"
     end
 
-    NcboCron::Models::OntologiesReport.new(multi_logger).refresh_report([sub.ontology.acronym])
+    LinkedData::Jobs::OntologiesReportJob.perform_async({ "acronyms" => [sub.ontology.acronym] })
   
     clear_current_user
   end

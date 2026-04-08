@@ -136,7 +136,7 @@ class OntologiesController < ApplicationController
       error 422, "You must provide an existing `acronym` to delete" if ont.nil?
       ont.delete
       # update ontologies report file, if exists
-      NcboCron::Models::OntologiesReport.new.delete_ontologies_from_report([params["acronym"]])
+      LinkedData::Jobs::OntologiesReportJob.delete_ontologies_from_report([params["acronym"]])
       halt 204
     end
 
@@ -232,7 +232,7 @@ class OntologiesController < ApplicationController
           latest_any = ont.latest_submission(status: :any)
 
           if latest_any
-            log_path = "#{LinkedData.settings.repository_folder}/#{NcboCron::Models::OntologiesReport.new.log_file(params["acronym"], latest_any.submissionId.to_s)}"
+            log_path = "#{LinkedData.settings.repository_folder}/#{LinkedData::Jobs::OntologiesReportJob.log_file(params["acronym"], latest_any.submissionId.to_s)}"
 
             if !log_path.empty? && File.file?(log_path)
               file = File.open(log_path, "rb")

@@ -41,7 +41,7 @@ class AdminController < ApplicationController
     end
 
     get "/ontologies/:acronym/log" do
-      ont_report = NcboCron::Models::OntologiesReport.new.ontologies_report(false)
+      ont_report = LinkedData::Jobs::OntologiesReportJob.ontologies_report(false)
       log_path = ont_report[:ontologies].has_key?(params["acronym"].to_sym) ? "#{LinkedData.settings.repository_folder}/#{ont_report[:ontologies][params["acronym"].to_sym][:logFilePath]}" : ''
       log_contents = ''
 
@@ -94,29 +94,27 @@ class AdminController < ApplicationController
 
     get "/ontologies_report" do
       suppress_error = params["suppress_error"].eql?('true') # default = false
-      reply NcboCron::Models::OntologiesReport.new.ontologies_report(suppress_error)
+      reply LinkedData::Jobs::OntologiesReportJob.ontologies_report(suppress_error)
     end
 
     post "/ontologies_report" do
       ontologies = ontologies_param_to_acronyms(params)
-      args = {name: "ontologies_report", message: "refreshing ontologies report"}
-      process_id = process_long_operation(900, args) do |args|
-        NcboCron::Models::OntologiesReport.new.refresh_report(ontologies)
-      end
+      process_id = LinkedData::Jobs::OntologiesReportJob.perform_async({ "acronyms" => ontologies })
+      redis.setex(process_id, 900, MultiJson.dump("processing"))
       reply(process_id: process_id)
     end
 
     get "/ontologies_report/:process_id" do
-      process_id = MultiJson.load(redis.get(params["process_id"]))
+      status = MultiJson.load(redis.get(params["process_id"]))
 
-      if process_id.nil?
+      if status.nil?
         error 404, "Process id #{params["process_id"]} does not exit"
       else
-        if process_id === "done"
-          reply NcboCron::Models::OntologiesReport.new.ontologies_report(false)
+        if status === "done"
+          reply LinkedData::Jobs::OntologiesReportJob.ontologies_report(false)
         else
           # either "processing" OR errors {errors: ["errorA", "errorB"]}
-          reply process_id
+          reply status
         end
       end
     end
