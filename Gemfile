@@ -11,6 +11,7 @@ gem 'rexml' # Investigate why unicorn fails to start under ruby 3 without adding
 gem 'sinatra'
 gem 'rackup'
 gem 'sidekiq', '7.3.9'
+gem 'sidekiq-cron', '2.3.0'
 
 github 'sinatra/sinatra' do
   gem 'sinatra-contrib'
