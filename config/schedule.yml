@@ -9,3 +9,8 @@ mapping_counts_job:
   queue: default
   args: 
     current_user: "cron-admin"
+
+dictionary_generation_job:
+  cron: "30 3 * * *"
+  class: "Jobs::DictionaryGenerationJob"
+  queue: default
