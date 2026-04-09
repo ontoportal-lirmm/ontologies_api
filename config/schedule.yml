@@ -2,3 +2,10 @@ ontologies_report_job:
   cron: "30 1 * * *"
   class: "LinkedData::Jobs::OntologiesReportJob"
   queue: default
+
+mapping_counts_job:
+  cron: "30 0 * * 6"
+  class: "Jobs::MappingCountsJob"
+  queue: default
+  args: 
+    current_user: "cron-admin"
