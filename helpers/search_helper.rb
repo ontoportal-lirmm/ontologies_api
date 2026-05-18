@@ -434,8 +434,8 @@ module Sinatra
           next unless old_class
           doc[:submission] = old_class.submission
           doc[:properties] = MultiJson.load(doc.delete(:propertyRaw)) if include_param_contains?(:properties)
+          doc[:prefLabel] = pref_label_by_language(doc)
           instance = LinkedData::Models::Class.read_only(doc)
-          instance.prefLabel = pref_label_by_language(doc)
           classes_hash[ont_uri_class_uri] = instance
         end
 
